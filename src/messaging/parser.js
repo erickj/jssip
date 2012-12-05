@@ -1,8 +1,10 @@
-goog.provide("jssip.messaging.Parser");
+goog.provide('jssip.messaging.Parser');
+
 
 
 /**
  * @implements {goog.string.Parser}
+ * @constructor
  */
 jssip.messaging.Parser = function() {
   /**
@@ -28,10 +30,10 @@ jssip.messaging.Parser.prototype.registerHeaderParser =
   headerShortName = headerShortName.toLowerCase();
 
   if (this.headerParsers_[headerName]) {
-    throw new Error("Already registered header parser for: " + headerName);
+    throw new Error('Already registered header parser for: ' + headerName);
   }
   if (this.headerParsers_[headerShortName]) {
-    throw new Error("Already registered header parser for: " + headerShortName);
+    throw new Error('Already registered header parser for: ' + headerShortName);
   }
 
   this.headerParsers_[headerName] = headerParser;
@@ -48,7 +50,7 @@ jssip.Messaging.Parser.prototype.registerUriParser =
   uriScheme = uriScheme.toLowerCase();
 
   if (this.uriParsers_[uriScheme]) {
-    throw new Error("Already registered URI parser for: " + uriScheme);
+    throw new Error('Already registered URI parser for: ' + uriScheme);
   }
 
   this.uriParsers_[uriScheme] = uriParser;
