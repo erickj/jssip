@@ -56,7 +56,7 @@ end
 
 def get_js_script_name(target, type='')
   script_name = target.downcase.gsub(/^#{NAMESPACE}\./,'')
-  script_name << '_test' if is_target_spec(target)
+  script_name.prepend('test_') if is_target_spec(target)
   script_name << type
   script_name << '.js'
 end
