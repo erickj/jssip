@@ -57,16 +57,12 @@ namespace :test do
   desc 'Generate spec runner file for target'
   task :genspecrunner, :target do |t, args|
     target = args[:target]
-    unless Utils::is_target_spec?(target)
+    unless Utils.is_target_spec?(target)
       raise 'Unable to generate spec runner for non spec target'
     end
 
     Rake::Task[:concat].invoke(target)
-    template_obj = SpecRunnerBindingProvider.new
-    template_obj.target = target
-    template_obj.gen_file_name = File.join(BUILD_DIR, Utils.get_js_script_name(target))
-    template = File.read(SPECRUNNER_TPL)
-    puts ERB.new(template).result(template_obj.get_binding)
+    Utils.build_specrunner(target, Utils.get_html_script_name(target))
   end
 end
 
@@ -80,18 +76,38 @@ end
 
 class Utils
   def self.is_target_spec?(target)
-    !!target.match(/.*spec/i)
+    !!target.match(/.*Spec/)
   end
 
   def self.get_js_script_name(target, type='')
+    get_script_prefix(target, type) << '.js'
+  end
+
+  def self.get_html_script_name(target)
+    get_script_prefix(target) << '.html'
+  end
+
+  def self.get_script_prefix(target, type='')
     script_name = target.downcase.gsub(/^#{NAMESPACE}\./,'')
     script_name.prepend('test_') if is_target_spec?(target)
-    script_name << type
-    script_name << '.js'
+    type.empty? ? script_name : script_name << '.' << type
   end
 
   def self.get_script_deps(js_target)
     build_js(js_target, '--output_mode=list')
+  end
+
+  def self.build_specrunner(target, file)
+    template_obj = SpecRunnerBindingProvider.new
+    template_obj.target = target
+    template_obj.gen_file_name = Utils.get_js_script_name(target)
+    template = File.read(SPECRUNNER_TPL)
+
+    path = File.join(BUILD_DIR, file)
+    File.open(path, 'w') do |f|
+      f.write(ERB.new(template).result(template_obj.get_binding))
+    end
+    puts "Wrote file #{path}"
   end
 
   def self.build_script(filename, js_target)
