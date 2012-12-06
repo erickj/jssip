@@ -30,6 +30,12 @@ task :clean do
   Rake::Task[:init].invoke
 end
 
+namespace :compiler do
+  task :help do
+    puts %x{java -jar #{CLOSURE_COMPILER} --help 2>&1}
+  end
+end
+
 desc 'Lists build dependencies for [target]'
 task :deps, [:target] do |t, args|
   puts Utils.get_script_deps(args[:target] || DEFAULT_TARGET)
@@ -114,8 +120,10 @@ class Utils
     path = File.join(BUILD_DIR, filename)
     puts "Creating #{path} for namespace #{js_target}..."
 
-    args = ['--output_mode=script']
+    args = ['--output_mode=compiled', "--compiler_jar=#{CLOSURE_COMPILER}"]
     args.push('-f "--flagfile=compiler.warning.flags"')
+    args.push('-f "--formatting=PRETTY_PRINT"')
+
     File.open(path, 'w') do |f|
       content = build_js(js_target, args)
       f.write(content)
@@ -129,11 +137,8 @@ class Utils
 
     args = ['--output_mode=compiled', "--compiler_jar=#{CLOSURE_COMPILER}"]
 
-    # TODO(erick): This seems to be broken in closurebuilder.py currently, it
-    # passes the compiler flags after the --js flags.  The compiler complains
-    # about this.
-    # args.push('-f "--compilation_level ADVANCED_OPTIMIZATIONS"') if advanced
-   args.push('-f "--flagfile=compiler.flags"')
+    args.push('-f "--compilation_level=ADVANCED_OPTIMIZATIONS"') if advanced
+    args.push('-f "--flagfile=compiler.flags"')
 
     File.open(path, 'w') do |f|
       content = build_js(js_target, args)
