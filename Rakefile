@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'open3'
+require 'yaml'
 
 BUILD_DIR = 'build'
 TEST_OUT_DIR = 'test_out'
@@ -7,6 +8,8 @@ TEST_OUT_DIR = 'test_out'
 CLOSURE_BUILDER = 'lib/closure-library/bin/build/closurebuilder.py'
 CLOSURE_BUILDER_ROOTS = '--root=lib/closure-library --root=lib/closure-library-third-party --root=src'
 CLOSURE_COMPILER = 'lib/closure-compiler/compiler.jar'
+
+DEFAULT_TARGET = 'jssip.Endpoint'
 
 task :default => [:package]
 
@@ -23,23 +26,23 @@ task :clean do
 end
 
 desc 'Concat files to sip.js'
-task :concat => :init do
-  build_script('sip.js', 'jssip.Endpoint')
+task :concat, [:target] => [:init] do |t, args|
+  build_script('sip.js', args[:target] || DEFAULT_TARGET)
 end
 
-desc 'Deps list'
-task :deps, :target do |t, args|
-  puts get_script_deps(args[:target])
+desc 'Lists build dependencies for [target]'
+task :deps, [:target] do |t, args|
+  puts get_script_deps(args[:target] || DEFAULT_TARGET)
 end
 
-desc 'Minify Javascript'
-task :minify => :init do
-  build_compiled('sip.min.js', 'jssip.Endpoint')
+desc 'Minify Javascript for [target]'
+task :minify, [:target] => [:init] do |t, args|
+  build_compiled('sip.min.js', args[:target] || DEFAULT_TARGET)
 end
 
-desc 'Compile Javascript'
-task :compile => :init do
-  build_compiled('sip.compiled.js', 'jssip.Endpoint', true)
+desc 'Compile Javascript for [target]'
+task :compile, [:target] => [:init] do |t, args|
+  build_compiled('sip.compiled.js', args[:target] || DEFAULT_TARGET, true)
 end
 
 def get_script_deps(js_target)
