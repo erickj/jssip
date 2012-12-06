@@ -10,6 +10,7 @@ CLOSURE_BUILDER_ROOTS = '--root=lib/closure-library --root=lib/closure-library-t
 CLOSURE_BUILDER_ROOTS_SPEC = CLOSURE_BUILDER_ROOTS + ' --root=spec'
 CLOSURE_COMPILER = 'lib/closure-compiler/compiler.jar'
 
+NAMESPACE = 'jssip'
 DEFAULT_TARGET = 'jssip.Endpoint'
 
 task :default => [:package]
@@ -26,24 +27,38 @@ task :clean do
   FileUtils.rm_r(TEST_OUT_DIR, :force => true)
 end
 
-desc 'Concat files to sip.js'
-task :concat, [:target] => [:init] do |t, args|
-  build_script('sip.js', args[:target] || DEFAULT_TARGET)
-end
-
 desc 'Lists build dependencies for [target]'
 task :deps, [:target] do |t, args|
   puts get_script_deps(args[:target] || DEFAULT_TARGET)
 end
 
+desc 'Concat files to sip.js'
+task :concat, [:target] => [:init] do |t, args|
+  target = args[:target] || DEFAULT_TARGET
+  build_script(get_js_script_name(target), target)
+end
+
 desc 'Minify Javascript for [target]'
 task :minify, [:target] => [:init] do |t, args|
-  build_compiled('sip.min.js', args[:target] || DEFAULT_TARGET)
+  target = args[:target] || DEFAULT_TARGET
+  build_compiled(get_js_script_name(target, 'min'), target)
 end
 
 desc 'Compile Javascript for [target]'
 task :compile, [:target] => [:init] do |t, args|
-  build_compiled('sip.compiled.js', args[:target] || DEFAULT_TARGET, true)
+  target = args[:target] || DEFAULT_TARGET
+  build_compiled(get_js_script_name(target, 'opt'), target, true)
+end
+
+def is_target_spec(target)
+  !!target.match(/.*spec/i)
+end
+
+def get_js_script_name(target, type='')
+  script_name = target.downcase.gsub(/^#{NAMESPACE}\./,'')
+  script_name << '_test' if is_target_spec(target)
+  script_name << type
+  script_name << '.js'
 end
 
 def get_script_deps(js_target)
@@ -58,6 +73,7 @@ def build_script(filename, js_target)
     content = build_js(js_target, '--output_mode=script')
     f.write(content)
   end
+  puts "Wrote file #{path}"
 end
 
 def build_compiled(filename, js_target, advanced=false)
@@ -75,10 +91,11 @@ def build_compiled(filename, js_target, advanced=false)
     content = build_js(js_target, args)
     f.write(content)
   end
+  puts "Wrote file #{path}"
 end
 
 def build_js(js_target, *build_args)
-  build_roots = js_target.match(/.*spec/i) ? CLOSURE_BUILDER_ROOTS_SPEC : CLOSURE_BUILDER_ROOTS
+  build_roots = is_target_spec(js_target) ? CLOSURE_BUILDER_ROOTS_SPEC : CLOSURE_BUILDER_ROOTS
   stdin, stdout, stderr, wait_thrd = Open3.popen3 <<EOS
     #{CLOSURE_BUILDER} \
       #{build_roots} \
