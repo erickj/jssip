@@ -114,8 +114,10 @@ class Utils
     path = File.join(BUILD_DIR, filename)
     puts "Creating #{path} for namespace #{js_target}..."
 
+    args = ['--output_mode=script']
+    args.push('-f "--flagfile=compiler.warning.flags"')
     File.open(path, 'w') do |f|
-      content = build_js(js_target, '--output_mode=script')
+      content = build_js(js_target, args)
       f.write(content)
     end
     puts "Wrote file #{path}"
@@ -131,6 +133,7 @@ class Utils
     # passes the compiler flags after the --js flags.  The compiler complains
     # about this.
     # args.push('-f "--compilation_level ADVANCED_OPTIMIZATIONS"') if advanced
+   args.push('-f "--flagfile=compiler.flags"')
 
     File.open(path, 'w') do |f|
       content = build_js(js_target, args)
@@ -148,10 +151,13 @@ class Utils
       #{build_args.join(' ')}
 EOS
 
+    err = stderr.read
     if wait_thrd.value.exitstatus > 0
       $stderr.puts "Error running #{CLOSURE_BUILDER}:"
       $stderr.puts
-      $stderr.puts stderr.read
+      $stderr.puts err
+    elsif err.length > 0
+      $stderr.puts err
     end
 
     ret = stdout.read

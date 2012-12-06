@@ -1,5 +1,8 @@
 goog.provide('jssip.messaging.Parser');
 
+goog.require('goog.string.Parser');
+//goog.require('jssip.messaging.HeaderParser');
+//goog.require('jssip.messaging.UriParser');
 
 
 /**
@@ -38,6 +41,8 @@ jssip.messaging.Parser.prototype.registerHeaderParser =
 
   this.headerParsers_[headerName] = headerParser;
   this.headerParsers_[headerShortName] = headerParser;
+
+  this.registerUriParser(null, {});
 };
 
 
