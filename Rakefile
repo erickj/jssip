@@ -15,7 +15,7 @@ SPECRUNNER_TPL = '_specrunner.erb'
 NAMESPACE = 'jssip'
 DEFAULT_TARGET = 'jssip.Endpoint'
 
-task :default => [:package]
+task :default => [:concat]
 
 desc 'Init the build workspace'
 task :init do
