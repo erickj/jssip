@@ -7,6 +7,7 @@ TEST_OUT_DIR = 'test_out'
 
 CLOSURE_BUILDER = 'lib/closure-library/bin/build/closurebuilder.py'
 CLOSURE_BUILDER_ROOTS = '--root=lib/closure-library --root=lib/closure-library-third-party --root=src'
+CLOSURE_BUILDER_ROOTS_SPEC = CLOSURE_BUILDER_ROOTS + ' --root=spec'
 CLOSURE_COMPILER = 'lib/closure-compiler/compiler.jar'
 
 DEFAULT_TARGET = 'jssip.Endpoint'
@@ -77,9 +78,10 @@ def build_compiled(filename, js_target, advanced=false)
 end
 
 def build_js(js_target, *build_args)
+  build_roots = js_target.match(/.*spec/i) ? CLOSURE_BUILDER_ROOTS_SPEC : CLOSURE_BUILDER_ROOTS
   stdin, stdout, stderr, wait_thrd = Open3.popen3 <<EOS
     #{CLOSURE_BUILDER} \
-      #{CLOSURE_BUILDER_ROOTS} \
+      #{build_roots} \
       --namespace="#{js_target}" \
       #{build_args.join(' ')}
 EOS
