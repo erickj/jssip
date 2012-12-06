@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'open3'
 
 BUILD_DIR = 'build'
 TEST_OUT_DIR = 'test_out'
@@ -26,6 +27,11 @@ task :concat => :init do
   build_script('sip.js', 'jssip.Endpoint')
 end
 
+desc 'Deps list'
+task :deps, :target do |t, args|
+  puts get_script_deps(args[:target])
+end
+
 desc 'Minify Javascript'
 task :minify => :init do
   build_compiled('sip.min.js', 'jssip.Endpoint')
@@ -34,6 +40,10 @@ end
 desc 'Compile Javascript'
 task :compile => :init do
   build_compiled('sip.compiled.js', 'jssip.Endpoint', true)
+end
+
+def get_script_deps(js_target)
+  build_js(js_target, '--output_mode=list')
 end
 
 def build_script(filename, js_target)
@@ -64,5 +74,24 @@ def build_compiled(filename, js_target, advanced=false)
 end
 
 def build_js(js_target, *build_args)
-  %x(#{CLOSURE_BUILDER} #{CLOSURE_BUILDER_ROOTS} --namespace="#{js_target}" #{build_args.join(' ')})
+  stdin, stdout, stderr, wait_thrd = Open3.popen3 <<EOS
+    #{CLOSURE_BUILDER} \
+      #{CLOSURE_BUILDER_ROOTS} \
+      --namespace="#{js_target}" \
+      #{build_args.join(' ')}
+EOS
+
+  if wait_thrd.value.exitstatus > 0
+    $stderr.puts "Error running #{CLOSURE_BUILDER}:"
+    $stderr.puts
+    $stderr.puts stderr.read
+  end
+
+  ret = stdout.read
+
+  stdin.close
+  stdout.close
+  stderr.close
+
+  ret
 end
