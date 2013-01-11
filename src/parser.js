@@ -1,6 +1,6 @@
-goog.provide('jssip.messaging.Parser');
-goog.provide('jssip.messaging.HeaderParser');
-goog.provide('jssip.messaging.UriParser');
+goog.provide('jssip.Parser');
+//goog.provide('jssip.messaging.HeaderParser');
+//goog.provide('jssip.messaging.UriParser');
 
 goog.require('goog.string.Parser');
 

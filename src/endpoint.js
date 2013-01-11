@@ -1,7 +1,7 @@
 goog.provide('jssip.Endpoint');
 
 goog.require('jssip.Parser');
-goog.require('jssip.net.TransportManager');
+//goog.require('jssip.net.TransportManager');
 
 /**
  * @constructor

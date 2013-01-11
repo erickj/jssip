@@ -1,4 +1,4 @@
-goog.provide("JsSip.Messaging.Message");
+goog.provide("jssip.message.Message");
 
-JsSip.Message.Message = function() {
+jssip.message.Message = function() {
 };
