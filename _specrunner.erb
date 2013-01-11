@@ -11,6 +11,7 @@
   <link rel="stylesheet" type="text/css" href="lib/jasmine-1.3.1/jasmine.css">
   <script type="text/javascript" src="lib/jasmine-1.3.1/jasmine.js"></script>
   <script type="text/javascript" src="lib/jasmine-1.3.1/jasmine-html.js"></script>
+  <script type="text/javascript" src="jasmine-console-runner.js"></script>
 
   <!-- BEGIN DYNAMIC SCRIPT VALUES -->
   <% @scripts.each do |script_name| %>
@@ -24,8 +25,14 @@
       jasmineEnv.updateInterval = 1000;
 
       var htmlReporter = new jasmine.HtmlReporter();
+//      jasmineEnv.addReporter(htmlReporter);
 
-      jasmineEnv.addReporter(htmlReporter);
+      // Use the trivial reporter for tie in with the run-jasmine.js script
+      jasmineEnv.addReporter(new jasmine.TrivialReporter());
+
+      // Use the console reporter for printing results directly to console for
+      // headless testing
+      jasmineEnv.addReporter(new jasmine.ConsoleReporter());
 
       jasmineEnv.specFilter = function(spec) {
         return htmlReporter.specFilter(spec);

@@ -12,6 +12,9 @@ CLOSURE_BUILDER_ROOTS_SPEC = CLOSURE_BUILDER_ROOTS + ' --root=spec'
 CLOSURE_COMPILER = 'lib/closure-compiler/compiler.jar'
 SPECRUNNER_TPL = '_specrunner.erb'
 
+PHANTOMJS = 'phantomjs'
+SPEC_RUNNER_URL_ROOT = 'http://localhost/workspace/jssip/build'
+
 NAMESPACE = 'jssip'
 DEFAULT_TARGET = 'jssip.Endpoint'
 
@@ -60,15 +63,42 @@ task :compile, [:target] => [:init] do |t, args|
 end
 
 namespace :test do
-  desc 'Generate spec runner file for target'
+  desc 'Run spec for [target]'
+  task :spec, :target do |t, args|
+    target = args[:target]
+    target = Utils.specize_target_name(Utils.normalize_target_name(target))
+    Utils.run_spec(target)
+  end
+
+  desc 'Run all specs for [target_namespace]'
+  task :specs, :namespace do |t, args|
+    ns = Utils.normalize_target_name(args[:namespace] || NAMESPACE, { :no_cap => true })
+    specs_dir = File.join(FileUtils.pwd, BUILD_DIR)
+
+    puts "Running specs for namespace [#{ns}]"
+    puts
+    Dir.glob(File.join(specs_dir, ns + "*.html")) do |file|
+      target = file.split('/').last.gsub('.html','')
+      Utils.run_spec(target)
+    end
+  end
+
+  desc 'Generate spec runner for [target]'
   task :genspecrunner, :target do |t, args|
     target = args[:target]
+    target = Utils.specize_target_name(Utils.normalize_target_name(target))
     unless Utils.is_target_spec?(target)
       raise 'Unable to generate spec runner for non spec target'
     end
 
-    deps = Utils.get_script_deps(target).split
-    Utils.build_specrunner(target, deps, Utils.get_html_script_name(target))
+    Utils.build_specrunner(target)
+  end
+
+  desc 'Generate spec runners for all test targets'
+  task :genspecrunners do
+    Utils.find_spec_targets.each do |target|
+      Utils.build_specrunner(target)
+    end
   end
 end
 
@@ -81,16 +111,29 @@ class SpecRunnerBindingProvider
 end
 
 class Utils
+  ##
+  # Cleans up lazy target names like message.header into jssip.message.Header
+  # Options:
+  # - :no_cap - don't capitalize the final target
+  def self.normalize_target_name(target, opts={})
+    ns = target.split('.')
+    ns.last.capitalize! unless ns.last[0].match(/[A-Z]/) || opts[:no_cap]
+    ns.unshift(NAMESPACE) unless ns[0] == NAMESPACE
+    ns.join('.')
+  end
+
+  ##
+  # Appends "Spec" onto a target if its not there
+  def self.specize_target_name(target)
+    target.match(/Spec$/) ? target : target << "Spec"
+  end
+
   def self.is_target_spec?(target)
     !!target.match(/.*Spec/)
   end
 
   def self.get_js_script_name(target, type='')
     get_script_prefix(target, type) << '.js'
-  end
-
-  def self.get_html_script_name(target)
-    get_script_prefix(target) << '.html'
   end
 
   def self.get_script_prefix(target, type='')
@@ -103,7 +146,12 @@ class Utils
     build_js(js_target, '--output_mode=list')
   end
 
-  def self.build_specrunner(target, script_names, output_file)
+  def self.build_specrunner(target)
+    puts
+    puts "Building specrunner for target: #{target}"
+    script_names = Utils.get_script_deps(target).split
+    output_file = target + '.html'
+
     template_obj = SpecRunnerBindingProvider.new
     template_obj.target = target
     template_obj.scripts = script_names
@@ -147,6 +195,11 @@ class Utils
     puts "Wrote file #{path}"
   end
 
+  ##
+  # Runs the closure builder with the build arguments for a target. Useful for:
+  # - concating source
+  # - compiling source
+  # - listing target dependencies
   def self.build_js(js_target, *build_args)
     build_roots = is_target_spec?(js_target) ? CLOSURE_BUILDER_ROOTS_SPEC : CLOSURE_BUILDER_ROOTS
     stdin, stdout, stderr, wait_thrd = Open3.popen3 <<EOS
@@ -173,4 +226,21 @@ EOS
 
     ret
   end
+
+  ##
+  # Greps through the spec directory for goog.provide target names.
+  # returns Array
+  def self.find_spec_targets
+    specs = %x{find spec -name "[a-z0-9]*js" | xargs -I{} grep -e "goog.provide(\'.*Spec\')" {} | cut -d: -f2 | cut -d\\\' -f2}
+    specs.split
+  end
+
+  ##
+  # Run the spec in phantomjs
+  def self.run_spec(target)
+    specs_dir = File.join(FileUtils.pwd, BUILD_DIR)
+    puts "Running Spec for #{target}"
+    puts %x{phantomjs run-jasmine.js file:///#{specs_dir}/#{target}.html}
+  end
+
 end
