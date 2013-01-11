@@ -1,6 +1,6 @@
-goog.provide('jssip.messaging.ParserSpec');
+goog.provide('jssip.ParserSpec');
 
-goog.require('jssip.messaging.Parser');
+goog.require('jssip.Parser');
 
 describe("SIP Parser", function() {
   it("should register header handlers", function() {
