@@ -4,13 +4,13 @@ goog.require('jssip.message.Message');
 //goog.require('jssip.message.Message.Builder');
 
 describe("jssip.message.Message", function() {
+  var message;
+
+  beforeEach(function() {
+    message = new jssip.message.Message();
+  });
+
   describe('Headers', function() {
-    var message;
-
-    beforeEach(function() {
-      message = new jssip.message.Message();
-    });
-
     it('should add/return raw headers', function() {
       message.addRawHeader('foo', 'bar');
       expect(message.getRawHeaderValue('foo')).toEqual(['bar']);
@@ -36,6 +36,15 @@ describe("jssip.message.Message", function() {
       message.addRawHeader('foo', "this value\n \t  goes across\nmultiple lines");
       expect(message.getRawHeaderValue('foo')[0]).
         toBe('this value goes across multiple lines');
+    });
+  });
+
+  describe('Body', function() {
+    it('should set/get raw body values', function() {
+      expect(message.getRawBody()).toBe(null);
+
+      message.setRawBody("a body of\nknowledge");
+      expect(message.getRawBody()).toBe("a body of\nknowledge");
     });
   });
 });

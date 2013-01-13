@@ -51,6 +51,30 @@ jssip.message.Message = function() {
    * @private
    */
   this.rawHeaders_ = {};
+
+  /**
+   * @type {?string}
+   * @private
+   */
+  this.rawBody_ = null;
+};
+
+
+/**
+ * Sets the raw body text of the message.
+ * @param {string} body The raw body.
+ */
+jssip.message.Message.prototype.setRawBody = function(body) {
+  this.rawBody_ = body;
+};
+
+
+/**
+ * Gets the raw body of the message.
+ * @return {?string} The raw body text or null if none set.
+ */
+jssip.message.Message.prototype.getRawBody = function() {
+  return this.rawBody_;
 };
 
 
