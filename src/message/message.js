@@ -1,6 +1,7 @@
 goog.provide('jssip.message.Message');
 
 
+
 /**
  * See RFC 3261 Section 7 for information about SIP messages.  In regards to the
  * ordering of headers @see Section 7.3.1:
