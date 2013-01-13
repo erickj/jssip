@@ -12,8 +12,7 @@ CLOSURE_BUILDER_ROOTS_SPEC = CLOSURE_BUILDER_ROOTS + ' --root=spec'
 CLOSURE_COMPILER = 'lib/closure-compiler/compiler.jar'
 SPECRUNNER_TPL = '_specrunner.erb'
 
-PHANTOMJS = 'phantomjs'
-SPEC_RUNNER_URL_ROOT = 'http://localhost/workspace/jssip/build'
+PHANTOMJS_RUNNER = 'phantomjs run-jasmine.js'
 
 NAMESPACE = 'jssip'
 DEFAULT_TARGET = 'jssip.Endpoint'
@@ -238,9 +237,9 @@ EOS
   ##
   # Run the spec in phantomjs
   def self.run_spec(target)
-    specs_dir = File.join(FileUtils.pwd, BUILD_DIR)
+    spec_path = File.join(FileUtils.pwd, BUILD_DIR, "#{target}.html")
     puts "Running Spec for #{target}"
-    puts %x{phantomjs run-jasmine.js file:///#{specs_dir}/#{target}.html}
+    puts %x{#{PHANTOMJS_RUNNER} file://#{spec_path}}
   end
 
 end
