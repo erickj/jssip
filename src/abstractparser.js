@@ -106,7 +106,7 @@ jssip.AbstractParser.prototype.isEof = function() {
 jssip.AbstractParser.prototype.readSubstring = function(start, opt_end) {
   opt_end = goog.isDef(opt_end) ? opt_end : this.rawText_.length;
   return this.scanner_.getSubstring(start, opt_end);
-}
+};
 
 
 /**
