@@ -321,7 +321,12 @@ jssip.Parser.MessageParser_.prototype.parseStartLine_ = function() {
  */
 jssip.Parser.MessageParser_.prototype.parseHeaders_ = function() {
   var line;
-  var colonRegex = /([^:]+):(.*)/;
+  // In order to match header values across multiple lines I need to
+  // the use [\s\S] character class instead of just (.*).  In regular
+  // expressions . does not match new lines, and javascript does not
+  // implement the DOTALL regex mode.  This has nothing to do with the
+  // multiline regex modifier.
+  var colonRegex = /([^:]+):([\s\S]*)/;
   var headers = [];
   var eof = false;
 

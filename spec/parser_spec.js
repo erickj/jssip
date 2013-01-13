@@ -109,12 +109,25 @@ describe('SIP Parser', function() {
          function() {
            var messageText = "SIP/2.0 200 OK\r\n" +
              "Foo\r\n" +
-             "Bar: bar-value\r\n\r\n";
+             "Bar: bar-value\r\n" +
+             "\r\n";
            var parser = new jssip.Parser.MessageParser_(messageText);
            var message = parser.parse();
            expect(parser.parseWarnings.length).toBe(1);
-           expect(message.getRawHeaderValue('bar')).toEqual(['bar-value'])
+           expect(message.getRawHeaderValue('bar')).toEqual(['bar-value']);
          });
+
+      it('should handle multi-line headers', function() {
+        var messageText = "SIP/2.0 200 OK\r\n" +
+          "Foo: Hi this is crazy\nbut call me\nmaybe\r\n" +
+          "Bar: bar-value\r\n" +
+          "\r\n";
+        var parser = new jssip.Parser.MessageParser_(messageText);
+        var message = parser.parse();
+        expect(message.getRawHeaderValue('foo')[0]).
+          toBe('Hi this is crazy but call me maybe');
+        expect(message.getRawHeaderValue('bar')[0]).toBe('bar-value');
+      });
     });
   });
 });
