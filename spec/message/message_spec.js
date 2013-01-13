@@ -31,5 +31,11 @@ describe("jssip.message.Message", function() {
       message.addRawHeader('FOO', 'baz');
       expect(message.getRawHeaderValue('Foo')).toEqual(['bar', 'baz']);
     });
+
+    it('should normalize multiline values', function() {
+      message.addRawHeader('foo', "this value\n \t  goes across\nmultiple lines");
+      expect(message.getRawHeaderValue('foo')[0]).
+        toBe('this value goes across multiple lines');
+    });
   });
 });
