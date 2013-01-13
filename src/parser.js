@@ -359,7 +359,7 @@ jssip.Parser.MessageParser_.prototype.parseHeaders_ = function() {
  */
 jssip.Parser.MessageParser_.prototype.parseCrlf_ = function() {
   if (this.readNextLine() === null) {
-    throw jssip.ParseError(
+    throw new jssip.ParseError(
         'Missing CRLF after headers. Packet may be truncated.');
   }
 };

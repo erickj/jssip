@@ -128,6 +128,14 @@ describe('SIP Parser', function() {
           toBe('Hi this is crazy but call me maybe');
         expect(message.getRawHeaderValue('bar')[0]).toBe('bar-value');
       });
+
+      it('should throw a parse error if there is no CRLF after headers',
+         function() {
+           var messageText = "SIP/2.0 200 OK\r\n" +
+             "Foo: bar\r\n";
+           var parser = new jssip.Parser.MessageParser_(messageText);
+           expect(function() { debugger; parser.parse(); }).toThrowParseError();
+         });
     });
   });
 });
