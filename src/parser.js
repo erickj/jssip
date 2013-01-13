@@ -1,6 +1,8 @@
 goog.provide('jssip.ParseError');
 goog.provide('jssip.Parser');
 
+goog.require('jssip.message.Request');
+goog.require('jssip.message.Response');
 goog.require('jssip.util.Scanner');
 goog.require('jssip.util.TokenMatcher');
 
@@ -186,7 +188,7 @@ jssip.Parser.MessageParser_.TOKEN_MATCHERS_ = {
   SIP_VERSION: new jssip.util.RegexpTokenMatcher(/^SIP\/[\d]\.[\d]$/),
   STATUS_CODE: new jssip.util.RegexpTokenMatcher(/^[123456][\d][\d]$/),
   REASON_PHRASE:
-      new jssip.util.RegexpTokenMatcher(/[^\n\r]/, true /* opt_rejectMatch */),
+      new jssip.util.RegexpTokenMatcher(/[\n\r]/, true /* opt_rejectMatch */),
   CR_OR_LF: new jssip.util.AnyTokenMatcher([
     new jssip.util.RegexpTokenMatcher(/\n/),
     new jssip.util.RegexpTokenMatcher(/\r/)
@@ -216,6 +218,7 @@ jssip.Parser.MessageParser_.prototype.readNextLine = function() {
  */
 jssip.Parser.MessageParser_.prototype.parse = function() {
   var message = this.parseStartLine_();
+  return message;
 };
 
 
