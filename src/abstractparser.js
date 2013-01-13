@@ -78,8 +78,41 @@ jssip.AbstractParser.prototype.getRawText = function() {
 
 
 /**
+ * Get the current cursor position.
+ * @return {number} The cursor position.
+ * @protected
+ */
+jssip.AbstractParser.prototype.getPosition = function() {
+  return this.position_;
+};
+
+
+/**
+ * @return {boolean} Whether we have scanned past the end of the text.
+ */
+jssip.AbstractParser.prototype.isEof = function() {
+  return this.scanner_.isEof();
+};
+
+
+/**
+ * Get a substring from the raw text
+ * @param {number} start The start position.
+ * @param {number=} opt_end The end position or the end of the string
+ *     by default.
+ * @return {string} The substring.
+ * @protected
+ */
+jssip.AbstractParser.prototype.readSubstring = function(start, opt_end) {
+  opt_end = goog.isDef(opt_end) ? opt_end : this.rawText_.length;
+  return this.scanner_.getSubstring(start, opt_end);
+}
+
+
+/**
  * Read the next line from the scanner.
  * @return {?string} The next line or null if we've read everything.
+ * @protected
  */
 jssip.AbstractParser.prototype.readNextLine = function() {
   if (this.scanner_.isEof()) return null;

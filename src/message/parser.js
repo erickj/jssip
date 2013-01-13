@@ -224,10 +224,11 @@ jssip.message.Parser.prototype.parseHeaders_ = function() {
  * @private
  */
 jssip.message.Parser.prototype.parseCrlf_ = function() {
-  // This is clugee, but all I really want to do is see that the last
-  // 4 characters are 2 CRLFs.
-  if (this.getRawText().substring(this.position_ - 4, this.position_) !=
-      '\r\n\r\n') {
+  // This is kludge, but all I want to do is see that the last 4
+  // characters are 2 CRLFs.
+  var position = this.getPosition();
+  var token = '\r\n\r\n';
+  if (this.readSubstring(position - token.length, position) != token) {
     throw new jssip.ParseError(
         'Missing CRLF after headers. Packet may be truncated.');
   }
@@ -240,11 +241,10 @@ jssip.message.Parser.prototype.parseCrlf_ = function() {
  * @private
  */
 jssip.message.Parser.prototype.parseBody_ = function() {
-  if (this.scanner_.isEof()) {
+  if (this.isEof()) {
     return null;
   }
-  return this.scanner_.getSubstring(
-      this.position_, this.getRawText().length);
+  return this.readSubstring(this.getPosition());
 };
 
 
