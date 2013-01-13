@@ -6,7 +6,6 @@ goog.require('jssip.ParseError');
 goog.require('jssip.ParseWarning');
 goog.require('jssip.message.Request');
 goog.require('jssip.message.Response');
-goog.require('jssip.util.Scanner');
 goog.require('jssip.util.TokenMatcher');
 
 

@@ -2,6 +2,9 @@ goog.provide('jssip.AbstractParser');
 goog.provide('jssip.ParseError');
 goog.provide('jssip.ParseWarning');
 
+goog.require('jssip.util.Scanner');
+
+
 
 /**
  * Custom error for parse errors. A parse error indicates the message

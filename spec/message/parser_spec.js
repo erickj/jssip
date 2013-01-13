@@ -3,31 +3,6 @@ goog.provide('jssip.message.ParserSpec');
 goog.require('jssip.message.Parser');
 
 describe('jssip.message.Parser', function() {
-  describe('string scanning', function() {
-    var message1;
-    var message2;
-
-    beforeEach(function() {
-      message1 = "the rain in spain\r\nfalls mainly\r\non the plain";
-      message2 = "the rain in spain\r\n";
-    });
-
-    it('it should read a line of text', function() {
-      var messageParser = new jssip.message.Parser(message1);
-      expect(messageParser.readNextLine()).toBe("the rain in spain");
-      expect(messageParser.readNextLine()).toBe("falls mainly");
-      expect(messageParser.readNextLine()).toBe("on the plain");
-      expect(messageParser.readNextLine()).toBe(null);
-    });
-
-    it('it should read the empty string if a line ends in CRLF', function() {
-      var messageParser = new jssip.message.Parser(message2);
-      expect(messageParser.readNextLine()).toBe("the rain in spain");
-      expect(messageParser.readNextLine()).toBe("");
-      expect(messageParser.readNextLine()).toBe(null);
-    });
-  });
-
   describe('message parsing', function() {
     var request = "INVITE sip:bob@biloxi.com SIP/2.0\r\n" +
       "Foo: request-foo\r\n" +
