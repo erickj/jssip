@@ -142,18 +142,5 @@ describe('jssip.message.Parser', function() {
       var message = parser.parse();
       expect(message.getRawBody()).toBe('Let the body begin!');
     });
-
-    // TODO(erick): fix this test from exploding! Something to do
-    // with the \r\n messing from Foo header
-
-    // it('should not die a recursive death here', function() {
-    //   var messageText = "SIP/2.0 200 OK\r\n" +
-    //     "Foo: foo-value" +
-    //     "\r\n" +
-    //     "Let the body begin!";
-    //   var parser = new jssip.message.Parser(messageText);
-    //   var message = parser.parse();
-    //   expect(message.getRawBody()).toBe('Let the body begin!');
-    // });
   });
 });
