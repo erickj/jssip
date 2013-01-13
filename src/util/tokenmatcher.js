@@ -1,6 +1,6 @@
-goog.provide('jssip.util.TokenMatcher');
-goog.provide('jssip.util.RegexpTokenMatcher');
 goog.provide('jssip.util.AnyTokenMatcher');
+goog.provide('jssip.util.RegexpTokenMatcher');
+goog.provide('jssip.util.TokenMatcher');
 
 
 /**
