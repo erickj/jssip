@@ -258,6 +258,10 @@ jssip.Parser.MessageParser_.prototype.parse = function() {
     message.addRawHeader(headers[i], headers[++i]);
   }
   this.parseCrlf_();
+  var body = this.parseBody_();
+  if (body != null) {
+    message.setRawBody(body);
+  }
 
   return message;
 };
@@ -358,10 +362,27 @@ jssip.Parser.MessageParser_.prototype.parseHeaders_ = function() {
  * @private
  */
 jssip.Parser.MessageParser_.prototype.parseCrlf_ = function() {
-  if (this.readNextLine() === null) {
+  // This is clugee, but all I really want to do is see that the last
+  // 4 characters are 2 CRLFs.
+  if (this.rawMessageText_.substring(this.position_ - 4, this.position_) !=
+      '\r\n\r\n') {
     throw new jssip.ParseError(
         'Missing CRLF after headers. Packet may be truncated.');
   }
+};
+
+
+/**
+ * Return any remaining lines as the body of the message.
+ * @return {?string} The message body or null if none.
+ * @private
+ */
+jssip.Parser.MessageParser_.prototype.parseBody_ = function() {
+  if (this.scanner_.isEof()) {
+    return null;
+  }
+  return this.scanner_.getSubstring(
+      this.position_, this.rawMessageText_.length);
 };
 
 

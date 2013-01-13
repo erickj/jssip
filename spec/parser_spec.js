@@ -99,7 +99,6 @@ describe('SIP Parser', function() {
            var messageText = "SIP/2.0 200 OK\r\n" +
              "Foo       :        response-foo\r\n" +
              "\r\n";
-
            var parser = new jssip.Parser.MessageParser_(messageText);
            var message = parser.parse();
            expect(message.getRawHeaderValue('foo')).toEqual(['response-foo']);
@@ -134,8 +133,31 @@ describe('SIP Parser', function() {
            var messageText = "SIP/2.0 200 OK\r\n" +
              "Foo: bar\r\n";
            var parser = new jssip.Parser.MessageParser_(messageText);
-           expect(function() { debugger; parser.parse(); }).toThrowParseError();
+           expect(function() { parser.parse(); }).toThrowParseError();
          });
+
+      it('should set the message body if there is one', function() {
+        var messageText = "SIP/2.0 200 OK\r\n" +
+          "Foo: foo-value\r\n" +
+          "\r\n" +
+          "Let the body begin!";
+        var parser = new jssip.Parser.MessageParser_(messageText);
+        var message = parser.parse();
+        expect(message.getRawBody()).toBe('Let the body begin!');
+      });
+
+      // TODO(erick): fix this test from exploding! Something to do
+      // with the \r\n messing from Foo header
+
+      // it('should not die a recursive death here', function() {
+      //   var messageText = "SIP/2.0 200 OK\r\n" +
+      //     "Foo: foo-value" +
+      //     "\r\n" +
+      //     "Let the body begin!";
+      //   var parser = new jssip.Parser.MessageParser_(messageText);
+      //   var message = parser.parse();
+      //   expect(message.getRawBody()).toBe('Let the body begin!');
+      // });
     });
   });
 });
