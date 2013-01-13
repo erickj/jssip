@@ -33,4 +33,4 @@ jssip.message.Request = function(method, requestUri, sipVersion) {
    */
   this.sipVersion_ = sipVersion;
 };
-goog.inherits(jssip.message.Response, jssip.message.Message);
+goog.inherits(jssip.message.Request, jssip.message.Message);
