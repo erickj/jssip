@@ -1,6 +1,8 @@
 goog.provide('jssip.ParseError');
+goog.provide('jssip.ParseWarning');
 goog.provide('jssip.Parser');
 
+goog.require('goog.string');
 goog.require('jssip.message.Request');
 goog.require('jssip.message.Response');
 goog.require('jssip.util.Scanner');
@@ -9,13 +11,34 @@ goog.require('jssip.util.TokenMatcher');
 
 
 /**
- * Custom error for catching parse errors.
+ * Custom error for parse errors. A parse error indicates the message
+ * is grossly malformed and no further processing should be done on
+ * the message.  Parse errors will be thrown during parsing and should
+ * be caught.
+ * @param {string} message The error message.
  * @constructor
+ * @extends {Error}
  */
 jssip.ParseError = function(message) {
   goog.base(this, message);
 }
 goog.inherits(jssip.ParseError, Error);
+
+
+
+/**
+ * Parse warnings are lower grade than parse errors, they indicate a
+ * particular field is malformed but parsing of the message as a whole
+ * can continue.  Parse warnings will be added to the message context.
+ * @param {string} message The warning message.
+ * @constructor
+ */
+jssip.ParseWarning = function(message) {
+  /**
+   * @type {string}
+   */
+  this.message = message;
+}
 
 
 
@@ -172,7 +195,13 @@ jssip.Parser.MessageParser_ = function(rawMessageText) {
    * @private
    */
   this.position_ = 0;
+
+  /**
+   * @type {!Array.<!jssip.ParseWarning>}
+   */
+  this.parseWarnings = [];
 };
+
 
 /**
  * @type {enum}
@@ -218,6 +247,14 @@ jssip.Parser.MessageParser_.prototype.readNextLine = function() {
  */
 jssip.Parser.MessageParser_.prototype.parse = function() {
   var message = this.parseStartLine_();
+  var headers = this.parseHeaders_();
+  for (var i = 0; i < headers.length; i++) {
+    // Header name/values are stored in even/odd positions of the
+    // headers array.
+    message.addRawHeader(headers[i], headers[++i]);
+  }
+  this.parseCrlf_();
+
   return message;
 };
 
@@ -244,6 +281,75 @@ jssip.Parser.MessageParser_.prototype.parseStartLine_ = function() {
     throw new jssip.ParseError('Unable to parse start line');
   }
   return message;
+};
+
+
+/**
+ * Parse the raw headers into an array of tuples.
+ * @see RFC 3261 Section 7.3
+
+7.3.1 Header Field Format
+
+   Header fields follow the same generic header format as that given in
+   Section 2.2 of RFC 2822 [3].  Each header field consists of a field
+   name followed by a colon (":") and the field value.
+
+      field-name: field-value
+
+   The formal grammar for a message-header specified in Section 25
+   allows for an arbitrary amount of whitespace on either side of the
+   colon; however, implementations should avoid spaces between the field
+   name and the colon and use a single space (SP) between the colon and
+   the field-value.
+
+      Subject:            lunch
+      Subject      :      lunch
+      Subject            :lunch
+      Subject: lunch
+
+   Thus, the above are all valid and equivalent, but the last is the
+   preferred form.
+
+ * @return {!Array<string>} Array of name, value pairs.
+ * @throws
+ */
+jssip.Parser.MessageParser_.prototype.parseHeaders_ = function() {
+  var line;
+  var colonRegex = /([^:]+):(.*)/;
+  var headers = [];
+  var eof = false;
+
+  while ((line = this.readNextLine()) != '') {
+    if (line === null) {
+      throw jssip.ParseError('Reading header line returned null');
+    }
+
+    // A regex is easier than splitting on colons. Another colon may
+    // be in the value, and the split function limit parameter is foobar.
+    var matches = line.match(colonRegex);
+    if (!matches || matches.length != 3) {
+      this.parseWarnings.push(
+          new jssip.ParseWarning('Unable to parse malformed header: ' + line));
+      continue;
+    }
+    headers.push(goog.string.trimRight(matches[1]));
+    headers.push(goog.string.trimLeft(matches[2]));
+  }
+  return headers;
+};
+
+
+/**
+ * This is simply to validate the packet is well formed and the last
+ * header is followed by a CRLF. Its absence may indicate a truncated
+ * packet.
+ * @throws
+ */
+jssip.Parser.MessageParser_.prototype.parseCrlf_ = function() {
+  if (this.readNextLine() === null) {
+    throw jssip.ParseError(
+        'Missing CRLF after headers. Packet may be truncated.');
+  }
 };
 
 

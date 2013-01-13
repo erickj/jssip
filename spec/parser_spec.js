@@ -33,13 +33,14 @@ describe('SIP Parser', function() {
 
     describe('message parsing', function() {
       var request = "INVITE sip:bob@biloxi.com SIP/2.0\r\n" +
-        "Foo: buz\r\n" +
-        "Biz: fuz\r\n" +
+        "Foo: request-foo\r\n" +
+        "Biz: request-biz\r\n" +
         "\r\n";
 
       var response = "SIP/2.0 200 OK\r\n" +
-        "Foo: bar\r\n" +
-        "Biz: baz\r\n" +
+        "Foo: response-foo-1\r\n" +
+        "Biz: response-biz\r\n" +
+        "Foo: response-foo-2\r\n" +
         "\r\n";
 
       beforeEach(function() {
@@ -63,13 +64,13 @@ describe('SIP Parser', function() {
       });
 
       it('should parse a request from a request', function() {
-        var messageParser = new jssip.Parser.MessageParser_(request);
-        expect(messageParser.parse()).toBeRequest();
+        var parser = new jssip.Parser.MessageParser_(request);
+        expect(parser.parse()).toBeRequest();
       });
 
       it('should parse a response from a response', function() {
-        var messageParser = new jssip.Parser.MessageParser_(response);
-        expect(messageParser.parse()).toBeResponse();
+        var parser = new jssip.Parser.MessageParser_(response);
+        expect(parser.parse()).toBeResponse();
       });
 
       it('should throw a parse error if there is a CR or LF in the first line',
@@ -85,6 +86,35 @@ describe('SIP Parser', function() {
         var parser = new jssip.Parser.MessageParser_("ladsjfl ldfkjaldf");
         expect(function() { parser.parse(); }).toThrowParseError();
       });
+
+      it('should add headers to the message', function() {
+        var parser = new jssip.Parser.MessageParser_(response);
+        var message = parser.parse();
+        expect(message.getRawHeaderValue('foo')).toEqual(
+          ['response-foo-1', 'response-foo-2']);
+      });
+
+      it('should trim right ws from header names and left from values',
+         function() {
+           var messageText = "SIP/2.0 200 OK\r\n" +
+             "Foo       :        response-foo\r\n" +
+             "\r\n";
+
+           var parser = new jssip.Parser.MessageParser_(messageText);
+           var message = parser.parse();
+           expect(message.getRawHeaderValue('foo')).toEqual(['response-foo']);
+         });
+
+      it('should add a parse warning on malformed headers and continue parsing',
+         function() {
+           var messageText = "SIP/2.0 200 OK\r\n" +
+             "Foo\r\n" +
+             "Bar: bar-value\r\n\r\n";
+           var parser = new jssip.Parser.MessageParser_(messageText);
+           var message = parser.parse();
+           expect(parser.parseWarnings.length).toBe(1);
+           expect(message.getRawHeaderValue('bar')).toEqual(['bar-value'])
+         });
     });
   });
 });
