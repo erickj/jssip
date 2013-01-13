@@ -21,7 +21,7 @@ goog.require('jssip.util.TokenMatcher');
  */
 jssip.ParseError = function(message) {
   goog.base(this, message);
-}
+};
 goog.inherits(jssip.ParseError, Error);
 
 
@@ -38,7 +38,7 @@ jssip.ParseWarning = function(message) {
    * @type {string}
    */
   this.message = message;
-}
+};
 
 
 
@@ -73,9 +73,10 @@ jssip.Parser.prototype.parse = function(rawMessageText) {
 
 
 /**
- * @param {string} headerName
- * @param {string} headerShortName
- * @param {!jssip.message.HeaderParser} headerParser
+ * Registers a new header type parser with this parser instance.
+ * @param {string} headerName The header name to register.
+ * @param {string} headerShortName  The short name.
+ * @param {!jssip.message.HeaderParser} headerParser The parser.
  */
 jssip.Parser.prototype.registerHeaderParser =
     function(headerName, headerShortName, headerParser) {
@@ -95,8 +96,9 @@ jssip.Parser.prototype.registerHeaderParser =
 
 
 /**
- * @param {string} uriScheme
- * @param {!jssip.uri.UriParser} uriParser
+ * Registers a new URI scheme parser with this parser instance.
+ * @param {string} uriScheme The URI scheme.
+ * @param {!jssip.uri.UriParser} uriParser The parser.
  */
 jssip.Parser.prototype.registerUriParser =
     function(uriScheme, uriParser) {
@@ -176,6 +178,7 @@ jssip.Parser.prototype.registerUriParser =
  *
  * @param {string} rawMessageText The raw message text to parse.
  * @constructor
+ * @private
  */
 jssip.Parser.MessageParser_ = function(rawMessageText) {
   /**
@@ -205,6 +208,7 @@ jssip.Parser.MessageParser_ = function(rawMessageText) {
 
 /**
  * @type {enum}
+ * @private
  */
 jssip.Parser.MessageParser_.TOKEN_MATCHERS_ = {
   METHOD: new jssip.util.RegexpTokenMatcher(/^[a-zA-Z\d-.!%*_+`'~]+$/),
@@ -222,7 +226,7 @@ jssip.Parser.MessageParser_.TOKEN_MATCHERS_ = {
     new jssip.util.RegexpTokenMatcher(/\n/),
     new jssip.util.RegexpTokenMatcher(/\r/)
   ])
-}
+};
 
 
 /**
@@ -263,6 +267,7 @@ jssip.Parser.MessageParser_.prototype.parse = function() {
  * Parse the start line.
  * @return {!jssip.message.Message} The parsed message object.
  * @throws
+ * @private
  */
 jssip.Parser.MessageParser_.prototype.parseStartLine_ = function() {
   var startLine = this.readNextLine();
@@ -312,6 +317,7 @@ jssip.Parser.MessageParser_.prototype.parseStartLine_ = function() {
 
  * @return {!Array<string>} Array of name, value pairs.
  * @throws
+ * @private
  */
 jssip.Parser.MessageParser_.prototype.parseHeaders_ = function() {
   var line;
@@ -344,6 +350,7 @@ jssip.Parser.MessageParser_.prototype.parseHeaders_ = function() {
  * header is followed by a CRLF. Its absence may indicate a truncated
  * packet.
  * @throws
+ * @private
  */
 jssip.Parser.MessageParser_.prototype.parseCrlf_ = function() {
   if (this.readNextLine() === null) {
@@ -354,7 +361,9 @@ jssip.Parser.MessageParser_.prototype.parseCrlf_ = function() {
 
 
 /**
+ * @param {!Array.<string>} tokens The tokens to test.
  * @return {boolean} Whether the tokens are part of a request line.
+ * @private
  */
 jssip.Parser.MessageParser_.prototype.testRequestLineTokens_ =
     function(tokens) {
@@ -367,7 +376,9 @@ jssip.Parser.MessageParser_.prototype.testRequestLineTokens_ =
 
 
 /**
+ * @param {!Array.<string>} tokens The tokens to test.
  * @return {boolean} Whether the tokens are part of a status line.
+ * @private
  */
 jssip.Parser.MessageParser_.prototype.testStatusLineTokens_ =
     function(tokens) {
