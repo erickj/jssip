@@ -1,6 +1,6 @@
 goog.provide('jssip.Endpoint');
 
-goog.require('jssip.Parser');
+goog.require('jssip.ParserManager');
 //goog.require('jssip.net.TransportManager');
 
 /**
@@ -27,10 +27,10 @@ jssip.Endpoint = function() {
   // the init process must be to provide the parser to the module to allow
   // extensions to the parser for custom headers, content types, etc...
   /**
-   * @type {!jssip.Parser}
+   * @type {!jssip.ParserManager}
    * @private
    */
-  this.parser_ = new jssip.Parser();
+  this.parserManager_ = new jssip.ParserManager();
 };
 
 
