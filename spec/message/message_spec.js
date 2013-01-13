@@ -3,37 +3,33 @@ goog.provide('jssip.message.MessageSpec');
 goog.require('jssip.message.Message');
 //goog.require('jssip.message.Message.Builder');
 
-describe("SIP Message", function() {
+describe("jssip.message.Message", function() {
+  describe('Headers', function() {
+    var message;
 
-  it("should return case insensitive raw header values", function() {
-    var message = new jssip.message.Message([
-      "to", "homer"
-    ]);
+    beforeEach(function() {
+      message = new jssip.message.Message();
+    });
 
-    expect(message.getHeader("to").getValue()).toBe("homer");
-    expect(message.getHeader("To")).toBe("homer");
-    expect(message.getHeader("foo")).toBe(null);
-  });
+    it('should add/return raw headers', function() {
+      message.addRawHeader('foo', 'bar');
+      expect(message.getRawHeaderValue('foo')).toEqual(['bar']);
+    });
 
-  it("should set headers in the order provided", function() {
-    var message = new jssip.message.Message([
-      "first", 1,
-      "second", 2,
-      "third", 3
-    ]);
+    it('should accept multiple values for the same header', function() {
+      message.addRawHeader('foo', 'baz');
+      message.addRawHeader('foo', 'bar');
+      expect(message.getRawHeaderValue('foo')).toEqual(['baz', 'bar']);
+    });
 
-    var headers = message.getHeaders();
-    expect(headers[0].getName()).toBe("first");
-    expect(headers[1].getName()).toBe("second");
-    expect(headers[2].getName()).toBe("third");
-  });
+    it('should return null for headers that do not exist', function() {
+      expect(message.getRawHeaderValue('foo')).toBe(null);
+    });
 
-  it("should append new headers to the end", function() {
-    var message = new jssip.message.Message(["to", "homer"]);
-    message.appendHeaders(["from", "marge", "call-id", "abc"]);
-
-    var headers = message.getHeaders();
-    expect(headers[0]).toEqual({ to: "homer" });
-    expect(headers[1]).toEqual({ from: "
+    it('should look for headers case insensitively', function() {
+      message.addRawHeader('foo', 'bar');
+      message.addRawHeader('FOO', 'baz');
+      expect(message.getRawHeaderValue('Foo')).toEqual(['bar', 'baz']);
+    });
   });
 });
