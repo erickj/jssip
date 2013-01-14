@@ -33,6 +33,9 @@ describe('jssip.message.MessageContext', function() {
     }
   });
 
+  // TODO(erick): error/warn event dispatch testing, initialization
+  // testing, etc.
+
   describe('request parsing', function() {
     beforeEach(function() {
       context = createMessageContext(requestText);
