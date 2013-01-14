@@ -1,8 +1,8 @@
-goog.provide('jssip.message.ParserSpec');
+goog.provide('jssip.message.MessageParserSpec');
 
-goog.require('jssip.message.Parser');
+goog.require('jssip.message.MessageParser');
 
-describe('jssip.message.Parser', function() {
+describe('jssip.message.MessageParser', function() {
   describe('message parsing', function() {
     var request = "INVITE sip:bob@biloxi.com SIP/2.0\r\n" +
       "Foo: request-foo\r\n" +
@@ -36,31 +36,31 @@ describe('jssip.message.Parser', function() {
     });
 
     it('should parse a request from a request', function() {
-      var parser = new jssip.message.Parser(request);
+      var parser = new jssip.message.MessageParser(request);
       expect(parser.parse()).toBeRequest();
     });
 
     it('should parse a response from a response', function() {
-      var parser = new jssip.message.Parser(response);
+      var parser = new jssip.message.MessageParser(response);
       expect(parser.parse()).toBeResponse();
     });
 
     it('should throw a parse error if there is a CR or LF in the first line',
        function() {
-         var parser = new jssip.message.Parser("\n" + response);
+         var parser = new jssip.message.MessageParser("\n" + response);
          expect(function() { parser.parse(); }).toThrowParseError();
 
-         parser = new jssip.message.Parser("\r" + response);
+         parser = new jssip.message.MessageParser("\r" + response);
          expect(function() { parser.parse(); }).toThrowParseError();
        });
 
     it('should throw a parse error if it is not a status line', function() {
-      var parser = new jssip.message.Parser("ladsjfl ldfkjaldf");
+      var parser = new jssip.message.MessageParser("ladsjfl ldfkjaldf");
       expect(function() { parser.parse(); }).toThrowParseError();
     });
 
     it('should add headers to the message', function() {
-      var parser = new jssip.message.Parser(response);
+      var parser = new jssip.message.MessageParser(response);
       var message = parser.parse();
       expect(message.getRawHeaderValue('foo')).toEqual(
         ['response-foo-1', 'response-foo-2']);
@@ -71,7 +71,7 @@ describe('jssip.message.Parser', function() {
          var messageText = "SIP/2.0 200 OK\r\n" +
            "Foo       :        response-foo\r\n" +
            "\r\n";
-         var parser = new jssip.message.Parser(messageText);
+         var parser = new jssip.message.MessageParser(messageText);
          var message = parser.parse();
          expect(message.getRawHeaderValue('foo')).toEqual(['response-foo']);
        });
@@ -82,7 +82,7 @@ describe('jssip.message.Parser', function() {
            "Foo\r\n" +
            "Bar: bar-value\r\n" +
            "\r\n";
-         var parser = new jssip.message.Parser(messageText);
+         var parser = new jssip.message.MessageParser(messageText);
          var message = parser.parse();
          expect(parser.parseWarnings.length).toBe(1);
          expect(message.getRawHeaderValue('bar')).toEqual(['bar-value']);
@@ -93,7 +93,7 @@ describe('jssip.message.Parser', function() {
         "Foo: Hi this is crazy\nbut call me\nmaybe\r\n" +
         "Bar: bar-value\r\n" +
         "\r\n";
-      var parser = new jssip.message.Parser(messageText);
+      var parser = new jssip.message.MessageParser(messageText);
       var message = parser.parse();
       expect(message.getRawHeaderValue('foo')[0]).
         toBe('Hi this is crazy but call me maybe');
@@ -104,7 +104,7 @@ describe('jssip.message.Parser', function() {
        function() {
          var messageText = "SIP/2.0 200 OK\r\n" +
            "Foo: bar\r\n";
-         var parser = new jssip.message.Parser(messageText);
+         var parser = new jssip.message.MessageParser(messageText);
          expect(function() { parser.parse(); }).toThrowParseError();
        });
 
@@ -113,7 +113,7 @@ describe('jssip.message.Parser', function() {
         "Foo: foo-value\r\n" +
         "\r\n" +
         "Let the body begin!";
-      var parser = new jssip.message.Parser(messageText);
+      var parser = new jssip.message.MessageParser(messageText);
       var message = parser.parse();
       expect(message.getRawBody()).toBe('Let the body begin!');
     });

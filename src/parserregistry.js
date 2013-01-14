@@ -1,36 +1,32 @@
-goog.provide('jssip.ParserManager');
-
-goog.require('jssip.message.Parser');
+goog.provide('jssip.ParserRegistry');
 
 
 
 /**
- * The main parser object used to parse SIP messages.
+ * Registers parser factories and returns parser instances for
+ * message, header, and URI parsers.
+ * @param {!jssip.message.MessageParserFactory} messageParserFactory The
+ *     parser factory for providing message parser instances.
  * @constructor
  */
-jssip.ParserManager = function() {
+jssip.ParserRegistry = function(messageParserFactory) {
   /**
-   * @type {!Object.<string,!jssip.message.HeaderParser>}
+   * @type {!Object.<string,!jssip.message.HeaderParserFactory>}
    * @private
    */
-  this.headerParsers_ = {};
+  this.headerParserFactories_ = {};
 
   /**
-   * @type {!Object.<string,!jssip.uri.UriParser>}
+   * @type {!Object.<string,!jssip.uri.UriParserFactory>}
    * @private
    */
-  this.uriParsers_ = {};
-};
+  this.uriParserFactories_ = {};
 
-
-/**
- * Parses a raw SIP message.
- * @param {string} rawMessageText The raw message text to parse.
- * @return {!jssip.message.Message} A parsed message object.
- */
-jssip.ParserManager.prototype.parse = function(rawMessageText) {
-  var messageParser = new jssip.message.Parser(rawMessageText);
-  return messageParser.parse();
+  /**
+   * @type {!jssip.message.MessageParserFactory}
+   * @private
+   */
+  this.messageParserFactory_ = messageParserFactory;
 };
 
 
@@ -40,7 +36,7 @@ jssip.ParserManager.prototype.parse = function(rawMessageText) {
  * @param {string} headerShortName  The short name.
  * @param {!jssip.message.HeaderParser} headerParser The parser.
  */
-jssip.ParserManager.prototype.registerHeaderParser =
+jssip.ParserRegistry.prototype.registerHeaderParser =
     function(headerName, headerShortName, headerParser) {
   headerName = headerName.toLowerCase();
   headerShortName = headerShortName.toLowerCase();
@@ -62,7 +58,7 @@ jssip.ParserManager.prototype.registerHeaderParser =
  * @param {string} uriScheme The URI scheme.
  * @param {!jssip.uri.UriParser} uriParser The parser.
  */
-jssip.ParserManager.prototype.registerUriParser =
+jssip.ParserRegistry.prototype.registerUriParser =
     function(uriScheme, uriParser) {
   uriScheme = uriScheme.toLowerCase();
 

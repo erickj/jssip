@@ -1,4 +1,4 @@
-goog.provide('jssip.message.Parser');
+goog.provide('jssip.message.MessageParser');
 
 goog.require('goog.string');
 goog.require('jssip.AbstractParser');
@@ -77,17 +77,17 @@ goog.require('jssip.util.TokenMatcher');
  * @constructor
  * @extends {jssip.AbstractParser}
  */
-jssip.message.Parser = function(rawMessageText) {
+jssip.message.MessageParser = function(rawMessageText) {
   goog.base(this, rawMessageText);
 };
-goog.inherits(jssip.message.Parser, jssip.AbstractParser);
+goog.inherits(jssip.message.MessageParser, jssip.AbstractParser);
 
 
 /**
  * @type {enum}
  * @private
  */
-jssip.message.Parser.TOKEN_MATCHERS_ = {
+jssip.message.MessageParser.TOKEN_MATCHERS_ = {
   METHOD: new jssip.util.RegexpTokenMatcher(/^[a-zA-Z\d-.!%*_+`'~]+$/),
   // A primitive matcher for what is needed at this level
   REQUEST_URI: new jssip.util.AnyTokenMatcher([
@@ -110,7 +110,7 @@ jssip.message.Parser.TOKEN_MATCHERS_ = {
  * @override
  * @return {!jssip.message.Message} The parsed message object.
  */
-jssip.message.Parser.prototype.parse = function() {
+jssip.message.MessageParser.prototype.parse = function() {
   var message = this.parseStartLine_();
   var headers = this.parseHeaders_();
   for (var i = 0; i < headers.length; i++) {
@@ -134,12 +134,12 @@ jssip.message.Parser.prototype.parse = function() {
  * @throws
  * @private
  */
-jssip.message.Parser.prototype.parseStartLine_ = function() {
+jssip.message.MessageParser.prototype.parseStartLine_ = function() {
   var startLine = this.readNextLine();
   var tokens = startLine.split(/\s+/);
   var message;
 
-  if (jssip.message.Parser.TOKEN_MATCHERS_.CR_OR_LF.test(startLine)) {
+  if (jssip.message.MessageParser.TOKEN_MATCHERS_.CR_OR_LF.test(startLine)) {
     throw new jssip.ParseError('Invalid \n or \r in start line');
   }
 
@@ -184,7 +184,7 @@ jssip.message.Parser.prototype.parseStartLine_ = function() {
  * @throws
  * @private
  */
-jssip.message.Parser.prototype.parseHeaders_ = function() {
+jssip.message.MessageParser.prototype.parseHeaders_ = function() {
   var line;
   // In order to match header values across multiple lines I need to
   // the use [\s\S] character class instead of just (.*).  In regular
@@ -222,7 +222,7 @@ jssip.message.Parser.prototype.parseHeaders_ = function() {
  * @throws
  * @private
  */
-jssip.message.Parser.prototype.parseCrlf_ = function() {
+jssip.message.MessageParser.prototype.parseCrlf_ = function() {
   // This is kludge, but all I want to do is see that the last 4
   // characters are 2 CRLFs.
   var position = this.getPosition();
@@ -239,7 +239,7 @@ jssip.message.Parser.prototype.parseCrlf_ = function() {
  * @return {?string} The message body or null if none.
  * @private
  */
-jssip.message.Parser.prototype.parseBody_ = function() {
+jssip.message.MessageParser.prototype.parseBody_ = function() {
   if (this.isEof()) {
     return null;
   }
@@ -252,9 +252,9 @@ jssip.message.Parser.prototype.parseBody_ = function() {
  * @return {boolean} Whether the tokens are part of a request line.
  * @private
  */
-jssip.message.Parser.prototype.testRequestLineTokens_ =
+jssip.message.MessageParser.prototype.testRequestLineTokens_ =
     function(tokens) {
-  var matchers = jssip.message.Parser.TOKEN_MATCHERS_;
+  var matchers = jssip.message.MessageParser.TOKEN_MATCHERS_;
   return tokens.length == 3 &&
       matchers.METHOD.test(tokens[0]) &&
       matchers.REQUEST_URI.test(tokens[1]) &&
@@ -267,9 +267,9 @@ jssip.message.Parser.prototype.testRequestLineTokens_ =
  * @return {boolean} Whether the tokens are part of a status line.
  * @private
  */
-jssip.message.Parser.prototype.testStatusLineTokens_ =
+jssip.message.MessageParser.prototype.testStatusLineTokens_ =
     function(tokens) {
-  var matchers = jssip.message.Parser.TOKEN_MATCHERS_;
+  var matchers = jssip.message.MessageParser.TOKEN_MATCHERS_;
   return tokens.length == 3 &&
       matchers.SIP_VERSION.test(tokens[0]) &&
       matchers.STATUS_CODE.test(tokens[1]) &&
