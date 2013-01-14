@@ -107,6 +107,15 @@ jssip.message.Message.prototype.getRawHeaderValue = function(name) {
 };
 
 
+/**
+ * @return {boolean} Whether the message is a request.  True indicates
+ *     a request, false indicates a response.
+ */
+jssip.message.Message.prototype.isRequest = function() {
+  return false;
+};
+
+
 // TODO(erick): eventually this /may/ be the place to convert from shortnames to
 // long form names? I'm not really sure yet.
 /**
