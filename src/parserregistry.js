@@ -31,40 +31,48 @@ jssip.ParserRegistry = function(messageParserFactory) {
 
 
 /**
- * Registers a new header type parser with this parser instance.
- * @param {string} headerName The header name to register.
- * @param {string} headerShortName  The short name.
- * @param {!jssip.message.HeaderParser} headerParser The parser.
+ * Creates a new message parser.
+ * @param {string} text The text to parse.
+ * @return {!jssip.message.MessageParser}
  */
-jssip.ParserRegistry.prototype.registerHeaderParser =
-    function(headerName, headerShortName, headerParser) {
-  headerName = headerName.toLowerCase();
-  headerShortName = headerShortName.toLowerCase();
-
-  if (this.headerParsers_[headerName]) {
-    throw new Error('Already registered header parser for: ' + headerName);
-  }
-  if (this.headerParsers_[headerShortName]) {
-    throw new Error('Already registered header parser for: ' + headerShortName);
-  }
-
-  this.headerParsers_[headerName] = headerParser;
-  this.headerParsers_[headerShortName] = headerParser;
+jssip.ParserRegistry.prototype.createMessageParser = function(text) {
+  return this.messageParserFactory_.createParser(text);
 };
 
 
 /**
- * Registers a new URI scheme parser with this parser instance.
- * @param {string} uriScheme The URI scheme.
- * @param {!jssip.uri.UriParser} uriParser The parser.
+ * Registers a new header type parser with this parser instance.
+ * @param {string} name The header name to register.
+ * @param {!jssip.message.HeaderParserFactory} parserFactory The parser factory.
+ * @return {boolean} True indicates success, false indicates a
+ *     previous registration exists for the header.
  */
-jssip.ParserRegistry.prototype.registerUriParser =
-    function(uriScheme, uriParser) {
-  uriScheme = uriScheme.toLowerCase();
-
-  if (this.uriParsers_[uriScheme]) {
-    throw new Error('Already registered URI parser for: ' + uriScheme);
+jssip.ParserRegistry.prototype.registerHeaderParserFactory =
+    function(name, parserFactory) {
+  name = name.toLowerCase();
+  if (name in this.headerParsers_) {
+    return false;
   }
 
-  this.uriParsers_[uriScheme] = uriParser;
+  this.headerParsers_[name] = parserFactory;
+  return true;
+};
+
+
+/**
+ * Registers a new URI scheme parser with this parser registry.
+ * @param {string} scheme The URI scheme.
+ * @param {!jssip.uri.UriParserFactory} parserFactory The parser factory.
+ * @return {boolean} True indicates success, false indicates a
+ *     previous registration exists for the scheme.
+ */
+jssip.ParserRegistry.prototype.registerUriParserFactory =
+    function(scheme, parserFactory) {
+  scheme = scheme.toLowerCase();
+  if (scheme in this.uriParsers_) {
+    return false;
+  }
+
+  this.uriParsers_[scheme] = parserFactory;
+  return true;
 };
