@@ -103,7 +103,7 @@ goog.inherits(jssip.message.MessageParser, jssip.AbstractParser);
 
 
 /**
- * @type {enum}
+ * @enum {!jssip.util.TokenMatcher}
  * @private
  */
 jssip.message.MessageParser.TOKEN_MATCHERS_ = {
@@ -199,7 +199,7 @@ jssip.message.MessageParser.prototype.parseStartLine_ = function() {
    Thus, the above are all valid and equivalent, but the last is the
    preferred form.
 
- * @return {!Array<string>} Array of name, value pairs.
+ * @return {!Array.<string>} Array of name, value pairs.
  * @throws
  * @private
  */
@@ -216,7 +216,7 @@ jssip.message.MessageParser.prototype.parseHeaders_ = function() {
 
   while ((line = this.readNextLine()) != '') {
     if (line === null) {
-      throw jssip.ParseError('Reading header line returned null');
+      throw new jssip.ParseError('Reading header line returned null');
     }
 
     // A regex is easier than splitting on colons. Another colon may

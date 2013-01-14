@@ -54,7 +54,7 @@ jssip.util.RegexpTokenMatcher.prototype.test = function(token) {
 /**
  * A token matcher that will return true if any of the token matchers
  * supplied in the constructor return a positive match.
- * @param {!Array<!jssip.util.TokenMatcher>} matchers The matchers array.
+ * @param {!Array.<!jssip.util.TokenMatcher>} matchers The matchers array.
  * @implements {jssip.util.TokenMatcher}
  * @constructor
  */

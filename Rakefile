@@ -32,33 +32,34 @@ task :clean do
   Rake::Task[:init].invoke
 end
 
-namespace :compiler do
+namespace :build do
+  desc 'Show help for the JS compiler'
   task :help do
     puts %x{java -jar #{CLOSURE_COMPILER} --help 2>&1}
+  end
+
+  desc 'Compile JS in WHITESPACE_ONLY mode for [target]'
+  task :concat, [:target] => [:init] do |t, args|
+    target = args[:target] || DEFAULT_TARGET
+    Utils.build_script(Utils.get_js_script_name(target), target)
+  end
+
+  desc 'Compile JS in SIMPLE_OPTIMIZATION mode for [target]'
+  task :simple, [:target] => [:init] do |t, args|
+    target = args[:target] || DEFAULT_TARGET
+    Utils.build_compiled(Utils.get_js_script_name(target, 'min'), target)
+  end
+
+  desc 'Compile JS in ADVANCED_OPTIMIZAION mode for [target]'
+  task :compile, [:target] => [:init] do |t, args|
+    target = args[:target] || DEFAULT_TARGET
+    Utils.build_compiled(Utils.get_js_script_name(target, 'opt'), target, true)
   end
 end
 
 desc 'Lists build dependencies for [target]'
 task :deps, [:target] do |t, args|
   puts Utils.get_script_deps(args[:target] || DEFAULT_TARGET)
-end
-
-desc 'Concat files to sip.js'
-task :concat, [:target] => [:init] do |t, args|
-  target = args[:target] || DEFAULT_TARGET
-  Utils.build_script(Utils.get_js_script_name(target), target)
-end
-
-desc 'Minify Javascript for [target]'
-task :minify, [:target] => [:init] do |t, args|
-  target = args[:target] || DEFAULT_TARGET
-  Utils.build_compiled(Utils.get_js_script_name(target, 'min'), target)
-end
-
-desc 'Compile Javascript for [target]'
-task :compile, [:target] => [:init] do |t, args|
-  target = args[:target] || DEFAULT_TARGET
-  Utils.build_compiled(Utils.get_js_script_name(target, 'opt'), target, true)
 end
 
 namespace :test do
@@ -69,7 +70,7 @@ namespace :test do
     Utils.run_spec(target)
   end
 
-  desc 'Run all specs for [target_namespace]'
+  desc 'Run all specs for [namespace] or jssip'
   task :specs, :namespace do |t, args|
     ns = Utils.normalize_target_name(args[:namespace] || NAMESPACE, { :no_cap => true })
     specs_dir = File.join(FileUtils.pwd, BUILD_DIR)
@@ -83,7 +84,7 @@ namespace :test do
   end
 
   desc 'Generate spec runner for [target]'
-  task :genspecrunner, :target do |t, args|
+  task :genspec, :target do |t, args|
     target = args[:target]
     target = Utils.specize_target_name(Utils.normalize_target_name(target))
     unless Utils.is_target_spec?(target)
@@ -93,17 +94,21 @@ namespace :test do
     Utils.build_specrunner(target)
   end
 
-  desc 'Generate spec runners for all test targets'
-  task :genspecrunners do
-    Utils.find_spec_targets.each do |target|
+  desc 'Generate spec runners for [namespace] or jssip'
+  task :genspecs, :namespace do |t, args|
+    ns = args[:namespace] || ''
+
+    puts "Generating specs for namespace [#{ns}]"
+    Utils.find_spec_targets(ns).each do |target|
       Utils.build_specrunner(target)
     end
   end
 end
 
+##
+# Class needed for the ERB template. See Util.build_specrunner
 class SpecRunnerBindingProvider
   attr_accessor :target, :scripts
-
   def get_binding
     binding
   end
@@ -168,7 +173,8 @@ class Utils
     puts "Creating #{path} for namespace #{js_target}..."
 
     args = ['--output_mode=compiled', "--compiler_jar=#{CLOSURE_COMPILER}"]
-    args.push('-f "--flagfile=compiler.warning.flags"')
+    args.push('-f "--compilation_level=WHITESPACE_ONLY"')
+    args.push('-f "--flagfile=compiler.flags"')
     args.push('-f "--formatting=PRETTY_PRINT"')
 
     File.open(path, 'w') do |f|
@@ -229,8 +235,9 @@ EOS
   ##
   # Greps through the spec directory for goog.provide target names.
   # returns Array
-  def self.find_spec_targets
-    specs = %x{find spec -name "[a-z0-9]*js" | xargs -I{} grep -e "goog.provide(\'.*Spec\')" {} | cut -d: -f2 | cut -d\\\' -f2}
+  def self.find_spec_targets(ns='')
+    dir = File.join('spec',ns)
+    specs = %x{find #{dir} -name "[a-z0-9]*js" | xargs -I{} grep -e "goog.provide(\'.*Spec\')" {} | cut -d: -f2 | cut -d\\\' -f2}
     specs.split
   end
 

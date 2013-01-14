@@ -29,7 +29,7 @@ jssip.util.Scanner.EOF = -1;
 
 
 /**
- * @type {enum}
+ * @enum {!Array.<string>}
  */
 jssip.util.Scanner.TOKEN = {
   CRLF: ['\r', '\n']
@@ -74,7 +74,7 @@ jssip.util.Scanner.prototype.getSubstring = function(start, end) {
  * no such occurrence.  The position is advanced to the end of the
  * token or EOF if no match is found. Throws an error if scanning has
  * previously reached EOF.
- * @param {jssip.util.Scanner.TOKEN|Array<string>} token The token.
+ * @param {jssip.util.Scanner.TOKEN|Array.<string>} token The token.
  * @return {number} The position of the first character in the token.
  */
 jssip.util.Scanner.prototype.nextTokenPosition = function(token) {

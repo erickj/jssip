@@ -48,7 +48,7 @@ goog.provide('jssip.message.Message');
  */
 jssip.message.Message = function() {
   /**
-   * @type {!Object<string, !Array<string>>}
+   * @type {!Object.<string, !Array.<string>>}
    * @private
    */
   this.rawHeaders_ = {};
@@ -99,7 +99,7 @@ jssip.message.Message.prototype.addRawHeader = function(name, value) {
 
 /**
  * @param {string} name The header name.
- * @return {Array<string>} The raw values for a header or null.
+ * @return {Array.<string>} The raw values for a header or null.
  */
 jssip.message.Message.prototype.getRawHeaderValue = function(name) {
   name = jssip.message.Message.normalizeHeaderName_(name);
