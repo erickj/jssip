@@ -1,4 +1,5 @@
 goog.provide('jssip.message.MessageParser');
+goog.provide('jssip.message.MessageParserFactory');
 
 goog.require('goog.string');
 goog.require('jssip.AbstractParser');
@@ -7,6 +8,24 @@ goog.require('jssip.ParseWarning');
 goog.require('jssip.message.Request');
 goog.require('jssip.message.Response');
 goog.require('jssip.util.TokenMatcher');
+
+
+
+/**
+ * Factory for building message parsers.
+ * @constructor
+ */
+jssip.message.MessageParserFactory = function() {};
+
+
+/**
+ * Create the parser.
+ * @param {string} text The text to parse.
+ * @return {!jssip.message.MessageParser} The parser.
+ */
+jssip.message.MessageParserFactory.prototype.createParser = function(text) {
+  return new jssip.message.MessageParser(text);
+};
 
 
 

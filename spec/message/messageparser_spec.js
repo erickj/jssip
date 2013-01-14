@@ -1,8 +1,25 @@
 goog.provide('jssip.message.MessageParserSpec');
 
 goog.require('jssip.message.MessageParser');
+goog.require('jssip.message.MessageParserFactory');
 
 describe('jssip.message.MessageParser', function() {
+  describe('jssip.message.MessageParserFactory', function() {
+    beforeEach(function() {
+      this.addMatchers({
+        toBeMessageParser: function() {
+          return this.actual instanceof jssip.message.MessageParser;
+        }
+      })
+    });
+
+    it('should create a message parser', function() {
+      var factory = new jssip.message.MessageParserFactory();
+      var parser = factory.createParser('message');
+      expect(parser).toBeMessageParser();
+    });
+  });
+
   describe('message parsing', function() {
     var request = "INVITE sip:bob@biloxi.com SIP/2.0\r\n" +
       "Foo: request-foo\r\n" +
