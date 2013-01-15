@@ -5,8 +5,7 @@ goog.require('goog.string');
 goog.require('jssip.AbstractParser');
 goog.require('jssip.ParseError');
 goog.require('jssip.ParseWarning');
-goog.require('jssip.message.Request');
-goog.require('jssip.message.Response');
+goog.require('jssip.message.Message.Builder');
 goog.require('jssip.util.TokenMatcher');
 
 
@@ -130,46 +129,44 @@ jssip.message.MessageParser.TOKEN_MATCHERS_ = {
  * @return {!jssip.message.Message} The parsed message object.
  */
 jssip.message.MessageParser.prototype.parse = function() {
-  var message = this.parseStartLine_();
-  var headers = this.parseHeaders_();
-  for (var i = 0; i < headers.length; i++) {
-    // Header name/values are stored in even/odd positions of the
-    // headers array.
-    message.addRawHeader(headers[i], headers[++i]);
-  }
+  var messageBuilder = this.parseStartLine_();
+  messageBuilder.setHeaders(this.parseHeaders_());
   this.parseCrlf_();
-  var body = this.parseBody_();
-  if (body != null) {
-    message.setRawBody(body);
-  }
+  messageBuilder.setBody(this.parseBody_());
 
-  return message;
+  return messageBuilder.build();
 };
 
 
 /**
  * Parse the start line.
- * @return {!jssip.message.Message} The parsed message object.
+ * @return {!jssip.message.Message.Builder} The message builder.
  * @throws
  * @private
  */
 jssip.message.MessageParser.prototype.parseStartLine_ = function() {
   var startLine = this.readNextLine();
   var tokens = startLine.split(/\s+/);
-  var message;
+  var messageBuilder = new jssip.message.Message.Builder();
 
   if (jssip.message.MessageParser.TOKEN_MATCHERS_.CR_OR_LF.test(startLine)) {
     throw new jssip.ParseError('Invalid \n or \r in start line');
   }
 
   if (this.testRequestLineTokens_(tokens)) {
-    message = new jssip.message.Request(tokens[0], tokens[1], tokens[2]);
+    messageBuilder.
+        setMethod(tokens[0]).
+        setRequestUri(tokens[1]).
+        setSipVersion(tokens[2]);
   } else if (this.testStatusLineTokens_(tokens)) {
-    message = new jssip.message.Response(tokens[0], tokens[1], tokens[2]);
+    messageBuilder.
+        setSipVersion(tokens[0]).
+        setStatusCode(tokens[1]).
+        setReasonPhrase(tokens[2]);
   } else {
     throw new jssip.ParseError('Unable to parse start line');
   }
-  return message;
+  return messageBuilder;
 };
 
 
@@ -207,7 +204,7 @@ jssip.message.MessageParser.prototype.parseHeaders_ = function() {
   var line;
   // In order to match header values across multiple lines I need to
   // the use [\s\S] character class instead of just (.*).  In regular
-  // expressions . does not match new lines, and javascript does not
+  // expressions '.' does not match new lines, and javascript does not
   // implement the DOTALL regex mode.  This has nothing to do with the
   // multiline regex modifier.
   var colonRegex = /([^:]+):([\s\S]*)/;

@@ -1,4 +1,5 @@
 goog.provide('jssip.message.Message');
+goog.provide('jssip.message.Message.Builder');
 
 
 
@@ -44,38 +45,120 @@ goog.provide('jssip.message.Message');
    with the same name in any combination of the single-value-per-line or
    comma-separated value forms.
 
+ * This constructor should not be used directly by any client
+ * application code, the message parser is responsible for creating
+ * new message objects. Messages are immutable.
+ *
+ * @param {!jssip.message.Message.Builder} builder The builder object
+ *     to construct this message from.
  * @constructor
  */
-jssip.message.Message = function() {
+jssip.message.Message = function(builder) {
   /**
-   * @type {!Object.<string, !Array.<string>>}
+   * @type {boolean}
    * @private
    */
-  this.rawHeaders_ = {};
+  this.isRequest_ = builder.isRequest();
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.method_ = this.isRequest_ ? builder.getMethod() : '';
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.requestUri_ = this.isRequest_ ? builder.getRequestUri() : '';
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.sipVersion_ = builder.getSipVersion();
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.statusCode_ = !this.isRequest_ ? builder.getStatusCode() : '';
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.reasonPhrase_ = !this.isRequest_ ? builder.getReasonPhrase() : '';
 
   /**
    * @type {?string}
    * @private
    */
-  this.rawBody_ = null;
+  this.body_ = builder.getBody();
+
+  /**
+   * @type {!Object.<string, !Array.<string>>}
+   * @private
+   */
+  this.headers_ = {};
+
+  for (var i = 0, headers = builder.getHeaders(); i < headers.length; i++) {
+    // Header name/values are stored in even/odd positions of the
+    // headers array.
+    this.addRawHeader_(headers[i], headers[++i]);
+  }
+};
+
+
+/** @return {boolean} Whether this is a request. False indicates a response. */
+jssip.message.Message.prototype.isRequest = function() {
+  return this.isRequest_;
+};
+
+
+/** @return {string} The method. */
+jssip.message.Message.prototype.getMethod = function() {
+  return this.method_;
+};
+
+
+/** @return {string} The requestUri. */
+jssip.message.Message.prototype.getRequestUri = function() {
+  return this.requestUri_;
+};
+
+
+/** @return {string} The sipVersion. */
+jssip.message.Message.prototype.getSipVersion = function() {
+  return this.sipVersion_;
+};
+
+
+/** @return {string} The statusCode. */
+jssip.message.Message.prototype.getStatusCode = function() {
+  return this.statusCode_;
+};
+
+
+/** @return {string} The reasonPhrase. */
+jssip.message.Message.prototype.getReasonPhrase = function() {
+  return this.reasonPhrase_;
+};
+
+
+/** @return {?string} The body or null if none set. */
+jssip.message.Message.prototype.getBody = function() {
+  return this.body_;
 };
 
 
 /**
- * Sets the raw body text of the message.
- * @param {string} body The raw body.
+ * @param {string} name The header name.
+ * @return {Array.<string>} The raw values for a header or null.
  */
-jssip.message.Message.prototype.setRawBody = function(body) {
-  this.rawBody_ = body;
-};
-
-
-/**
- * Gets the raw body of the message.
- * @return {?string} The raw body text or null if none set.
- */
-jssip.message.Message.prototype.getRawBody = function() {
-  return this.rawBody_;
+jssip.message.Message.prototype.getHeaderValue = function(name) {
+  name = jssip.message.Message.normalizeHeaderName_(name);
+  return this.headers_[name] || null;
 };
 
 
@@ -86,33 +169,15 @@ jssip.message.Message.prototype.getRawBody = function() {
  * the excerpt above from 7.3.1.
  * @param {string} name The raw header name.
  * @param {string} value The raw header value.
+ * @private
  */
-jssip.message.Message.prototype.addRawHeader = function(name, value) {
+jssip.message.Message.prototype.addRawHeader_ = function(name, value) {
   name = jssip.message.Message.normalizeHeaderName_(name);
-  if (!this.rawHeaders_[name]) {
-    this.rawHeaders_[name] = [];
+  if (!this.headers_[name]) {
+    this.headers_[name] = [];
   }
-  this.rawHeaders_[name].push(
+  this.headers_[name].push(
       jssip.message.Message.normalizeMultilineValues_(value));
-};
-
-
-/**
- * @param {string} name The header name.
- * @return {Array.<string>} The raw values for a header or null.
- */
-jssip.message.Message.prototype.getRawHeaderValue = function(name) {
-  name = jssip.message.Message.normalizeHeaderName_(name);
-  return this.rawHeaders_[name] || null;
-};
-
-
-/**
- * @return {boolean} Whether the message is a request.  True indicates
- *     a request, false indicates a response.
- */
-jssip.message.Message.prototype.isRequest = function() {
-  return false;
 };
 
 
@@ -138,4 +203,232 @@ jssip.message.Message.normalizeHeaderName_ = function(name) {
  */
 jssip.message.Message.normalizeMultilineValues_ = function(value) {
   return value.replace(/\n\s*/g, ' ');
+};
+
+
+
+/**
+ * A message builder is created by the message parser and then used to
+ * instantiate a message.  The values set in the message builder allow
+ * for a single constructor to set the immutable values of the message
+ * start line and indicate whether this message is a request or
+ * response.  The builder validates the required fields are present
+ * before instantiating a new message.
+ * @constructor
+ */
+jssip.message.Message.Builder = function() {
+  /**
+   * @type {boolean}
+   * @private
+   */
+  this.isRequest_ = false;
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.method_ = '';
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.requestUri_ = '';
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.sipVersion_ = '';
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.statusCode_ = '';
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.reasonPhrase_ = '';
+
+  /**
+   * @type {?string}
+   * @private
+   */
+  this.body_ = null;
+
+  /**
+   * @type {!Array.<string>}
+   * @private
+   */
+  this.headers_ = [];
+};
+
+
+/** @return {boolean} Whether this is a request. */
+jssip.message.Message.Builder.prototype.isRequest = function() {
+  return this.isRequest_;
+};
+
+
+/** @return {string} The method. */
+jssip.message.Message.Builder.prototype.getMethod = function() {
+  return this.method_;
+};
+
+
+/** @return {string} The requestUri. */
+jssip.message.Message.Builder.prototype.getRequestUri = function() {
+  return this.requestUri_;
+};
+
+
+/** @return {string} The sipVersion. */
+jssip.message.Message.Builder.prototype.getSipVersion = function() {
+  return this.sipVersion_;
+};
+
+
+/** @return {string} The statusCode. */
+jssip.message.Message.Builder.prototype.getStatusCode = function() {
+  return this.statusCode_;
+};
+
+
+/** @return {string} The reasonPhrase. */
+jssip.message.Message.Builder.prototype.getReasonPhrase = function() {
+  return this.reasonPhrase_;
+};
+
+
+/** @return {?string} The body. */
+jssip.message.Message.Builder.prototype.getBody = function() {
+  return this.body_;
+};
+
+
+/** @return {!Array.<string>} The headers. */
+jssip.message.Message.Builder.prototype.getHeaders = function() {
+  return this.headers_;
+};
+
+
+/**
+ * Set the method.
+ * @param {string} method The method.
+ * @return {!jssip.message.Message.Builder} Return this.
+ * @throws
+ */
+jssip.message.Message.Builder.prototype.setMethod = function(method) {
+  if (!!this.statusCode_ || !!this.reasonPhrase_) {
+    throw new Error(
+        'Unable to set method. Can not have request and response values');
+  }
+  this.method_ = method;
+  return this;
+};
+
+
+/**
+ * Set the requestUri.
+ * @param {string} requestUri The requestUri.
+ * @return {!jssip.message.Message.Builder} Return this.
+ * @throws
+ */
+jssip.message.Message.Builder.prototype.setRequestUri = function(requestUri) {
+  if (!!this.statusCode_ || !!this.reasonPhrase_) {
+    throw new Error(
+        'Unable to set request URI. Can not have request and response values');
+  }
+  this.requestUri_ = requestUri;
+  return this;
+};
+
+
+/**
+ * Set the sipVersion.
+ * @param {string} sipVersion The sipVersion.
+ * @return {!jssip.message.Message.Builder} Return this.
+ */
+jssip.message.Message.Builder.prototype.setSipVersion = function(sipVersion) {
+  this.sipVersion_ = sipVersion;
+  return this;
+};
+
+
+/**
+ * Set the statusCode.
+ * @param {string} statusCode The statusCode.
+ * @return {!jssip.message.Message.Builder} Return this.
+ * @throws
+ */
+jssip.message.Message.Builder.prototype.setStatusCode = function(statusCode) {
+  if (!!this.method_ || !!this.requestUri_) {
+    throw new Error(
+        'Unable to set status code. Can not have request and response values');
+  }
+  this.statusCode_ = statusCode;
+  return this;
+};
+
+
+/**
+ * Set the reasonPhrase.
+ * @param {string} reasonPhrase The reasonPhrase.
+ * @return {!jssip.message.Message.Builder} Return this.
+ * @throws
+ */
+jssip.message.Message.Builder.prototype.setReasonPhrase =
+    function(reasonPhrase) {
+  if (!!this.method_ || !!this.requestUri_) {
+    throw new Error(
+        'Unable to set reason. Can not have request and response values');
+  }
+  this.reasonPhrase_ = reasonPhrase;
+  return this;
+};
+
+
+/**
+ * Set the body.
+ * @param {?string} body The body or null.
+ * @return {!jssip.message.Message.Builder} Return this.
+ */
+jssip.message.Message.Builder.prototype.setBody = function(body) {
+  this.body_ = body;
+  return this;
+};
+
+
+/**
+ * Set the headers array. Header name/value pairs are stored in the
+ * even/odd indices.
+ * @param {!Array.<string>} headers The header array.
+ * @return {!jssip.message.Message.Builder} Return this.
+ */
+jssip.message.Message.Builder.prototype.setHeaders = function(headers) {
+  this.headers_ = headers;
+  return this;
+};
+
+
+/**
+ * Builds a message object.
+ * @return {!jssip.message.Message} The message.
+ * @throws
+ */
+jssip.message.Message.Builder.prototype.build = function() {
+  this.isRequest_ = !!this.method_ && !!this.requestUri_;
+
+  if (this.isRequest_ && (!this.method_ || !this.requestUri_)) {
+    throw new Error('Missing required value for request');
+  } else if (!this.isRequest_ && !this.statusCode_) {
+    throw new Error('Missing required values for response');
+  } else if (!this.sipVersion_) {
+    throw new Error('SIP Version not set');
+  }
+
+  return new jssip.message.Message(this);
 };

@@ -62,9 +62,9 @@ goog.inherits(jssip.message.MessageContext, goog.events.EventTarget);
 /**
  * @enum {string}
  */
-jssip.message.MessageContext.PARSE_EVENT = {
-  ERROR: 'error',
-  WARNING: 'warning'
+jssip.message.MessageContext.EVENT = {
+  PARSE_ERROR: 'parse-error',
+  PARSE_WARNING: 'parse-warning'
 };
 
 
@@ -116,8 +116,9 @@ jssip.message.MessageContext.prototype.getRawMessageText = function() {
  * Returns the message if it has been parsed or throws an error.
  * @return {!jssip.message.Message} The message object.
  * @throws
+ * @private
  */
-jssip.message.MessageContext.prototype.getMessage = function() {
+jssip.message.MessageContext.prototype.getMessage_ = function() {
   if (!this.inited_) {
     throw new Error('Unable to return message on uninitialized context');
   } else if (!this.message_) {
@@ -133,36 +134,8 @@ jssip.message.MessageContext.prototype.getMessage = function() {
  * @throws
  */
 jssip.message.MessageContext.prototype.isRequest = function() {
-  return this.getMessage().isRequest();
+  return this.getMessage_().isRequest();
 };
-
-
-/**
- * Returns the message coerced to a request if it is such. Throws if
- * the message is not a request.
- * @return {!jssip.message.Request} The request.
- * @throws
- */
-jssip.message.MessageContext.prototype.getRequest = function() {
-  if (!this.isRequest()) {
-    throw new Error('Message is not a request');
-  }
-  return /** @type {!jssip.message.Request} */ (this.getMessage());
-}
-
-
-/**
- * Returns the message coerced to a response if it is such. Throws if
- * the message is not a response.
- * @return {!jssip.message.Response} The response.
- * @throws
- */
-jssip.message.MessageContext.prototype.getResponse = function() {
-  if (this.isRequest()) {
-    throw new Error('Message is not a response');
-  }
-  return /** @type {!jssip.message.Response} */ (this.getMessage());
-}
 
 
 /**
@@ -194,7 +167,7 @@ jssip.message.MessageContext.prototype.invokeParser_ = function(parser) {
     if (e instanceof jssip.ParseError) {
       this.parseErrors_.push(e);
       this.dispatchEvent(new jssip.message.MessageContext.ParseEvent(
-          jssip.message.MessageContext.PARSE_EVENT.ERROR,
+          jssip.message.MessageContext.EVENT.PARSE_ERROR,
           this.parseErrors_.length - 1,
           1));
     } else {
@@ -206,7 +179,7 @@ jssip.message.MessageContext.prototype.invokeParser_ = function(parser) {
     var start = this.parseWarnings_.length;
     this.parseWarnings_.concat(parser.parseWarnings);
     this.dispatchEvent(new jssip.message.MessageContext.ParseEvent(
-        jssip.message.MessageContext.PARSE_EVENT.WARNING,
+        jssip.message.MessageContext.EVENT.PARSE_WARNING,
         start,
         parser.parseWarnings.length));
   }
@@ -218,7 +191,7 @@ jssip.message.MessageContext.prototype.invokeParser_ = function(parser) {
 
 /**
  * An event describing an anomolous parse event.
- * @param {jssip.message.MessageContext.PARSE_EVENT} type The event type.
+ * @param {jssip.message.MessageContext.EVENT} type The event type.
  * @param {number} start The id of the error or warning.
  * @param {number} length The number of error or warning events that
  *     occurred.

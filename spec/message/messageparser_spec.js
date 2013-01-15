@@ -35,10 +35,10 @@ describe('jssip.message.MessageParser', function() {
     beforeEach(function() {
       this.addMatchers({
         toBeRequest: function() {
-          return this.actual instanceof jssip.message.Request;
+          return this.actual.isRequest();
         },
         toBeResponse: function() {
-          return this.actual instanceof jssip.message.Response;
+          return !this.actual.isRequest();
         },
         toThrowParseError: function() {
           var result = false;
@@ -79,7 +79,7 @@ describe('jssip.message.MessageParser', function() {
     it('should add headers to the message', function() {
       var parser = new jssip.message.MessageParser(response);
       var message = parser.parse();
-      expect(message.getRawHeaderValue('foo')).toEqual(
+      expect(message.getHeaderValue('foo')).toEqual(
         ['response-foo-1', 'response-foo-2']);
     });
 
@@ -90,7 +90,7 @@ describe('jssip.message.MessageParser', function() {
            "\r\n";
          var parser = new jssip.message.MessageParser(messageText);
          var message = parser.parse();
-         expect(message.getRawHeaderValue('foo')).toEqual(['response-foo']);
+         expect(message.getHeaderValue('foo')).toEqual(['response-foo']);
        });
 
     it('should add a parse warning on malformed headers and continue parsing',
@@ -102,7 +102,7 @@ describe('jssip.message.MessageParser', function() {
          var parser = new jssip.message.MessageParser(messageText);
          var message = parser.parse();
          expect(parser.parseWarnings.length).toBe(1);
-         expect(message.getRawHeaderValue('bar')).toEqual(['bar-value']);
+         expect(message.getHeaderValue('bar')).toEqual(['bar-value']);
        });
 
     it('should handle multi-line headers', function() {
@@ -112,9 +112,9 @@ describe('jssip.message.MessageParser', function() {
         "\r\n";
       var parser = new jssip.message.MessageParser(messageText);
       var message = parser.parse();
-      expect(message.getRawHeaderValue('foo')[0]).
+      expect(message.getHeaderValue('foo')[0]).
         toBe('Hi this is crazy but call me maybe');
-      expect(message.getRawHeaderValue('bar')[0]).toBe('bar-value');
+      expect(message.getHeaderValue('bar')[0]).toBe('bar-value');
     });
 
     it('should throw a parse error if there is no CRLF after headers',
@@ -132,7 +132,7 @@ describe('jssip.message.MessageParser', function() {
         "Let the body begin!";
       var parser = new jssip.message.MessageParser(messageText);
       var message = parser.parse();
-      expect(message.getRawBody()).toBe('Let the body begin!');
+      expect(message.getBody()).toBe('Let the body begin!');
     });
   });
 });
