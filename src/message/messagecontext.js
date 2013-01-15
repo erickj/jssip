@@ -75,8 +75,10 @@ jssip.message.MessageContext.EVENT = {
  * message context.
  */
 jssip.message.MessageContext.prototype.init = function() {
-  this.inited_ = true;
-  this.message_ = this.parseMessage_(this.rawMessageText_);
+  if (!this.inited_) {
+    this.inited_ = true;
+    this.message_ = this.parseMessage_(this.rawMessageText_);
+  }
 };
 
 
@@ -111,7 +113,16 @@ jssip.message.MessageContext.prototype.getRawMessageText = function() {
 };
 
 
-// TODO(erick): Either clone the message or make it immutable.
+/**
+ * @return {boolean} Whether the message is a request. True indicates
+ *     a request, false indicates a response.
+ * @throws
+ */
+jssip.message.MessageContext.prototype.isRequest = function() {
+  return this.getMessage_().isRequest();
+};
+
+
 /**
  * Returns the message if it has been parsed or throws an error.
  * @return {!jssip.message.Message} The message object.
@@ -126,16 +137,6 @@ jssip.message.MessageContext.prototype.getMessage_ = function() {
   }
   return this.message_;
 }
-
-
-/**
- * @return {boolean} Whether the message is a request. True indicates
- *     a request, false indicates a response.
- * @throws
- */
-jssip.message.MessageContext.prototype.isRequest = function() {
-  return this.getMessage_().isRequest();
-};
 
 
 /**
