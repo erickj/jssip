@@ -177,7 +177,7 @@ jssip.message.MessageContext.prototype.invokeParser_ = function(parser) {
 
   if (parser.parseWarnings.length) {
     var start = this.parseWarnings_.length;
-    this.parseWarnings_.concat(parser.parseWarnings);
+    this.parseWarnings_ = this.parseWarnings_.concat(parser.parseWarnings);
     this.dispatchEvent(new jssip.message.MessageContext.ParseEvent(
         jssip.message.MessageContext.EVENT.PARSE_WARNING,
         start,
