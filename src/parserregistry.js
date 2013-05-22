@@ -50,11 +50,11 @@ jssip.ParserRegistry.prototype.createMessageParser = function(text) {
 jssip.ParserRegistry.prototype.registerHeaderParserFactory =
     function(name, parserFactory) {
   name = name.toLowerCase();
-  if (name in this.headerParsers_) {
+  if (name in this.headerParserFactories_) {
     return false;
   }
 
-  this.headerParsers_[name] = parserFactory;
+  this.headerParserFactories_[name] = parserFactory;
   return true;
 };
 
@@ -69,10 +69,10 @@ jssip.ParserRegistry.prototype.registerHeaderParserFactory =
 jssip.ParserRegistry.prototype.registerUriParserFactory =
     function(scheme, parserFactory) {
   scheme = scheme.toLowerCase();
-  if (scheme in this.uriParsers_) {
+  if (scheme in this.uriParserFactories_) {
     return false;
   }
 
-  this.uriParsers_[scheme] = parserFactory;
+  this.uriParserFactories_[scheme] = parserFactory;
   return true;
 };

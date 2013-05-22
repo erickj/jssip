@@ -1,7 +1,11 @@
 goog.provide('jssip.Endpoint');
 
-//goog.require('jssip.ParserRegistry');
-//goog.require('jssip.net.TransportManager');
+goog.require('jssip.ParserRegistry');
+goog.require('jssip.message.HeaderParserFactory')
+goog.require('jssip.message.MessageParserFactory')
+goog.require('jssip.net.TransportManager');
+goog.require('jssip.plugin.Plugin')
+goog.require('jssip.uri.UriParserFactory')
 
 /**
  * @constructor
@@ -19,17 +23,24 @@ jssip.Endpoint = function() {
    */
   this.transportManager_ = new jssip.net.TransportManager();
 
-  this.transportManager_.onReceiveMessage(
-      goog.bind(this.receiveMessageFromTransport, this));
+//  this.transportManager_.onReceiveMessage(
+//      goog.bind(this.receiveMessageFromTransport, this));
 
   // TODO(erick): init a parser here, when a module is registered part of
   // the init process must be to provide the parser to the module to allow
   // extensions to the parser for custom headers, content types, etc...
   /**
-   * @type {!jssip.ParserManager}
+   * @type {!jssip.ParserRegistry}
    * @private
    */
-//  this.parserManager_ = new jssip.ParserRegistry();
+  this.parserRegistry_ = new jssip.ParserRegistry(
+      new jssip.message.MessageParserFactory());
+};
+
+
+/** @return {!jssip.ParserRegistry} */
+jssip.Endpoint.prototype.getParserRegistry = function() {
+  return this.parserRegistry_;
 };
 
 
@@ -51,8 +62,8 @@ jssip.Endpoint.prototype.receiveMessageFromTransport = function(message) {
 // @see: file:pjsip/sip_endpoint.h fn:pjsip_endpt_get_capability
 // TODO(erick): is a priority necessary?
 /**
- * Registers modules for message processing
- * @param {!jssip.Module} module The module
+ * Registers plugins with the endpoint.
+ * @param {!jssip.plugin.Plugin} plugin The plugin.
  */
-jssip.Endpoint.prototype.registerModule = function(module) {
+jssip.Endpoint.prototype.registerPlugin = function(plugin) {
 };

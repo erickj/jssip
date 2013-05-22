@@ -319,7 +319,7 @@ jssip.message.Message.Builder.prototype.getHeaders = function() {
  * Set the method.
  * @param {string} method The method.
  * @return {!jssip.message.Message.Builder} Return this.
- * @throws
+ * @throws {Error}
  */
 jssip.message.Message.Builder.prototype.setMethod = function(method) {
   if (!!this.statusCode_ || !!this.reasonPhrase_) {
@@ -335,7 +335,7 @@ jssip.message.Message.Builder.prototype.setMethod = function(method) {
  * Set the requestUri.
  * @param {string} requestUri The requestUri.
  * @return {!jssip.message.Message.Builder} Return this.
- * @throws
+ * @throws {Error}
  */
 jssip.message.Message.Builder.prototype.setRequestUri = function(requestUri) {
   if (!!this.statusCode_ || !!this.reasonPhrase_) {
@@ -362,7 +362,7 @@ jssip.message.Message.Builder.prototype.setSipVersion = function(sipVersion) {
  * Set the statusCode.
  * @param {string} statusCode The statusCode.
  * @return {!jssip.message.Message.Builder} Return this.
- * @throws
+ * @throws {Error}
  */
 jssip.message.Message.Builder.prototype.setStatusCode = function(statusCode) {
   if (!!this.method_ || !!this.requestUri_) {
@@ -378,7 +378,7 @@ jssip.message.Message.Builder.prototype.setStatusCode = function(statusCode) {
  * Set the reasonPhrase.
  * @param {string} reasonPhrase The reasonPhrase.
  * @return {!jssip.message.Message.Builder} Return this.
- * @throws
+ * @throws {Error}
  */
 jssip.message.Message.Builder.prototype.setReasonPhrase =
     function(reasonPhrase) {
@@ -417,7 +417,7 @@ jssip.message.Message.Builder.prototype.setHeaders = function(headers) {
 /**
  * Builds a message object.
  * @return {!jssip.message.Message} The message.
- * @throws
+ * @throws {Error}
  */
 jssip.message.Message.Builder.prototype.build = function() {
   this.isRequest_ = !!this.method_ && !!this.requestUri_;
