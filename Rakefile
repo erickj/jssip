@@ -82,6 +82,10 @@ task :lint, [:dir] do |t, args|
   puts %x{#{GJSLINT} --strict --exclude_files=#{excludes} -r #{dir}}
 end
 
+
+desc 'Run tests and build'
+task :test => [:init, :lint, :'build:simple', :'test:genspecs', :'test:specs']
+
 namespace :test do
   desc 'Run spec for [target]'
   task :spec, :target do |t, args|
