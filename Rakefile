@@ -3,19 +3,23 @@ require 'fileutils'
 require 'open3'
 require 'yaml'
 
-BASE_DIR = FileUtils.pwd
+BASE_DIR = File.realpath(FileUtils.pwd)
 JS_DIR = BASE_DIR + '/src'
 SPEC_DIR = BASE_DIR + '/spec'
 BUILD_DIR = BASE_DIR + '/build'
-TEST_OUT_DIR = 'test_out'
+THIRD_PARTY_DIR = BASE_DIR + '/lib'
+
+TEST_BUILD_DIR = BUILD_DIR + '/test_out'
 
 CLOSURE_BUILDER = 'lib/closure-library/bin/build/closurebuilder.py'
 CLOSURE_BUILDER_ROOTS = '--root=lib/closure-library --root=lib/closure-library-third-party --root=src'
 CLOSURE_BUILDER_ROOTS_SPEC = CLOSURE_BUILDER_ROOTS + ' --root=spec'
 CLOSURE_COMPILER = 'lib/closure-compiler/compiler.jar'
-SPECRUNNER_TPL = '_specrunner.erb'
 
+TEST_PROTOCOL = 'file://'
+SPECRUNNER_TPL = '_specrunner.erb'
 PHANTOMJS_RUNNER = 'phantomjs run-jasmine.js'
+JASMINE_ROOT_PATH = THIRD_PARTY_DIR + '/jasmine-1.3.1'
 
 NAMESPACE = 'jssip'
 DEFAULT_TARGET = 'jssip.Endpoint'
@@ -28,13 +32,13 @@ task :default => [:'build:concat']
 desc 'Init the build workspace'
 task :init do
   FileUtils.mkdir(BUILD_DIR) unless File.directory?(BUILD_DIR)
-  FileUtils.mkdir(TEST_OUT_DIR) unless File.directory?(TEST_OUT_DIR)
+  FileUtils.mkdir(TEST_BUILD_DIR) unless File.directory?(TEST_BUILD_DIR)
 end
 
 desc 'Clean any generated files'
 task :clean do
   FileUtils.rm_r(BUILD_DIR, :force => true)
-  FileUtils.rm_r(TEST_OUT_DIR, :force => true)
+  FileUtils.rm_r(TEST_BUILD_DIR, :force => true)
   Rake::Task[:init].invoke
 end
 
@@ -89,7 +93,8 @@ namespace :test do
   desc 'Run all specs for [namespace] or jssip'
   task :specs, :namespace do |t, args|
     ns = Utils.normalize_target_name(args[:namespace] || NAMESPACE, { :no_cap => true })
-    specs_dir = File.join(FileUtils.pwd, BUILD_DIR)
+    specs_dir = TEST_BUILD_DIR
+    puts specs_dir
 
     puts "Running specs for namespace [#{ns}]"
     puts
@@ -124,7 +129,7 @@ end
 ##
 # Class needed for the ERB template. See Util.build_specrunner
 class SpecRunnerBindingProvider
-  attr_accessor :target, :scripts
+  attr_accessor :target, :scripts, :jasmine_root, :base_root
   def get_binding
     binding
   end
@@ -163,25 +168,36 @@ class Utils
   end
 
   def self.get_script_deps(js_target)
-    build_js(js_target, '--output_mode=list')
+    puts "Listing dependencies for target: #{js_target}"
+    build_args = []
+    build_args << '--output_mode=list'
+    deps = build_js(js_target, build_args)
+    deps.split.map do |f|
+      project_dir = File.realpath(BASE_DIR + '/..')
+      file_path = File.realpath(f);
+      File.join(project_dir, file_path.gsub(/^#{project_dir}\/?/, ''))
+    end
   end
 
   def self.build_specrunner(target)
     puts
     puts "Building specrunner for target: #{target}"
-    script_names = Utils.get_script_deps(target).split
-    output_file = target + '.html'
+    script_names = Utils.get_script_deps(target)
 
     template_obj = SpecRunnerBindingProvider.new
     template_obj.target = target
-    template_obj.scripts = script_names
+    template_obj.scripts = script_names.map { |s| TEST_PROTOCOL + s }
+    template_obj.jasmine_root = TEST_PROTOCOL + JASMINE_ROOT_PATH
+    template_obj.base_root = TEST_PROTOCOL + BASE_DIR
+
     template = File.read(SPECRUNNER_TPL)
 
-    path = File.join(BUILD_DIR, output_file)
+    output_file = target + '.html'
+    path = File.join(TEST_BUILD_DIR, output_file)
     File.open(path, 'w') do |f|
       f.write(ERB.new(template).result(template_obj.get_binding))
     end
-    puts "Wrote file #{path}"
+    puts "Wrote spec file: #{path}"
   end
 
   def self.build_script(filename, js_target)
@@ -260,9 +276,9 @@ EOS
   ##
   # Run the spec in phantomjs
   def self.run_spec(target)
-    spec_path = File.join(FileUtils.pwd, BUILD_DIR, "#{target}.html")
+    spec_url = TEST_PROTOCOL + File.join(TEST_BUILD_DIR, "#{target}.html")
     puts "Running Spec for #{target}"
-    puts %x{#{PHANTOMJS_RUNNER} file://#{spec_path}}
+    puts %x{#{PHANTOMJS_RUNNER} #{spec_url}}
   end
 
 end
