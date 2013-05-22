@@ -90,7 +90,7 @@ jssip.message.MessageContext.prototype.init = function() {
  */
 jssip.message.MessageContext.prototype.getParseErrors = function(start, len) {
   return this.parseErrors_.slice(start, start + len);
-}
+};
 
 
 /**
@@ -101,7 +101,7 @@ jssip.message.MessageContext.prototype.getParseErrors = function(start, len) {
  */
 jssip.message.MessageContext.prototype.getParseWarnings = function(start, len) {
   return this.parseWarnings_.slice(start, start + len);
-}
+};
 
 
 /**
@@ -136,7 +136,7 @@ jssip.message.MessageContext.prototype.getMessage_ = function() {
     throw new Error('Context initialized but message parsing failed');
   }
   return this.message_;
-}
+};
 
 
 /**
@@ -164,7 +164,7 @@ jssip.message.MessageContext.prototype.invokeParser_ = function(parser) {
   try {
     result = parser.parse();
   } catch (e) {
-    result = null
+    result = null;
     if (e instanceof jssip.ParseError) {
       this.parseErrors_.push(e);
       this.dispatchEvent(new jssip.message.MessageContext.ParseEvent(

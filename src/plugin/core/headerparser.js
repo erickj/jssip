@@ -11,7 +11,8 @@ jssip.plugin.core.HeaderParserFactoryImpl = function() {};
 
 
 /** @override */
-jssip.plugin.core.HeaderParserFactory.prototype.create
+jssip.plugin.core.HeaderParserFactory.prototype.create = function() {
+};
 
 
 /**

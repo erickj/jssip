@@ -1,9 +1,11 @@
 goog.provide('jssip.message.Header');
 
 
+
 /**
- * @param {string} name The header name
- * @param {string} vaue The header value
+ * @param {string} name
+ * @param {string} value
+ * @constructor
  */
 jssip.message.Header = function(name, value) {
   /**

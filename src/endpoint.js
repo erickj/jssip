@@ -1,11 +1,13 @@
 goog.provide('jssip.Endpoint');
 
 goog.require('jssip.ParserRegistry');
-goog.require('jssip.message.HeaderParserFactory')
-goog.require('jssip.message.MessageParserFactory')
+goog.require('jssip.message.HeaderParserFactory');
+goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.net.TransportManager');
-goog.require('jssip.plugin.Plugin')
-goog.require('jssip.uri.UriParserFactory')
+goog.require('jssip.plugin.Plugin');
+goog.require('jssip.uri.UriParserFactory');
+
+
 
 /**
  * @constructor
@@ -23,8 +25,8 @@ jssip.Endpoint = function() {
    */
   this.transportManager_ = new jssip.net.TransportManager();
 
-//  this.transportManager_.onReceiveMessage(
-//      goog.bind(this.receiveMessageFromTransport, this));
+  //  this.transportManager_.onReceiveMessage(
+  //      goog.bind(this.receiveMessageFromTransport, this));
 
   // TODO(erick): init a parser here, when a module is registered part of
   // the init process must be to provide the parser to the module to allow
@@ -38,7 +40,7 @@ jssip.Endpoint = function() {
 };
 
 
-/** @return {!jssip.ParserRegistry} */
+/** @return {!jssip.ParserRegistry} The parser registry. */
 jssip.Endpoint.prototype.getParserRegistry = function() {
   return this.parserRegistry_;
 };

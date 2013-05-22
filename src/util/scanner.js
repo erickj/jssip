@@ -1,5 +1,7 @@
 goog.provide('jssip.util.Scanner');
 
+
+
 /**
  * A string scanner.
  * @param {string} text The text to scan.

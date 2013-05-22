@@ -1,5 +1,7 @@
 goog.provide('jssip.plugin.Plugin');
 
+
+
 /**
  * A plugin is the manner by which extensions are made to JSSIP.  Each
  * RFC implementation for instance probably warrants its own plugin. A

@@ -1,6 +1,6 @@
-goog.provide('jssip.Parser');
 goog.provide('jssip.ParseError');
 goog.provide('jssip.ParseWarning');
+goog.provide('jssip.Parser');
 
 
 
