@@ -97,6 +97,11 @@ jssip.message.MessageParserFactory.prototype.createParser = function(text) {
  */
 jssip.message.MessageParser = function(rawMessageText) {
   goog.base(this, rawMessageText);
+
+  /**
+   * @private {!jssip.message.Message.Builder}
+   */
+  this.messageBuilder_ = new jssip.message.Message.Builder();
 };
 goog.inherits(jssip.message.MessageParser, jssip.AbstractParser);
 
@@ -129,44 +134,41 @@ jssip.message.MessageParser.TOKEN_MATCHERS_ = {
  * @return {!jssip.message.Message} The parsed message object.
  */
 jssip.message.MessageParser.prototype.parse = function() {
-  var messageBuilder = this.parseStartLine_();
-  messageBuilder.setHeaders(this.parseHeaders_());
+  this.parseStartLine_();
+  this.parseHeaders_();
   this.parseCrlf_();
-  messageBuilder.setBody(this.parseBody_());
+  this.parseBody_();
 
-  return messageBuilder.build();
+  return this.messageBuilder_.build();
 };
 
 
 /**
  * Parse the start line.
- * @return {!jssip.message.Message.Builder} The message builder.
- * @throws
+ * @throws {jssip.ParseError}
  * @private
  */
 jssip.message.MessageParser.prototype.parseStartLine_ = function() {
   var startLine = this.readNextLine();
   var tokens = startLine.split(/\s+/);
-  var messageBuilder = new jssip.message.Message.Builder();
 
   if (jssip.message.MessageParser.TOKEN_MATCHERS_.CR_OR_LF.test(startLine)) {
     throw new jssip.ParseError('Invalid \n or \r in start line');
   }
 
   if (this.testRequestLineTokens_(tokens)) {
-    messageBuilder.
+    this.messageBuilder_.
         setMethod(tokens[0]).
         setRequestUri(tokens[1]).
         setSipVersion(tokens[2]);
   } else if (this.testStatusLineTokens_(tokens)) {
-    messageBuilder.
+    this.messageBuilder_.
         setSipVersion(tokens[0]).
         setStatusCode(tokens[1]).
         setReasonPhrase(tokens[2]);
   } else {
     throw new jssip.ParseError('Unable to parse start line');
   }
-  return messageBuilder;
 };
 
 
@@ -196,21 +198,22 @@ jssip.message.MessageParser.prototype.parseStartLine_ = function() {
    Thus, the above are all valid and equivalent, but the last is the
    preferred form.
 
- * @return {!Array.<string>} Array of name, value pairs.
- * @throws
+ * @throws {jssip.ParseError}
  * @private
  */
 jssip.message.MessageParser.prototype.parseHeaders_ = function() {
   var line;
-  // In order to match header values across multiple lines I need to
-  // the use [\s\S] character class instead of just (.*).  In regular
-  // expressions '.' does not match new lines, and javascript does not
-  // implement the DOTALL regex mode.  This has nothing to do with the
-  // multiline regex modifier.
+  // In order to match header values across multiple lines I need to the use
+  // [\s\S] character class instead of just (.*).  In regular expressions '.'
+  // does not match new lines, and javascript does not implement the DOTALL
+  // regex mode.  This has nothing to do with the multiline regex modifier.
+  // http://www.regular-expressions.info/dot.html
   var colonRegex = /([^:]+):([\s\S]*)/;
   var headers = [];
   var eof = false;
 
+  // 'line' is all text from the current position to the next CRLF. 'line' may
+  // contain newlines.
   while ((line = this.readNextLine()) != '') {
     if (line === null) {
       throw new jssip.ParseError('Reading header line returned null');
@@ -227,7 +230,7 @@ jssip.message.MessageParser.prototype.parseHeaders_ = function() {
     headers.push(goog.string.trimRight(matches[1]));
     headers.push(goog.string.trimLeft(matches[2]));
   }
-  return headers;
+  this.messageBuilder_.setHeaders(headers);
 };
 
 
@@ -251,15 +254,12 @@ jssip.message.MessageParser.prototype.parseCrlf_ = function() {
 
 
 /**
- * Return any remaining lines as the body of the message.
- * @return {?string} The message body or null if none.
+ * Parses the message body out of the text and adds it to the message builder.
  * @private
  */
 jssip.message.MessageParser.prototype.parseBody_ = function() {
-  if (this.isEof()) {
-    return null;
-  }
-  return this.readSubstring(this.getPosition());
+  this.messageBuilder_.setBody(
+      this.isEof() ? null : this.readSubstring(this.getPosition()));
 };
 
 
