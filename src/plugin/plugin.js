@@ -14,7 +14,14 @@ jssip.plugin.Plugin = function() {
 
 
 /**
- * Returns the set of features that this plugin provides.
+ * The plugin name.
+ * @return {string} The name.
+ */
+jssip.plugin.Plugin.prototype.getName = function() {};
+
+
+/**
+ * The set of features that this plugin provides.
  * @return {!jssip.plugin.FeatureSet} The feature set.
  */
 jssip.plugin.Plugin.prototype.getFeatureSet = function() {};
