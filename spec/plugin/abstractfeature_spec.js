@@ -1,5 +1,6 @@
 goog.provide('jssip.plugin.AbstractFeatureSpec');
 
+goog.require('jssip.core.EventBus');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureContext');
 
@@ -10,6 +11,10 @@ describe('jssip.plugin.AbstractFeature', function() {
 
   beforeEach(function() {
     feature = new jssip.plugin.AbstractFeature(eventTypes, name);
+  });
+
+  it('should be an event bus', function() {
+    expect(feature instanceof jssip.core.EventBus).toBe(true);
   });
 
   describe('getters', function() {

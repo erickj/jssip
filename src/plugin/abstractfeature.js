@@ -1,6 +1,6 @@
 goog.provide('jssip.plugin.AbstractFeature');
 
-goog.require('goog.events.EventTarget');
+goog.require('jssip.core.EventBus');
 goog.require('jssip.plugin.Feature');
 
 
@@ -18,7 +18,7 @@ goog.require('jssip.plugin.Feature');
  *     activation.
  * @constructor
  * @implements {jssip.plugin.Feature}
- * @extends {goog.events.EventTarget}
+ * @extends {jssip.core.EventBus}
  */
 jssip.plugin.AbstractFeature =
     function(eventTypes, name, opt_featureDelegate, opt_eventHandlerMap) {
@@ -53,6 +53,7 @@ jssip.plugin.AbstractFeature =
    */
   this.isActive_ = false;
 };
+goog.inherits(jssip.plugin.AbstractFeature, jssip.core.EventBus);
 
 
 /** @override */
