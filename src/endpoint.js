@@ -1,71 +1,62 @@
 goog.provide('jssip.Endpoint');
 
-goog.require('jssip.ParserRegistry');
-goog.require('jssip.message.HeaderParserFactory');
-goog.require('jssip.message.MessageParserFactory');
+goog.require('jssip.core.EventBus');
+goog.require('jssip.core.UserAgent');
+goog.require('jssip.core.UserAgent.Config');
 goog.require('jssip.net.TransportManager');
 goog.require('jssip.plugin.Plugin');
-goog.require('jssip.uri.UriParserFactory');
 
 
 
 /**
+ * An endpoint can have multiple user agents.
+ * List of events fired in the order in which they fire;
+ *
+ *   Event.LOADSTART - fired when loading begins
+ *   Event.LOADEND - fired after all user agents are loaded
+ *
+ * @param {!Array.<!jssip.plugin.Plugin>} plugins The plugins array.
+ * @param {!Array.<!jssip.core.UserAgent.Config>} configs Each config
+ *     generates a user agent for the endpoint.
  * @constructor
  */
-jssip.Endpoint = function() {
+jssip.Endpoint = function(plugins, configs) {
+  /** @private {!jssip.core.EventBus} */
+  this.eventBus_ = new jssip.core.EventBus();
+
   // TODO(erick): define a transport framework where a transport manager accepts
   // a SIP URI and message and handles dispatching the message via the appriate
   // transport protocol. Initial browser implementation will just be access to
   // the xhr/websocket library in use for network access. Future implementations
   // for server side could include UDP/TLS/SCTP transports.  The manager will
   // also supply messages to the endpoint from all open transports.
-  /**
-   * @type {!jssip.net.TransportManager}
-   * @private
-   */
+  /** @private {!jssip.net.TransportManager} */
   this.transportManager_ = new jssip.net.TransportManager();
 
-  //  this.transportManager_.onReceiveMessage(
-  //      goog.bind(this.receiveMessageFromTransport, this));
+  /** @private {!Array.<!jssip.core.UserAgent>} */
+  this.userAgents_ = [];
 
-  // TODO(erick): init a parser here, when a module is registered part of
-  // the init process must be to provide the parser to the module to allow
-  // extensions to the parser for custom headers, content types, etc...
-  /**
-   * @type {!jssip.ParserRegistry}
-   * @private
-   */
-  this.parserRegistry_ = new jssip.ParserRegistry(
-      new jssip.message.MessageParserFactory());
+  for (var i = 0; i < configs.length; i++) {
+    this.userAgents_.push(
+        new jssip.core.UserAgent(plugins, configs[i], this.eventBus_));
+  }
 };
 
 
-/** @return {!jssip.ParserRegistry} The parser registry. */
-jssip.Endpoint.prototype.getParserRegistry = function() {
-  return this.parserRegistry_;
+/** @enum {string} */
+jssip.Endpoint.Event = {
+  LOADSTART: 'endpointloadstart',
+  LOADEND: 'endpointloadend'
 };
 
 
 /**
- * Receives a message from the transport manager and hands it off for parsing
- * and processing.
- * @param {string} message The message received.
+ * Loads all user agents.
  */
-jssip.Endpoint.prototype.receiveMessageFromTransport = function(message) {
-  // TODO(erick): all the message parsing and processing kick off.  Create some
-  // kind of message context here that will be used to house the original
-  // message, parsed values, and will be what is passed to modules.
-};
-
-
-// TODO(erick): As modules are registered to the endpoint each may provide new
-// capabilities of it's service (extended Accept/Allow params etc.)  These
-// capabilities should be read from the module and accessible via the endpoint.
-// @see: file:pjsip/sip_endpoint.h fn:pjsip_endpt_get_capability
-// TODO(erick): is a priority necessary?
-/**
- * Registers plugins with the endpoint.
- * @param {!jssip.plugin.Plugin} plugin The plugin.
- */
-jssip.Endpoint.prototype.registerPlugin = function(plugin) {
+jssip.Endpoint.prototype.load = function() {
+  this.eventBus_.dispatchEvent(jssip.Endpoint.Event.LOADSTART);
+  for (var i = 0; this.userAgents_.length; i++) {
+    this.userAgents_[i].load();
+  }
+  this.eventBus_.dispatchEvent(jssip.Endpoint.Event.LOADEND);
 };
