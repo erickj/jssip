@@ -1,6 +1,7 @@
 goog.provide('jssip.core.UserAgent');
 goog.provide('jssip.core.UserAgent.Config');
 
+goog.require('goog.array');
 goog.require('goog.asserts');
 goog.require('goog.structs.Set');
 goog.require('jssip.ParserRegistry');
@@ -99,5 +100,5 @@ jssip.core.UserAgent.Config = function(featureNames) {
 
 /** @return {!Array.<string>} The features to activate. */
 jssip.core.UserAgent.Config.prototype.getFeatureNames = function() {
-  return goog.cloneObject(this.featureNames_);
+  return /** @type {!Array.<string>} */ (goog.array.clone(this.featureNames_));
 };
