@@ -15,6 +15,7 @@ CLOSURE_BUILDER = 'lib/closure-library/bin/build/closurebuilder.py'
 CLOSURE_BUILDER_ROOTS = '--root=lib/closure-library --root=lib/closure-library-third-party --root=src'
 CLOSURE_BUILDER_ROOTS_SPEC = CLOSURE_BUILDER_ROOTS + ' --root=spec'
 CLOSURE_COMPILER = 'lib/closure-compiler/compiler.jar'
+CLOSURE_DEPS = 'lib/closure-library/goog/deps.js'
 
 TEST_PROTOCOL = 'file://'
 SPECRUNNER_TPL = '_specrunner.erb'
@@ -213,10 +214,13 @@ class Utils
     args.push('-f "--flagfile=compiler.flags"')
     args.push('-f "--formatting=PRETTY_PRINT"')
 
-    File.open(path, 'w') do |f|
-      content = build_js(js_target, args)
-      f.write(content)
-    end
+    # Running into this problem w/ popen3, see note in #build_js
+    # File.open(path, 'w') do |f|
+    #   content = build_js(js_target, args)
+    #   f.write(content)
+    # end
+    build_js(js_target, args, path)
+
     puts "Wrote file #{path}"
   end
 
@@ -226,13 +230,18 @@ class Utils
 
     args = ['--output_mode=compiled', "--compiler_jar=#{CLOSURE_COMPILER}"]
 
+    args.push('-f "--js=%s"'%CLOSURE_DEPS)
     args.push('-f "--compilation_level=ADVANCED_OPTIMIZATIONS"') if advanced
     args.push('-f "--flagfile=compiler.flags"')
 
-    File.open(path, 'w') do |f|
-      content = build_js(js_target, args)
-      f.write(content)
-    end
+
+    # Running into this problem w/ popen3, see note in #build_js
+    # File.open(path, 'w') do |f|
+    #   content = build_js(js_target, args)
+    #   f.write(content)
+    # end
+    build_js(js_target, args, path)
+
     puts "Wrote file #{path}"
   end
 
@@ -241,14 +250,22 @@ class Utils
   # - concating source
   # - compiling source
   # - listing target dependencies
-  def self.build_js(js_target, *build_args)
+  def self.build_js(js_target, build_args, path=nil)
     build_roots = is_target_spec?(js_target) ? CLOSURE_BUILDER_ROOTS_SPEC : CLOSURE_BUILDER_ROOTS
-    stdin, stdout, stderr, wait_thrd = Open3.popen3 <<EOS
+    cmd = <<EOS
     #{CLOSURE_BUILDER} \
       #{build_roots} \
-      --namespace="#{js_target}" \
+      --namespace="#{js_target}" %s \
       #{build_args.join(' ')}
 EOS
+    cmd = cmd%[path ? "--output_file=#{path}" : ""]
+
+    # Running into the problem discussed here w/ regard to popen3:
+    # see http://www.ruby-forum.com/topic/158476
+    # When stdout/stderr can fill up and block the ruby process until
+    # they are read, some crazy shit with threads needs to read them
+    # For the time being just use "--output_file"
+    stdin, stdout, stderr, wait_thrd = Open3.popen3 cmd
 
     err = stderr.read
     if wait_thrd.value.exitstatus > 0
