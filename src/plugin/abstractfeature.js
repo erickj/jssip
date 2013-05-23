@@ -8,6 +8,10 @@ goog.require('jssip.plugin.Feature.Event');
 
 /**
  * Base type for features.
+ * List of events fired in the order in which they fire;
+ *
+ *   Event.ACTIVATED - after all activation code has run
+ *
  * @param {!Array.<string>} eventTypes The event types.
  * @param {string} name The event name.
  * @param {!jssip.plugin.FeatureDelegate=} opt_featureDelegate An optional
