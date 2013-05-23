@@ -3,6 +3,7 @@ goog.provide('jssip.plugin.AbstractFeatureSpec');
 goog.require('jssip.core.EventBus');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureContext');
+goog.require('jssip.plugin.Feature.Event');
 
 describe('jssip.plugin.AbstractFeature', function() {
   var eventTypes = ['event.foo', 'event.bar'];
@@ -86,6 +87,13 @@ describe('jssip.plugin.AbstractFeature', function() {
       expect(feature.getParentEventTarget()).toBe(null);
       feature.activate(featureContext);
       expect(feature.getParentEventTarget()).toBe(eventBus);
+    });
+
+    it('should dispatch an activated event', function() {
+      var activatedSpy = jasmine.createSpy();
+      feature.addEventListener(jssip.plugin.Feature.Event.ACTIVATED, activatedSpy);
+      feature.activate(featureContext);
+      expect(activatedSpy).toHaveBeenCalled();
     });
   });
 });

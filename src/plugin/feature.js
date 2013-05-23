@@ -1,4 +1,5 @@
 goog.provide('jssip.plugin.Feature');
+goog.provide('jssip.plugin.Feature.Event');
 
 
 
@@ -12,6 +13,12 @@ goog.provide('jssip.plugin.Feature');
  * @interface
  */
 jssip.plugin.Feature = function() {};
+
+
+/** @enum {string} */
+jssip.plugin.Feature.Event = {
+  ACTIVATED: 'featureactivated'
+};
 
 
 /**

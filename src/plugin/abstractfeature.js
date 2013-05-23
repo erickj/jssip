@@ -2,6 +2,7 @@ goog.provide('jssip.plugin.AbstractFeature');
 
 goog.require('jssip.core.EventBus');
 goog.require('jssip.plugin.Feature');
+goog.require('jssip.plugin.Feature.Event');
 
 
 
@@ -107,6 +108,7 @@ jssip.plugin.AbstractFeature.prototype.activate = function(featureContext) {
   this.registerParserFactories(featureContext.getParserRegistry());
 
   this.isActive_ = true;
+  this.dispatchEvent(jssip.plugin.Feature.Event.ACTIVATED);
 };
 
 
