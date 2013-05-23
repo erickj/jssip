@@ -5,16 +5,18 @@ goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureContext');
 
 describe('jssip.plugin.AbstractFeature', function() {
-  var feature;
   var eventTypes = ['event.foo', 'event.bar'];
   var name = 'test.abstractfeature';
+  var feature;
 
   beforeEach(function() {
     feature = new jssip.plugin.AbstractFeature(eventTypes, name);
   });
 
-  it('should be an event bus', function() {
-    expect(feature instanceof jssip.core.EventBus).toBe(true);
+  describe('inheritance', function() {
+    it('should be an event bus', function() {
+      expect(feature instanceof jssip.core.EventBus).toBe(true);
+    });
   });
 
   describe('getters', function() {
@@ -77,6 +79,13 @@ describe('jssip.plugin.AbstractFeature', function() {
           'listen.test1', eventHandlerMap['listen.test1']);
       expect(eventBus.addEventListener).toHaveBeenCalledWith(
           'listen.test2', eventHandlerMap['listen.test2']);
+    });
+
+
+    it('should setup the event chain on activation', function() {
+      expect(feature.getParentEventTarget()).toBe(null);
+      feature.activate(featureContext);
+      expect(feature.getParentEventTarget()).toBe(eventBus);
     });
   });
 });

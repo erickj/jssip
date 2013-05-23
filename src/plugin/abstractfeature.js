@@ -22,6 +22,8 @@ goog.require('jssip.plugin.Feature');
  */
 jssip.plugin.AbstractFeature =
     function(eventTypes, name, opt_featureDelegate, opt_eventHandlerMap) {
+  goog.base(this);
+
   /**
    * @private {!Array.<string>}
    */
@@ -94,11 +96,12 @@ jssip.plugin.AbstractFeature.prototype.activate = function(featureContext) {
 
   this.featureContext_ = featureContext;
 
-  // Register event handlers.
+  // Register event handlers and sets up event target chain.
   var eventBus = featureContext.getEventBus();
   for (var eventType in this.eventHandlerMap_) {
     eventBus.addEventListener(eventType, this.eventHandlerMap_[eventType]);
   }
+  this.setParentEventTarget(eventBus);
 
   // Register custom header and uri parsers.
   this.registerParserFactories(featureContext.getParserRegistry());
