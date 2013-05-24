@@ -3,6 +3,7 @@ goog.provide('jssip.Endpoint');
 goog.require('jssip.core.EventBus');
 goog.require('jssip.core.UserAgent');
 goog.require('jssip.net.TransportManager');
+goog.require('jssip.sip.core.CorePlugin');
 
 
 
@@ -34,6 +35,7 @@ jssip.Endpoint = function(plugins, configs) {
   /** @private {!Array.<!jssip.core.UserAgent>} */
   this.userAgents_ = [];
 
+  plugins.push(new jssip.sip.core.CorePlugin());
   for (var i = 0; i < configs.length; i++) {
     this.userAgents_.push(
         new jssip.core.UserAgent(plugins, configs[i], this.eventBus_));
