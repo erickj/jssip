@@ -2,9 +2,7 @@ goog.provide('jssip.Endpoint');
 
 goog.require('jssip.core.EventBus');
 goog.require('jssip.core.UserAgent');
-goog.require('jssip.core.UserAgent.Config');
 goog.require('jssip.net.TransportManager');
-goog.require('jssip.plugin.Plugin');
 
 
 

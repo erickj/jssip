@@ -11,11 +11,15 @@ THIRD_PARTY_DIR = BASE_DIR + '/lib'
 
 TEST_BUILD_DIR = BUILD_DIR + '/test_out'
 
-CLOSURE_BUILDER = 'lib/closure-library/bin/build/closurebuilder.py'
-CLOSURE_BUILDER_ROOTS = '--root=lib/closure-library --root=lib/closure-library-third-party --root=src'
-CLOSURE_BUILDER_ROOTS_SPEC = CLOSURE_BUILDER_ROOTS + ' --root=spec'
-CLOSURE_COMPILER = 'lib/closure-compiler/compiler.jar'
-CLOSURE_DEPS = 'lib/closure-library/goog/deps.js'
+CLSR_BUILD_DIR = 'lib/closure-library/bin/build'
+CLSR_BUILDER = CLSR_BUILD_DIR + '/closurebuilder.py'
+CLSR_BUILDER_ROOTS = '--root=lib/closure-library --root=lib/closure-library-third-party --root=src'
+CLSR_BUILDER_ROOTS_SPEC = CLSR_BUILDER_ROOTS + ' --root=spec'
+CLSR_DEPSWRITER = CLSR_BUILD_DIR + '/depswriter.py'
+CLSR_COMPILER = 'lib/closure-compiler/compiler.jar'
+CLSR_DEPS = 'lib/closure-library/goog/deps.js'
+
+JSSIP_DEPS = BUILD_DIR + '/this-is-stupid_see-note-in-file.deps.js'
 
 TEST_PROTOCOL = 'file://'
 SPECRUNNER_TPL = '_specrunner.erb'
@@ -46,7 +50,7 @@ end
 namespace :build do
   desc 'Show help for the JS compiler'
   task :help do
-    puts %x{java -jar #{CLOSURE_COMPILER} --help 2>&1}
+    puts %x{java -jar #{CLSR_COMPILER} --help 2>&1}
   end
 
   desc 'Compile JS in WHITESPACE_ONLY mode for [target]'
@@ -56,15 +60,20 @@ namespace :build do
   end
 
   desc 'Compile JS in SIMPLE_OPTIMIZATION mode for [target]'
-  task :simple, [:target] => [:init] do |t, args|
+  task :simple, [:target] => [:init, :'build:stupid_jssip_deps'] do |t, args|
     target = args[:target] || DEFAULT_TARGET
     Utils.build_compiled(Utils.get_js_script_name(target, 'min'), target)
   end
 
   desc 'Compile JS in ADVANCED_OPTIMIZAION mode for [target]'
-  task :compile, [:target] => [:init] do |t, args|
+  task :compile, [:target] => [:init, :'build:stupid_jssip_deps'] do |t, args|
     target = args[:target] || DEFAULT_TARGET
     Utils.build_compiled(Utils.get_js_script_name(target, 'opt'), target, true)
+  end
+
+  desc 'Generate a deps file'
+  task :stupid_jssip_deps => [:init] do
+    Utils.write_deps(JSSIP_DEPS, ['--root="src"'])
   end
 end
 
@@ -163,7 +172,7 @@ class Utils
   end
 
   def self.get_js_script_name(target, type='')
-    get_script_prefix(target, type) << '.js'
+    [get_script_prefix(target, type), 'js'].join('.')
   end
 
   def self.get_script_prefix(target, type='')
@@ -209,7 +218,7 @@ class Utils
     path = File.join(BUILD_DIR, filename)
     puts "Creating #{path} for namespace #{js_target}..."
 
-    args = ['--output_mode=compiled', "--compiler_jar=#{CLOSURE_COMPILER}"]
+    args = ['--output_mode=compiled', "--compiler_jar=#{CLSR_COMPILER}"]
     args.push('-f "--compilation_level=WHITESPACE_ONLY"')
     args.push('-f "--flagfile=compiler.flags"')
     args.push('-f "--formatting=PRETTY_PRINT"')
@@ -228,9 +237,10 @@ class Utils
     path = File.join(BUILD_DIR, filename)
     puts "Creating compiled #{path} for namespace #{js_target}..."
 
-    args = ['--output_mode=compiled', "--compiler_jar=#{CLOSURE_COMPILER}"]
+    args = ['--output_mode=compiled', "--compiler_jar=#{CLSR_COMPILER}"]
 
-    args.push('-f "--js=%s"'%CLOSURE_DEPS)
+    args.push('-f "--js=%s"'%CLSR_DEPS)
+    args.push('-f "--js=%s"'%JSSIP_DEPS)
     args.push('-f "--compilation_level=ADVANCED_OPTIMIZATIONS"') if advanced
     args.push('-f "--flagfile=compiler.flags"')
 
@@ -251,9 +261,9 @@ class Utils
   # - compiling source
   # - listing target dependencies
   def self.build_js(js_target, build_args, path=nil)
-    build_roots = is_target_spec?(js_target) ? CLOSURE_BUILDER_ROOTS_SPEC : CLOSURE_BUILDER_ROOTS
+    build_roots = is_target_spec?(js_target) ? CLSR_BUILDER_ROOTS_SPEC : CLSR_BUILDER_ROOTS
     cmd = <<EOS
-    #{CLOSURE_BUILDER} \
+    #{CLSR_BUILDER} \
       #{build_roots} \
       --namespace="#{js_target}" %s \
       #{build_args.join(' ')}
@@ -269,7 +279,7 @@ EOS
 
     err = stderr.read
     if wait_thrd.value.exitstatus > 0
-      $stderr.puts "Error running #{CLOSURE_BUILDER}:"
+      $stderr.puts "Error running #{CLSR_BUILDER}:"
       $stderr.puts
       $stderr.puts err
     elsif err.length > 0
@@ -302,4 +312,28 @@ EOS
     puts %x{#{PHANTOMJS_RUNNER} #{spec_url}}
   end
 
+  def self.write_deps(path, build_args)
+    file_warning = <<EOS
+/******************************************************************************
+//
+// ATTENTION: This file was generated with 'rake build:stupid_jssip_deps' It is generally
+// unusable for running standard closure DEBUG mode - use 'rake build:concat' or
+// run the 'rake test:genspecs' task to autogenerate test files.
+//
+// This file is only here to avoid unnecessary goog.require statements in the jssip
+// library during compilation. See here for more information:
+// http://code.google.com/p/closure-library/wiki/FrequentlyAskedQuestions#When_I_compile_with_type-checking_on,_I_get_warnings_about_"
+//
+******************************************************************************/
+
+EOS
+    cmd_opts = build_args.join(' ')
+    cmd = "#{CLSR_DEPSWRITER} #{cmd_opts}"
+    puts "Building deps with command:"
+    puts cmd
+    File.open(path, 'w') do |f|
+      f.puts file_warning
+    end
+    %x{#{cmd} >> #{path}}
+  end
 end
