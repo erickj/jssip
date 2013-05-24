@@ -27,6 +27,30 @@ describe ('jssip.core.PropertyHolder', function() {
     });
   });
 
+  describe('#equals', function() {
+    var equalPropertyHolder;
+    var unequalPropertyHolder;
+
+    beforeEach(function() {
+      equalPropertyHolder = new jssip.core.PropertyHolder(propertyMap);
+      unequalPropertyHolder = new jssip.core.PropertyHolder();
+    });
+
+    it('should return true for identity comparison', function() {
+      expect(propertyHolder.equals(propertyHolder)).toBe(true);
+    });
+
+    it('should return true symmetrically', function() {
+      expect(propertyHolder.equals(equalPropertyHolder)).toBe(true);
+      expect(equalPropertyHolder.equals(propertyHolder)).toBe(true);
+    });
+
+    it('should return false symmetrically', function() {
+      expect(propertyHolder.equals(unequalPropertyHolder)).toBe(false);
+      expect(unequalPropertyHolder.equals(propertyHolder)).toBe(false);
+    });
+  });
+
   describe('#dispose', function() {
     it('it should dispose of inner disposables', function() {
       expect(propertyHolder.isDisposed()).toBe(false);
