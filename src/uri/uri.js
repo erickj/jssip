@@ -4,8 +4,9 @@ goog.provide('jssip.uri.Uri.Builder');
 goog.require('jssip.core.PropertyHolder');
 
 
+
 /**
- * @param {!jssip.uri.Uri.Builder} builder The URI builder
+ * @param {!jssip.uri.Uri.Builder} builder
  * @constructor
  * @extends {jssip.core.PropertyHolder}
  */
@@ -65,6 +66,7 @@ jssip.uri.Uri.Builder = function() {
  * Adds a property to the map.
  * @param {jssip.uri.Uri.PropertyName} propertyName
  * @param {string} value
+ * @return {!jssip.uri.Uri.Builder}
  */
 jssip.uri.Uri.Builder.prototype.addPropertyPair =
     function(propertyName, value) {

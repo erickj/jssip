@@ -1,5 +1,5 @@
-goog.provide('jssip.plugin.core.HeaderParser');
-goog.provide('jssip.plugin.core.HeaderParserFactoryImpl');
+goog.provide('jssip.sip.core.HeaderParser');
+goog.provide('jssip.sip.core.HeaderParserFactoryImpl');
 
 
 
@@ -7,18 +7,18 @@ goog.provide('jssip.plugin.core.HeaderParserFactoryImpl');
  * @constructor
  * @implements {jssip.message.HeaderParserFactory}
  */
-jssip.plugin.core.HeaderParserFactoryImpl = function() {};
+jssip.sip.core.HeaderParserFactoryImpl = function() {};
 
 
 /** @override */
-jssip.plugin.core.HeaderParserFactory.prototype.create = function() {
+jssip.sip.core.HeaderParserFactory.prototype.create = function() {
 };
 
 
 /**
  * @enum {string}
  */
-jssip.plugin.core.HeaderParser.HEADERS = {
+jssip.sip.core.HeaderParser.HEADERS = {
   CALL_ID: 'call-id',
   CONTACT: 'contact',
   CONTENT_LENGTH: 'content-length',

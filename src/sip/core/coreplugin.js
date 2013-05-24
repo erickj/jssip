@@ -8,6 +8,7 @@ goog.require('jssip.sip.core.DialogFeature');
 goog.require('jssip.sip.core.TransactionFeature');
 
 
+
 /**
  * This plugin provides the core behaviors specified in RFC 3261, including:
  *
@@ -35,7 +36,7 @@ jssip.sip.core.CorePlugin.NAME = 'sipcore';
  */
 jssip.sip.core.CorePlugin.makeFeatureName = function(featureSuffix) {
   return jssip.sip.core.CorePlugin.NAME + '.' + featureSuffix;
-}
+};
 
 
 /** @enum {string} */

@@ -24,6 +24,8 @@ describe('jssip.uri.SipUriParser', function() {
     var makeUriBuilder = function() {
       return new jssip.uri.Uri.Builder();
     };
+
+    // Example SIP URIs, {@see http://tools.ietf.org/html/rfc3261#section-19.1.3}
     var expectedUriMap = {
       'sip:alice@atlanta.com': makeUriBuilder().
           addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').

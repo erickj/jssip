@@ -5,6 +5,7 @@ goog.require('goog.dispose');
 goog.require('goog.object');
 
 
+
 /**
  * An immutable map that provides access to stored properties.
  * @param {!Object.<string, *>} propertyMap
@@ -12,7 +13,7 @@ goog.require('goog.object');
  * @extends {goog.Disposable}
  */
 jssip.core.PropertyHolder = function(propertyMap) {
-  /** @private {!Object} */
+  /** @private {!Object.<string, *>} */
   this.propertyMap_ = propertyMap;
 };
 goog.inherits(jssip.core.PropertyHolder, goog.Disposable);
@@ -49,7 +50,7 @@ jssip.core.PropertyHolder.prototype.equals = function(other) {
       }
     }
   }
-  return isEqual
+  return isEqual;
 };
 
 

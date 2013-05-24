@@ -4,9 +4,9 @@ goog.provide('jssip.uri.SipUriParserFactory');
 goog.require('jssip.AbstractParser');
 goog.require('jssip.ParseError');
 goog.require('jssip.uri.Uri');
+goog.require('jssip.uri.Uri.Builder');
 goog.require('jssip.uri.UriParser');
 goog.require('jssip.uri.UriParserFactory');
-goog.require('jssip.uri.Uri.Builder');
 
 
 
@@ -33,7 +33,7 @@ jssip.uri.SipUriParserFactory.prototype.createParser = function(uri) {
  *
  *  sip:user:password@host:port;uri-parameters?headers
  *
- * @param {string} rawUri The URI to parse
+ * @param {string} rawUri
  * @constructor
  * @implements {jssip.uri.UriParser}
  * @extends {jssip.AbstractParser}
@@ -61,13 +61,13 @@ goog.inherits(jssip.uri.SipUriParser, jssip.AbstractParser);
  * @private {!RegExp}
  */
 jssip.uri.SipUriParser.regEx_ = new RegExp(
-  '^([^:]+)[:]' +                     // scheme
-  '(?:([^:@]*)(?:[:]([^@]*))?[@])?' + // user/password
-  '([^:;?]+)' +                       // host
-  '(?:[:]([\d]+))?' +                 // port
-  '(?:[;]([^?]+))?' +                 // uri-parameters
-  '(?:[?](.*))?$'                     // headers
-);
+    '^([^:]+)[:]' +                     // scheme
+    '(?:([^:@]*)(?:[:]([^@]*))?[@])?' + // user/password
+    '([^:;?]+)' +                       // host
+    '(?:[:]([\d]+))?' +                 // port
+    '(?:[;]([^?]+))?' +                 // uri-parameters
+    '(?:[?](.*))?$'                     // headers
+    );
 
 
 /** @private {!Array.<jssip.uri.Uri.PropertyName} */
@@ -81,6 +81,7 @@ jssip.uri.SipUriParser.propertyNamePositionList_ = [
   jssip.uri.Uri.PropertyName.PARAMETERS,
   jssip.uri.Uri.PropertyName.HEADERS
 ];
+
 
 /**
  * @override
