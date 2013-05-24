@@ -32,6 +32,7 @@ jssip.uri.Uri.prototype.get = function(propertyName) {
 
 /** @enum {string} */
 jssip.uri.Uri.PropertyName = {
+  HEADERS: 'headers',
   HOST: 'host',
   PASSWORD: 'password',
   PATH: 'path',
@@ -39,6 +40,14 @@ jssip.uri.Uri.PropertyName = {
   PARAMETERS: 'parameters',
   SCHEME: 'scheme',
   USER: 'user'
+};
+
+
+/** @enum {string} */
+jssip.uri.Uri.Scheme = {
+  SIP: 'sip',
+  SIPS: 'sips',
+  TEL: 'tel'
 };
 
 
