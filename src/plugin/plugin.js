@@ -21,7 +21,9 @@ jssip.plugin.Plugin.prototype.getName = function() {};
 
 
 /**
- * The set of features that this plugin provides.
+ * Returns a new set of features that this plugin provides. Each call to this
+ * function should generate a new feature set instance and new feature
+ * instances.
  * @return {!jssip.plugin.FeatureSet} The feature set.
  */
-jssip.plugin.Plugin.prototype.getFeatureSet = function() {};
+jssip.plugin.Plugin.prototype.generateFeatureSet = function() {};

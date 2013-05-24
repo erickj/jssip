@@ -7,16 +7,17 @@ goog.require('jssip.plugin.Plugin');
 /**
  * Base type for plugins
  * @param {string} name The plugin name.
- * @param {!jssip.plugin.FeaureSet} featureSet The feature set.
+ * @param {function(): !jssip.plugin.FeatureSet} featureSetFactory A
+ *     factory function that will generate this plugins feature set.
  * @constructor
  * @implements {jssip.plugin.Plugin}
  */
-jssip.plugin.AbstractPlugin = function(name, featureSet) {
+jssip.plugin.AbstractPlugin = function(name, featureSetFactory) {
   /** @private {string} */
   this.name_ = name;
 
-  /** @private {!jssip.plugin.FeatureSet} */
-  this.featureSet_ = featureSet;
+  /** @private {function(): !jssip.plugin.FeatureSet} */
+  this.featureSetFactory_ = featureSetFactory;
 };
 
 
@@ -27,6 +28,6 @@ jssip.plugin.AbstractPlugin.prototype.getName = function() {
 
 
 /** @override */
-jssip.plugin.AbstractPlugin.prototype.getFeatureSet = function() {
-  return this.featureSet_;
+jssip.plugin.AbstractPlugin.prototype.generateFeatureSet = function() {
+  return this.featureSetFactory_();
 };

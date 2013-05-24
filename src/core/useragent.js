@@ -14,6 +14,9 @@ goog.require('jssip.plugin.FeatureSet');
 
 /**
  * The user agent represents a single SIP configuration in the endpoint.
+ * Responsibilities include activating features, providing a feature context,
+ * and propagating events from features to the endpoint.
+ *
  * List of events fired in the order in which they fire;
  *
  *   Event.LOADSTART - fired when loading begins
@@ -32,7 +35,7 @@ jssip.core.UserAgent = function(plugins, config, parentEventBus) {
 
   var set = new goog.structs.Set();
   for (var i = 0; i < plugins.length; i++) {
-    set.addAll(plugins[i].getFeatureSet().getSet());
+    set.addAll(plugins[i].generateFeatureSet().getSet());
   }
   /** @private {!jssip.plugin.FeatureSet} */
   this.availableFeatureSet_ = new jssip.plugin.FeatureSet(set.getValues());
