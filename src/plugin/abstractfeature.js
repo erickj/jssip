@@ -10,7 +10,7 @@ goog.require('jssip.plugin.Feature.Event');
  * Base type for features.
  * List of events fired in the order in which they fire;
  *
- *   Event.ACTIVATED - after all activation code has run
+ *   ACTIVATED - after all activation code has run
  *
  * @param {string} name The event name.
  * @param {!jssip.plugin.FeatureFacade=} opt_featureFacade An optional
@@ -35,35 +35,23 @@ jssip.plugin.AbstractFeature = function(name, opt_featureFacade,
     opt_uriParserFactoryMap) {
   goog.base(this);
 
-  /**
-   * @private {string}
-   */
+  /** @private {string} */
   this.name_ = name;
 
-  /**
-   * @private {jssip.plugin.FeatureFacade}
-   */
+  /** @private {jssip.plugin.FeatureFacade} */
   this.featureFacade_ = goog.isDef(opt_featureFacade) ?
       opt_featureFacade : null;
 
-  /**
-   * @private {!Object.<!Function|!Object>}
-   */
+  /** @private {!Object.<!Function|!Object>} */
   this.eventHandlerMap_ = opt_eventHandlerMap || {};
 
-  /**
-   * @private {jssip.plugin.FeatureContext}
-   */
+  /** @private {jssip.plugin.FeatureContext} */
   this.feaureContext_ = null;
 
-  /**
-   * @private {boolean}
-   */
+  /** @private {boolean} */
   this.isActive_ = false;
 
-  /**
-   * @private {!Array.<string>}
-   */
+  /** @private {!Array.<string>} */
   this.featureTypes_ = opt_featureTypes || [];
 
   /** @private {!Object.<!jssip.message.HeaderParserFactory>} */
