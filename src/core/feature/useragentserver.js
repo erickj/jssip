@@ -20,6 +20,14 @@ jssip.core.feature.UserAgentServer.FEATURE_TYPE =
     jssip.core.UserAgent.CoreFeatureType.USERAGENTSERVER;
 
 
+/** @enum {string} */
+jssip.core.feature.UserAgentServer.EventType = {
+  CREATE_MESSAGE: 'uas-create-message',
+  RECEIVE_MESSAGE: 'uas-receive-message',
+  SEND_MESSAGE: 'uas-send-message'
+};
+
+
 /**
  * @param {!jssip.message.MessageContext} messageContext
  */
