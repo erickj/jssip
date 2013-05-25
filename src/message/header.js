@@ -1,38 +1,59 @@
 goog.provide('jssip.message.Header');
+goog.provide('jssip.message.Header.Builder');
+
+goog.require('jssip.core.PropertyHolder');
 
 
 
 /**
- * @param {string} name
- * @param {string} value
+ * @param {!jssip.message.Header.Builder} builder
+ * @constructor
+ * @extends {jssip.core.PropertyHolder}
+ */
+jssip.message.Header = function(builder) {
+  goog.base(this, builder.propertyMap_);
+
+  if (!this.get(jssip.message.Header.PropertyName.NAME)) {
+    throw Error('Missing required property name');
+  }
+};
+goog.inherits(jssip.message.Header, jssip.core.PropertyHolder);
+
+
+/** @enum {string} */
+jssip.message.Header.PropertyName = {
+  NAME: 'name',
+  RAW_VALUE: 'raw_value'
+};
+
+
+
+/**
  * @constructor
  */
-jssip.message.Header = function(name, value) {
-  /**
-   * @type {string}
-   * @private
-   */
-  this.name_ = name;
-
-  /**
-   * @type {string}
-   * @private
-   */
-  this.value_ = value;
+jssip.message.Header.Builder = function() {
+  /** @private {!Object.<string>} */
+  this.propertyMap_ = {};
 };
 
 
 /**
- * @return {string} The header name.
+ * Adds a property to the map
+ * @param {string} propertyName
+ * @param {string} value
+ * @return {!jssip.message.Header.Builder}
  */
-jssip.message.Header.prototype.getName = function() {
-  return this.name_;
+jssip.message.Header.Builder.prototype.addPropertyPair =
+    function(propertyName, value) {
+  this.propertyMap_[propertyName] = value;
+  return this;
 };
 
 
 /**
- * @return {string} The raw unparsed header value.
+ * Builds a Header
+ * @return { !jssip.message.Header}
  */
-jssip.message.Header.prototype.getValue = function() {
-  return this.value_;
+jssip.message.Header.Builder.prototype.build = function() {
+  return new jssip.message.Header(this);
 };

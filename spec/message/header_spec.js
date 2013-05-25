@@ -1,15 +1,38 @@
 goog.provide('jssip.message.HeaderSpec');
 
+goog.require('jssip.core.PropertyHolder');
 goog.require('jssip.message.Header');
+goog.require('jssip.message.Header.Builder');
 
 describe('SIP Message Header', function() {
-  it('should have a gettable name', function() {
-    var header = new jssip.message.Header('a name', 'a value');
-    expect(header.getName()).toBe('a name');
+  var header;
+  var headerBuilder;
+
+  beforeEach(function() {
+    headerBuilder = new jssip.message.Header.Builder();
+    headerBuilder.
+        addPropertyPair(jssip.message.Header.PropertyName.NAME, 'foo').
+        addPropertyPair(jssip.message.Header.PropertyName.RAW_VALUE, 'a value').
+        addPropertyPair('randomproperty', 'randomvalue');
+    header = headerBuilder.build();
   });
 
-  it('should have a gettable value', function() {
-    var header = new jssip.message.Header('a name', 'a value');
-    expect(header.getValue()).toBe('a value');
+  describe('new', function() {
+    it('should throw an error if NAME is not set', function() {
+      expect(function() {
+        (new jssip.message.Header.Builder()).build();
+      });
+    });
+
+    it('should be a jssip.core.PropertyHolder', function() {
+      expect(header instanceof jssip.core.PropertyHolder).toBe(true);
+    });
+  });
+
+  describe('well known properties', function() {
+    it('should have a name and raw value', function() {
+      expect(header.get(jssip.message.Header.PropertyName.NAME)).toBe('foo');
+      expect(header.get(jssip.message.Header.PropertyName.RAW_VALUE)).toBe('a value');
+    });
   });
 });
