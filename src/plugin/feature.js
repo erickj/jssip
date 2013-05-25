@@ -36,10 +36,10 @@ jssip.plugin.Feature.prototype.getName = function() {};
 
 
 /**
- * @return {!jssip.plugin.FeatureDelegate} The feature delegate for
- *     access via the featureContext context.
+ * @return {!jssip.plugin.FeatureFacade} The facade for external access to the
+ *     feature.
  */
-jssip.plugin.Feature.prototype.getFeatureDelegate = function() {};
+jssip.plugin.Feature.prototype.getFeatureFacade = function() {};
 
 
 /**

@@ -14,8 +14,8 @@ goog.require('jssip.plugin.Feature.Event');
  *
  * @param {!Array.<string>} eventTypes The event types.
  * @param {string} name The event name.
- * @param {!jssip.plugin.FeatureDelegate=} opt_featureDelegate An optional
- *     feature delegate.
+ * @param {!jssip.plugin.FeatureFacade=} opt_featureFacade An optional
+ *     feature facade.
  * @param {!Object.<!Function|!Object>=} opt_eventHandlerMap A map of event
  *     names to handler functions or event handler listeners,
  *     {@see goog.events.EventTarget#addEventListener}.  These will be
@@ -26,7 +26,7 @@ goog.require('jssip.plugin.Feature.Event');
  * @extends {jssip.core.EventBus}
  */
 jssip.plugin.AbstractFeature =
-    function(eventTypes, name, opt_featureDelegate, opt_eventHandlerMap) {
+    function(eventTypes, name, opt_featureFacade, opt_eventHandlerMap) {
   goog.base(this);
 
   /**
@@ -40,10 +40,10 @@ jssip.plugin.AbstractFeature =
   this.name_ = name;
 
   /**
-   * @private {jssip.plugin.FeatureDelegate}
+   * @private {jssip.plugin.FeatureFacade}
    */
-  this.featureDelegate_ = goog.isDef(opt_featureDelegate) ?
-      opt_featureDelegate : null;
+  this.featureFacade_ = goog.isDef(opt_featureFacade) ?
+      opt_featureFacade : null;
 
   /**
    * @private {!Object.<!Function|!Object>}
@@ -77,13 +77,13 @@ jssip.plugin.AbstractFeature.prototype.getName = function() {
 
 /**
  * @override
- * @throws {Error} If feature delegate is null.
+ * @throws {Error} If feature facade is null.
  */
-jssip.plugin.AbstractFeature.prototype.getFeatureDelegate = function() {
-  if (!this.featureDelegate_) {
-    throw Error('Feature delegate not set for feature ' + this.name_);
+jssip.plugin.AbstractFeature.prototype.getFeatureFacade = function() {
+  if (!this.featureFacade_) {
+    throw Error('Feature facade not set for feature ' + this.name_);
   }
-  return this.featureDelegate_;
+  return this.featureFacade_;
 };
 
 

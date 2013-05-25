@@ -29,16 +29,16 @@ describe('jssip.plugin.AbstractFeature', function() {
       expect(feature.getEventTypes()).toBe(eventTypes);
     });
 
-    describe('feature delegate', function() {
-      it('should throw on #getFeatureDelegate if not set', function() {
-        expect(function() { feature.getFeatureDelegate(); }).toThrow();
+    describe('feature facade', function() {
+      it('should throw on #getFeatureFacade if not set', function() {
+        expect(function() { feature.getFeatureFacade(); }).toThrow();
       });
 
-      it('should return the feature delegate when set', function() {
-        var featureDelegate = {};
+      it('should return the feature facade when set', function() {
+        var featureFacade = {};
         feature =
-            new jssip.plugin.AbstractFeature(eventTypes, name, featureDelegate);
-        expect(feature.getFeatureDelegate()).toBe(featureDelegate);
+            new jssip.plugin.AbstractFeature(eventTypes, name, featureFacade);
+        expect(feature.getFeatureFacade()).toBe(featureFacade);
       });
     });
   });

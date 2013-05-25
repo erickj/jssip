@@ -17,11 +17,11 @@ jssip.plugin.FeatureContext.prototype.isFeatureActive = function(name) {};
 
 
 /**
- * Gets the feature delegate for the named feature.
+ * Gets the feature facade for the named feature.
  * @param {string} name The feature name.
- * @return {!jssip.plugin.FeatureDelegate} The feature delegate.
+ * @return {!jssip.plugin.FeatureFacade} The feature facade.
  */
-jssip.plugin.FeatureContext.prototype.getDelegateForFeature = function(name) {};
+jssip.plugin.FeatureContext.prototype.getFacadeForFeature = function(name) {};
 
 
 /**

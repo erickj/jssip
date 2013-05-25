@@ -49,9 +49,9 @@ jssip.plugin.FeatureContextImpl.prototype.isFeatureActive = function(name) {
 
 
 /** @override */
-jssip.plugin.FeatureContextImpl.prototype.getDelegateForFeature =
+jssip.plugin.FeatureContextImpl.prototype.getFacadeForFeature =
     function(name) {
-  return this.getFeatureByName_(name).getFeatureDelegate();
+  return this.getFeatureByName_(name).getFeatureFacade();
 };
 
 
