@@ -50,14 +50,4 @@ describe ('jssip.core.PropertyHolder', function() {
       expect(unequalPropertyHolder.equals(propertyHolder)).toBe(false);
     });
   });
-
-  describe('#dispose', function() {
-    it('it should dispose of inner disposables', function() {
-      expect(propertyHolder.isDisposed()).toBe(false);
-      expect(propertyMap['disp'].isDisposed()).toBe(false);
-      propertyHolder.dispose();
-      expect(propertyHolder.isDisposed()).toBe(true);
-      expect(propertyMap['disp'].isDisposed()).toBe(true);
-    });
-  });
 });
