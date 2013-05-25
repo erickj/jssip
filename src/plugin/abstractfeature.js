@@ -22,12 +22,17 @@ goog.require('jssip.plugin.Feature.Event');
  *     activation.
  * @param {!Array.<string>=} opt_featureTypes An optional array of feature types
  *     that this feature will register for when activated.
+ * @param {!Object.<!jssip.message.HeaderParserFactory>=}
+ *     opt_headerParserFactoryMap The header parser factory map.
+ * @param {!Object.<!jssip.uri.UriParserFactory>=} opt_uriParserFactoryMap
+ *     The uri parser factory map.
  * @constructor
  * @implements {jssip.plugin.Feature}
  * @extends {jssip.core.EventBus}
  */
-jssip.plugin.AbstractFeature = function(
-    name, opt_featureFacade, opt_eventHandlerMap, opt_featureTypes) {
+jssip.plugin.AbstractFeature = function(name, opt_featureFacade,
+    opt_eventHandlerMap, opt_featureTypes, opt_headerParserFactoryMap,
+    opt_uriParserFactoryMap) {
   goog.base(this);
 
   /**
@@ -60,6 +65,12 @@ jssip.plugin.AbstractFeature = function(
    * @private {!Array.<string>}
    */
   this.featureTypes_ = opt_featureTypes || [];
+
+  /** @private {!Object.<!jssip.message.HeaderParserFactory>} */
+  this.headerParserFactoryMap_ = opt_headerParserFactoryMap || {};
+
+  /** @private {!Object.<!jssip.uri.UriParserFactory>} */
+  this.uriParserFactoryMap_ = opt_uriParserFactoryMap || {};
 };
 goog.inherits(jssip.plugin.AbstractFeature, jssip.core.EventBus);
 
@@ -104,7 +115,7 @@ jssip.plugin.AbstractFeature.prototype.activate = function(featureContext) {
   this.setParentEventTarget(eventBus);
 
   // Register custom header and uri parsers.
-  this.registerParserFactories(featureContext.getParserRegistry());
+  this.registerParsers_(featureContext.getParserRegistry());
 
   // Register for feature types
   for (var i = 0; i < this.featureTypes_.length; i++) {
@@ -116,13 +127,25 @@ jssip.plugin.AbstractFeature.prototype.activate = function(featureContext) {
 };
 
 
-/**
- * Register any parser factories that this feature provides.
- * @param {!jssip.ParserRegistry} parserRegistry The registry.
- * @protected
- */
-jssip.plugin.AbstractFeature.prototype.registerParserFactories =
-    goog.nullFunction;
+/** @private */
+jssip.plugin.AbstractFeature.prototype.registerParsers_ =
+    function(parserRegistry) {
+  for (var header in this.headerParserFactoryMap_) {
+    if (!parserRegistry.registerHeaderParserFactory(
+            header, this.headerParserFactoryMap_[header])) {
+      throw new Error('Unable to register header parser factory ' + header +
+          ' for feature ' + this.getName());
+    }
+  }
+
+  for (var scheme in this.uriParserFactoryMap_) {
+    if (!parserRegistry.registerUriParserFactory(
+            scheme, this.uriParserFactoryMap_[scheme])) {
+      throw new Error('Unable to register URI parser factory ' + scheme +
+          ' for feature ' + this.getName());
+    }
+  }
+};
 
 
 /**

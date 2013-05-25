@@ -1,5 +1,6 @@
 goog.provide('jssip.plugin.AbstractFeatureSpec');
 
+goog.require('jssip.ParserRegistry');
 goog.require('jssip.core.EventBus');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureContext');
@@ -41,6 +42,9 @@ describe('jssip.plugin.AbstractFeature', function() {
   describe('#activate', function() {
     var eventHandlerMap = {};
     var featureTypes = ['amazing', 'spectacular'];
+    var headerParserMap = { h: 'hdrparser' };
+    var uriParserMap = { u: 'uriparser' }
+    var parserRegistry;
     var featureContext;
     var eventBus;
 
@@ -48,10 +52,14 @@ describe('jssip.plugin.AbstractFeature', function() {
       eventHandlerMap['listen.test1'] = {};
       eventHandlerMap['listen.test2'] = {};
 
-      feature = new jssip.plugin.AbstractFeature(
-          name, undefined, eventHandlerMap, featureTypes);
+      feature = new jssip.plugin.AbstractFeature(name, undefined,
+          eventHandlerMap, featureTypes, headerParserMap, uriParserMap);
+
+      parserRegistry = new jssip.ParserRegistry({} /* messageParserFactory */);
 
       featureContext = new jssip.plugin.FeatureContext();
+      featureContext.getParserRegistry = function() { return parserRegistry; }
+
       eventBus = {
         addEventListener: jasmine.createSpy(),
         getParentEventTarget: function() {}
@@ -99,6 +107,17 @@ describe('jssip.plugin.AbstractFeature', function() {
       feature.activate(featureContext);
       expect(spy).toHaveBeenCalledWith('amazing', feature);
       expect(spy).toHaveBeenCalledWith('spectacular', feature);
+    });
+
+    it('should register parser factories', function() {
+      spyOn(parserRegistry, 'registerHeaderParserFactory').andReturn(true);
+      spyOn(parserRegistry, 'registerUriParserFactory').andReturn(true);
+
+      feature.activate(featureContext);
+      expect(parserRegistry.registerHeaderParserFactory).
+          toHaveBeenCalledWith('h', 'hdrparser');
+      expect(parserRegistry.registerUriParserFactory).
+          toHaveBeenCalledWith('u', 'uriparser');
     });
   });
 });

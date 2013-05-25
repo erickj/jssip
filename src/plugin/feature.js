@@ -22,7 +22,7 @@ jssip.plugin.Feature.Event = {
 
 
 /**
- * The feature name that will be used to access a feature delegate by other
+ * Gets the feature name that will be used to access a feature delegate by other
  * features.
  * @return {string} The feature name.
  */
