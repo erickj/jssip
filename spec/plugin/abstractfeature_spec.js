@@ -6,12 +6,11 @@ goog.require('jssip.plugin.FeatureContext');
 goog.require('jssip.plugin.Feature.Event');
 
 describe('jssip.plugin.AbstractFeature', function() {
-  var eventTypes = ['event.foo', 'event.bar'];
   var name = 'test.abstractfeature';
   var feature;
 
   beforeEach(function() {
-    feature = new jssip.plugin.AbstractFeature(eventTypes, name);
+    feature = new jssip.plugin.AbstractFeature(name);
   });
 
   describe('inheritance', function() {
@@ -25,10 +24,6 @@ describe('jssip.plugin.AbstractFeature', function() {
       expect(feature.getName()).toBe(name);
     });
 
-    it('should get the event types', function() {
-      expect(feature.getEventTypes()).toBe(eventTypes);
-    });
-
     describe('feature facade', function() {
       it('should throw on #getFeatureFacade if not set', function() {
         expect(function() { feature.getFeatureFacade(); }).toThrow();
@@ -37,14 +32,15 @@ describe('jssip.plugin.AbstractFeature', function() {
       it('should return the feature facade when set', function() {
         var featureFacade = {};
         feature =
-            new jssip.plugin.AbstractFeature(eventTypes, name, featureFacade);
+            new jssip.plugin.AbstractFeature(name, featureFacade);
         expect(feature.getFeatureFacade()).toBe(featureFacade);
       });
     });
   });
 
-  describe('on activation', function() {
+  describe('#activate', function() {
     var eventHandlerMap = {};
+    var featureTypes = ['amazing', 'spectacular'];
     var featureContext;
     var eventBus;
 
@@ -53,11 +49,12 @@ describe('jssip.plugin.AbstractFeature', function() {
       eventHandlerMap['listen.test2'] = {};
 
       feature = new jssip.plugin.AbstractFeature(
-          eventTypes, name, undefined, eventHandlerMap);
+          name, undefined, eventHandlerMap, featureTypes);
 
       featureContext = new jssip.plugin.FeatureContext();
       eventBus = {
-        addEventListener: jasmine.createSpy()
+        addEventListener: jasmine.createSpy(),
+        getParentEventTarget: function() {}
       }
       featureContext.getEventBus = function() { return eventBus; };
     });
@@ -90,10 +87,18 @@ describe('jssip.plugin.AbstractFeature', function() {
     });
 
     it('should dispatch an activated event', function() {
-      var activatedSpy = jasmine.createSpy();
-      feature.addEventListener(jssip.plugin.Feature.Event.ACTIVATED, activatedSpy);
+      var spy = jasmine.createSpy();
+      feature.addEventListener(jssip.plugin.Feature.Event.ACTIVATED, spy);
       feature.activate(featureContext);
-      expect(activatedSpy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should register for given feature types', function() {
+      var spy = jasmine.createSpy();
+      featureContext.registerFeatureForType = spy;
+      feature.activate(featureContext);
+      expect(spy).toHaveBeenCalledWith('amazing', feature);
+      expect(spy).toHaveBeenCalledWith('spectacular', feature);
     });
   });
 });

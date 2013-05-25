@@ -12,7 +12,6 @@ goog.require('jssip.plugin.Feature.Event');
  *
  *   Event.ACTIVATED - after all activation code has run
  *
- * @param {!Array.<string>} eventTypes The event types.
  * @param {string} name The event name.
  * @param {!jssip.plugin.FeatureFacade=} opt_featureFacade An optional
  *     feature facade.
@@ -21,18 +20,15 @@ goog.require('jssip.plugin.Feature.Event');
  *     {@see goog.events.EventTarget#addEventListener}.  These will be
  *     automatically registered with the feature context event bus upon
  *     activation.
+ * @param {!Array.<string>=} opt_featureTypes An optional array of feature types
+ *     that this feature will register for when activated.
  * @constructor
  * @implements {jssip.plugin.Feature}
  * @extends {jssip.core.EventBus}
  */
-jssip.plugin.AbstractFeature =
-    function(eventTypes, name, opt_featureFacade, opt_eventHandlerMap) {
+jssip.plugin.AbstractFeature = function(
+    name, opt_featureFacade, opt_eventHandlerMap, opt_featureTypes) {
   goog.base(this);
-
-  /**
-   * @private {!Array.<string>}
-   */
-  this.eventTypes_ = eventTypes;
 
   /**
    * @private {string}
@@ -59,14 +55,13 @@ jssip.plugin.AbstractFeature =
    * @private {boolean}
    */
   this.isActive_ = false;
+
+  /**
+   * @private {!Array.<string>}
+   */
+  this.featureTypes_ = opt_featureTypes || [];
 };
 goog.inherits(jssip.plugin.AbstractFeature, jssip.core.EventBus);
-
-
-/** @override */
-jssip.plugin.AbstractFeature.prototype.getEventTypes = function() {
-  return this.eventTypes_;
-};
 
 
 /** @override */
@@ -110,6 +105,11 @@ jssip.plugin.AbstractFeature.prototype.activate = function(featureContext) {
 
   // Register custom header and uri parsers.
   this.registerParserFactories(featureContext.getParserRegistry());
+
+  // Register for feature types
+  for (var i = 0; i < this.featureTypes_.length; i++) {
+    featureContext.registerFeatureForType(this.featureTypes_[i], this);
+  }
 
   this.isActive_ = true;
   this.dispatchEvent(jssip.plugin.Feature.Event.ACTIVATED);

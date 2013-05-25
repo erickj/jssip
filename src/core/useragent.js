@@ -50,9 +50,24 @@ jssip.core.UserAgent = function(plugins, config, parentEventBus) {
   this.parserRegistry_ = new jssip.ParserRegistry(
       new jssip.message.MessageParserFactory());
 
+  var requiredFeatureTypes = [
+    jssip.core.UserAgent.CoreFeatureType.USERAGENTCLIENT,
+    jssip.core.UserAgent.CoreFeatureType.USERAGENTSERVER,
+    jssip.core.UserAgent.CoreFeatureType.MEDIAOFFERANSWER
+  ];
+
   /** @private {!jssip.plugin.FeatureContextImpl} */
   this.featureContext_ = new jssip.plugin.FeatureContextImpl(
-      this.availableFeatureSet_, this.eventBus_, this.parserRegistry_);
+      this.availableFeatureSet_, this.eventBus_, this.parserRegistry_,
+      requiredFeatureTypes);
+};
+
+
+/** @enum {string} */
+jssip.core.UserAgent.CoreFeatureType = {
+  USERAGENTCLIENT: 'useragentclient',
+  USERAGENTSERVER: 'useragentserver',
+  MEDIAOFFERANSWER: 'mediaofferanswer'
 };
 
 
@@ -86,6 +101,7 @@ jssip.core.UserAgent.prototype.activateFeatures_ = function() {
         'Unable to activate feature ' + names[i]));
     feature.activate(this.featureContext_);
   }
+  this.featureContext_.finalize();
   this.eventBus_.dispatchEvent(jssip.core.UserAgent.Event.FEATURESACTIVATED);
 };
 

@@ -10,6 +10,6 @@ goog.require('jssip.plugin.AbstractFeature');
  * @extends {jssip.plugin.AbstractFeature}
  */
 jssip.sip.core.DialogFeature = function(name) {
-  goog.base(this, [], name);
+  goog.base(this, name);
 };
 goog.inherits(jssip.sip.core.DialogFeature, jssip.plugin.AbstractFeature);

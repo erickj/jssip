@@ -22,12 +22,6 @@ jssip.plugin.Feature.Event = {
 
 
 /**
- * @return {!Array.<string>} A list of event types emitted by this feature.
- */
-jssip.plugin.Feature.prototype.getEventTypes = function() {};
-
-
-/**
  * The feature name that will be used to access a feature delegate by other
  * features.
  * @return {string} The feature name.
