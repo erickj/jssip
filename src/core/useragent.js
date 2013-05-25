@@ -102,6 +102,7 @@ jssip.core.UserAgent.prototype.activateFeatures_ = function() {
     feature.activate(this.featureContext_);
   }
   this.featureContext_.finalize();
+  this.parserRegistry_.finalize();
   this.eventBus_.dispatchEvent(jssip.core.UserAgent.Event.FEATURESACTIVATED);
 };
 

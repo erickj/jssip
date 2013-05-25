@@ -27,6 +27,9 @@ jssip.ParserRegistry = function(messageParserFactory) {
    * @private
    */
   this.messageParserFactory_ = messageParserFactory;
+
+  /** @private {boolean} */
+  this.finalized_ = false;
 };
 
 
@@ -49,6 +52,11 @@ jssip.ParserRegistry.prototype.createMessageParser = function(text) {
  */
 jssip.ParserRegistry.prototype.registerHeaderParserFactory =
     function(name, parserFactory) {
+  if (this.finalized_) {
+    throw Error('ParserRegistry finalized. Unable to register header parser ' +
+        'for header ' + name);
+  }
+
   name = name.toLowerCase();
   if (name in this.headerParserFactories_) {
     return false;
@@ -68,6 +76,11 @@ jssip.ParserRegistry.prototype.registerHeaderParserFactory =
  */
 jssip.ParserRegistry.prototype.registerUriParserFactory =
     function(scheme, parserFactory) {
+  if (this.finalized_) {
+    throw Error('ParserRegistry finalized. Unable to register URI parser ' +
+        'for scheme ' + scheme);
+  }
+
   scheme = scheme.toLowerCase();
   if (scheme in this.uriParserFactories_) {
     return false;
@@ -75,4 +88,17 @@ jssip.ParserRegistry.prototype.registerUriParserFactory =
 
   this.uriParserFactories_[scheme] = parserFactory;
   return true;
+};
+
+
+/**
+ * Finalizes the registration stage of the parser registry.  Any
+ * registrations after this point will throw an error.
+ * @throws {Error}
+ */
+jssip.ParserRegistry.prototype.finalize = function() {
+  if (!this.finalized_) {
+    throw Error('ParserRegistry already finalized');
+  }
+  this.finalized_ = true;
 };
