@@ -10,22 +10,13 @@ goog.provide('jssip.ParserRegistry');
  * @constructor
  */
 jssip.ParserRegistry = function(messageParserFactory) {
-  /**
-   * @type {!Object.<string,!jssip.message.HeaderParserFactory>}
-   * @private
-   */
+  /** @private {!Object.<string,!jssip.message.HeaderParserFactory>} */
   this.headerParserFactories_ = {};
 
-  /**
-   * @type {!Object.<string,!jssip.uri.UriParserFactory>}
-   * @private
-   */
+  /** @private {!Object.<string,!jssip.uri.UriParserFactory>} */
   this.uriParserFactories_ = {};
 
-  /**
-   * @type {!jssip.message.MessageParserFactory}
-   * @private
-   */
+  /** @private {!jssip.message.MessageParserFactory} */
   this.messageParserFactory_ = messageParserFactory;
 
   /** @private {boolean} */
@@ -34,12 +25,45 @@ jssip.ParserRegistry = function(messageParserFactory) {
 
 
 /**
- * Creates a new message parser.
- * @param {string} text The text to parse.
- * @return {!jssip.message.MessageParser}
+ * Parses raw message text with the message parser.
+ * @param {string} rawMessageText
+ * @return {!jssip.message.Message} The parsed message.
  */
-jssip.ParserRegistry.prototype.createMessageParser = function(text) {
-  return this.messageParserFactory_.createParser(text);
+jssip.ParserRegistry.prototype.parseMessage = function(rawMessageText) {
+  return this.messageParserFactory_.createParser(rawMessageText).parse();
+};
+
+
+/**
+ * Parses a header with a registered header parser.
+ * @param {string} name
+ * @param {string} value
+ * @return {!jssip.message.Header} The parsed header.
+ */
+jssip.ParserRegistry.prototype.parseHeader = function(name, value) {
+  var parserFactory = this.headerParserFactories_[name.toLowerCase()];
+  if (!parserFactory) {
+    throw Error('Unable to locate Header parser for header ' + name);
+  }
+  return parserFactory.createParser(name, value).parse();
+};
+
+
+/**
+ * Parses a URI with a registered URI parser.
+ * @param {string} uri
+ * @return {!jssip.uri.Uri} The parsed URI.
+ */
+jssip.ParserRegistry.prototype.parseUri = function(uri) {
+  var scheme = uri.substring(0, uri.indexOf(':'));
+  if (!scheme) {
+    throw Error('Unable to parse URI with unknown scheme');
+  }
+  var parserFactory = this.uriParserFactories_[scheme.toLowerCase()];
+  if (!parserFactory) {
+    throw Error('Unable to locate URI parser for scheme ' + scheme);
+  }
+  return parserFactory.createParser(uri).parse();
 };
 
 
@@ -97,7 +121,7 @@ jssip.ParserRegistry.prototype.registerUriParserFactory =
  * @throws {Error}
  */
 jssip.ParserRegistry.prototype.finalize = function() {
-  if (!this.finalized_) {
+  if (this.finalized_) {
     throw Error('ParserRegistry already finalized');
   }
   this.finalized_ = true;
