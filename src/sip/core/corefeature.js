@@ -32,7 +32,8 @@ goog.inherits(jssip.sip.core.CoreFeature, jssip.plugin.AbstractFeature);
  * @param {!jssip.message.MessageContext} messageContext
  * @param {jssip.core.feature.UserAgentClient.EventType|
  *     jssip.core.feature.UserAgentServer.EventType} type
- * @private {!jssip.core.feature.MessageEvent}
+ * @private
+ * @return {!jssip.core.feature.MessageEvent}
  */
 jssip.sip.core.CoreFeature.prototype.createEvent_ =
     function(messageContext, type) {
@@ -56,6 +57,7 @@ jssip.sip.core.CoreFeature.prototype.createRequest = function(uri, method) {
 jssip.sip.core.CoreFeature.prototype.sendRequest = function(messageContext) {
   // TODO(erick)
 };
+
 
 /**
  * Receives a response off the wire and dispatches a UAC RECEIVE_MESSAGE event.
@@ -81,6 +83,7 @@ jssip.sip.core.CoreFeature.prototype.handleRequest = function(messageContext) {
 };
 
 
+
 /**
  * @param {!jssip.sip.core.CoreFeature} delegate The core feature instance to
  *     delegate to.
@@ -92,7 +95,7 @@ jssip.sip.core.CoreFeature.prototype.handleRequest = function(messageContext) {
 jssip.sip.core.CoreFeature.Facade = function(delegate) {
   /** @private {!jssip.core.feature.CoreFeature} */
   this.delegate_ = delegate;
-}
+};
 
 
 /** @override */

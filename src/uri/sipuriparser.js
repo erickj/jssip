@@ -1,8 +1,8 @@
 goog.provide('jssip.uri.SipUriParser');
 goog.provide('jssip.uri.SipUriParserFactory');
 
-goog.require('jssip.parser.AbstractParser');
 goog.require('jssip.ParseError');
+goog.require('jssip.parser.AbstractParser');
 goog.require('jssip.uri.Uri');
 goog.require('jssip.uri.Uri.Builder');
 goog.require('jssip.uri.UriParser');

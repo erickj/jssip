@@ -2,10 +2,10 @@ goog.provide('jssip.message.MessageParser');
 goog.provide('jssip.message.MessageParserFactory');
 
 goog.require('goog.string');
-goog.require('jssip.parser.AbstractParser');
 goog.require('jssip.ParseError');
 goog.require('jssip.ParseWarning');
 goog.require('jssip.message.Message.Builder');
+goog.require('jssip.parser.AbstractParser');
 goog.require('jssip.util.TokenMatcher');
 
 

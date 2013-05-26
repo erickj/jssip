@@ -115,12 +115,15 @@ jssip.plugin.AbstractFeature.prototype.activate = function(featureContext) {
 };
 
 
-/** @private */
+/**
+ * @param {!jssip.parser.ParserRegistry} parserRegistry
+ * @private
+ */
 jssip.plugin.AbstractFeature.prototype.registerParsers_ =
     function(parserRegistry) {
   for (var header in this.headerParserFactoryMap_) {
     if (!parserRegistry.registerHeaderParserFactory(
-            header, this.headerParserFactoryMap_[header])) {
+        header, this.headerParserFactoryMap_[header])) {
       throw new Error('Unable to register header parser factory ' + header +
           ' for feature ' + this.getName());
     }
@@ -128,7 +131,7 @@ jssip.plugin.AbstractFeature.prototype.registerParsers_ =
 
   for (var scheme in this.uriParserFactoryMap_) {
     if (!parserRegistry.registerUriParserFactory(
-            scheme, this.uriParserFactoryMap_[scheme])) {
+        scheme, this.uriParserFactoryMap_[scheme])) {
       throw new Error('Unable to register URI parser factory ' + scheme +
           ' for feature ' + this.getName());
     }

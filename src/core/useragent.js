@@ -4,9 +4,9 @@ goog.provide('jssip.core.UserAgent.Config');
 goog.require('goog.array');
 goog.require('goog.asserts');
 goog.require('goog.structs.Set');
-goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.core.EventBus');
 goog.require('jssip.message.MessageParserFactory');
+goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.plugin.FeatureContextImpl');
 goog.require('jssip.plugin.FeatureSet');
 
