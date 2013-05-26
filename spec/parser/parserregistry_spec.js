@@ -1,8 +1,8 @@
-goog.provide('jssip.ParserRegistrySpec');
+goog.provide('jssip.parser.ParserRegistrySpec');
 
-goog.require('jssip.ParserRegistry');
+goog.require('jssip.parser.ParserRegistry');
 
-describe('jssip.ParserRegistry', function() {
+describe('jssip.parser.ParserRegistry', function() {
   var registry;
   var parserFactory;
   var parser;
@@ -12,7 +12,7 @@ describe('jssip.ParserRegistry', function() {
     parserFactory = {
       createParser: jasmine.createSpy().andReturn(parser)
     }
-    registry = new jssip.ParserRegistry(parserFactory);
+    registry = new jssip.parser.ParserRegistry(parserFactory);
   });
 
 

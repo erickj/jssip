@@ -1,4 +1,4 @@
-goog.provide('jssip.ParserRegistry');
+goog.provide('jssip.parser.ParserRegistry');
 
 
 
@@ -9,7 +9,7 @@ goog.provide('jssip.ParserRegistry');
  *     parser factory for providing message parser instances.
  * @constructor
  */
-jssip.ParserRegistry = function(messageParserFactory) {
+jssip.parser.ParserRegistry = function(messageParserFactory) {
   /** @private {!Object.<string,!jssip.message.HeaderParserFactory>} */
   this.headerParserFactories_ = {};
 
@@ -29,7 +29,7 @@ jssip.ParserRegistry = function(messageParserFactory) {
  * @param {string} rawMessageText
  * @return {!jssip.message.Message} The parsed message.
  */
-jssip.ParserRegistry.prototype.parseMessage = function(rawMessageText) {
+jssip.parser.ParserRegistry.prototype.parseMessage = function(rawMessageText) {
   return this.messageParserFactory_.createParser(rawMessageText).parse();
 };
 
@@ -40,7 +40,7 @@ jssip.ParserRegistry.prototype.parseMessage = function(rawMessageText) {
  * @param {string} value
  * @return {!jssip.message.Header} The parsed header.
  */
-jssip.ParserRegistry.prototype.parseHeader = function(name, value) {
+jssip.parser.ParserRegistry.prototype.parseHeader = function(name, value) {
   var parserFactory = this.headerParserFactories_[name.toLowerCase()];
   if (!parserFactory) {
     throw Error('Unable to locate Header parser for header ' + name);
@@ -54,7 +54,7 @@ jssip.ParserRegistry.prototype.parseHeader = function(name, value) {
  * @param {string} uri
  * @return {!jssip.uri.Uri} The parsed URI.
  */
-jssip.ParserRegistry.prototype.parseUri = function(uri) {
+jssip.parser.ParserRegistry.prototype.parseUri = function(uri) {
   var scheme = uri.substring(0, uri.indexOf(':'));
   if (!scheme) {
     throw Error('Unable to parse URI with unknown scheme');
@@ -74,7 +74,7 @@ jssip.ParserRegistry.prototype.parseUri = function(uri) {
  * @return {boolean} True indicates success, false indicates a
  *     previous registration exists for the header.
  */
-jssip.ParserRegistry.prototype.registerHeaderParserFactory =
+jssip.parser.ParserRegistry.prototype.registerHeaderParserFactory =
     function(name, parserFactory) {
   if (this.finalized_) {
     throw Error('ParserRegistry finalized. Unable to register header parser ' +
@@ -98,7 +98,7 @@ jssip.ParserRegistry.prototype.registerHeaderParserFactory =
  * @return {boolean} True indicates success, false indicates a
  *     previous registration exists for the scheme.
  */
-jssip.ParserRegistry.prototype.registerUriParserFactory =
+jssip.parser.ParserRegistry.prototype.registerUriParserFactory =
     function(scheme, parserFactory) {
   if (this.finalized_) {
     throw Error('ParserRegistry finalized. Unable to register URI parser ' +
@@ -120,7 +120,7 @@ jssip.ParserRegistry.prototype.registerUriParserFactory =
  * registrations after this point will throw an error.
  * @throws {Error}
  */
-jssip.ParserRegistry.prototype.finalize = function() {
+jssip.parser.ParserRegistry.prototype.finalize = function() {
   if (this.finalized_) {
     throw Error('ParserRegistry already finalized');
   }

@@ -1,11 +1,11 @@
 goog.provide('jssip.message.HeaderParser');
 
-goog.require('jssip.Parser');
+goog.require('jssip.parser.Parser');
 
 
 
 /**
  * @interface
- * @extends {jssip.Parser}
+ * @extends {jssip.parser.Parser}
  */
 jssip.message.HeaderParser = function() {};

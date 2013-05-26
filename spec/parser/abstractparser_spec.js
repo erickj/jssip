@@ -1,14 +1,14 @@
-goog.provide('jssip.AbstractParserSpec');
+goog.provide('jssip.parser.AbstractParserSpec');
 
-goog.require('jssip.AbstractParser');
+goog.require('jssip.parser.AbstractParser');
 
-describe('jssip.AbstractParser', function() {
+describe('jssip.parser.AbstractParser', function() {
   describe('getters', function() {
     var parser;
     var message = 'bananas\r\nare\r\ndelicious'
 
     beforeEach(function() {
-      parser = new jssip.AbstractParser(message);
+      parser = new jssip.parser.AbstractParser(message);
     });
 
     it('should provide the current position', function() {
@@ -32,7 +32,7 @@ describe('jssip.AbstractParser', function() {
     });
 
     it('should read a line of text', function() {
-      var parser = new jssip.AbstractParser(message1);
+      var parser = new jssip.parser.AbstractParser(message1);
       expect(parser.readNextLine()).toBe("the rain in spain");
       expect(parser.readNextLine()).toBe("falls mainly");
       expect(parser.readNextLine()).toBe("on the plain");
@@ -40,14 +40,14 @@ describe('jssip.AbstractParser', function() {
     });
 
     it('should read the empty string if a line ends in CRLF', function() {
-      var parser = new jssip.AbstractParser(message2);
+      var parser = new jssip.parser.AbstractParser(message2);
       expect(parser.readNextLine()).toBe("the rain in spain");
       expect(parser.readNextLine()).toBe("");
       expect(parser.readNextLine()).toBe(null);
     });
 
     it('should indicate when scanning has passed the end of text', function() {
-      var parser = new jssip.AbstractParser('message');
+      var parser = new jssip.parser.AbstractParser('message');
       expect(parser.isEof()).toBe(false);
       // this will result in eof true because there is no trailing CRLF
       parser.readNextLine();
@@ -55,7 +55,7 @@ describe('jssip.AbstractParser', function() {
     });
 
     it('should read a substring from the text' , function() {
-      var parser = new jssip.AbstractParser(message1);
+      var parser = new jssip.parser.AbstractParser(message1);
       expect(parser.readSubstring(0, 3)).toBe('the');
       expect(parser.readSubstring(0)).toBe(message1);
     });

@@ -1,6 +1,6 @@
 goog.provide('jssip.plugin.FeatureContextImplSpec');
 
-goog.require('jssip.ParserRegistry');
+goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.core.EventBus');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureContextImpl');
@@ -23,7 +23,7 @@ describe('jssip.plugin.FeatureContextImpl', function() {
     features = [f1, f2];
     featureSet = new jssip.plugin.FeatureSet(features);
     eventBus = new jssip.core.EventBus();
-    parserRegistry = new jssip.ParserRegistry();
+    parserRegistry = new jssip.parser.ParserRegistry();
     requiredFeatureTypes = ['atype'];
 
     context = new jssip.plugin.FeatureContextImpl(

@@ -1,7 +1,7 @@
 goog.provide('jssip.uri.SipUriParser');
 goog.provide('jssip.uri.SipUriParserFactory');
 
-goog.require('jssip.AbstractParser');
+goog.require('jssip.parser.AbstractParser');
 goog.require('jssip.ParseError');
 goog.require('jssip.uri.Uri');
 goog.require('jssip.uri.Uri.Builder');
@@ -36,7 +36,7 @@ jssip.uri.SipUriParserFactory.prototype.createParser = function(uri) {
  * @param {string} rawUri
  * @constructor
  * @implements {jssip.uri.UriParser}
- * @extends {jssip.AbstractParser}
+ * @extends {jssip.parser.AbstractParser}
  */
 jssip.uri.SipUriParser = function(rawUri) {
   goog.base(this, rawUri);
@@ -44,7 +44,7 @@ jssip.uri.SipUriParser = function(rawUri) {
   /** @private {!jssip.uri.Uri.Builder} */
   this.builder_ = new jssip.uri.Uri.Builder();
 };
-goog.inherits(jssip.uri.SipUriParser, jssip.AbstractParser);
+goog.inherits(jssip.uri.SipUriParser, jssip.parser.AbstractParser);
 
 
 /**

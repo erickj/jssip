@@ -54,6 +54,6 @@ jssip.plugin.FeatureContext.prototype.getEventBus = function() {};
 
 /**
  * Gets the parser registry for the user agent.
- * @return {!jssip.ParserRegistry} The registry.
+ * @return {!jssip.parser.ParserRegistry} The registry.
  */
 jssip.plugin.FeatureContext.prototype.getParserRegistry = function() {};

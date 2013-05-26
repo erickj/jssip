@@ -10,7 +10,7 @@ goog.require('jssip.plugin.FeatureContext');
  * @param {!jssip.plugin.FeatureSet} featureSet The features available in this
  *     context.
  * @param {!jssip.core.EventBus} eventBus The event bus.
- * @param {!jssip.ParserRegistry} parserRegistry The parser registry.
+ * @param {!jssip.parser.ParserRegistry} parserRegistry The parser registry.
  * @param {!Array.<string>} requiredFeatureTypes An array of feature types that
  * will be checked against the set of registered feature types when
  * {@code finalize} is called.
@@ -25,7 +25,7 @@ jssip.plugin.FeatureContextImpl = function(
   /** @private {!jssip.core.EventBus} */
   this.eventBus_ = eventBus;
 
-  /** @private {!jssip.ParserRegistry} */
+  /** @private {!jssip.parser.ParserRegistry} */
   this.parserRegistry_ = parserRegistry;
 
   /** @private {!Object.<!jssip.plugin.Feature>} */

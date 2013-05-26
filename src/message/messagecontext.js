@@ -12,7 +12,7 @@ goog.require('goog.events.EventTarget');
  * present in a message should be requested through this interface.
  *
  * @param {string} rawMessageText The raw message text.
- * @param {!jssip.ParserRegistry} parserRegistry The parser registry for
+ * @param {!jssip.parser.ParserRegistry} parserRegistry The parser registry for
  *     message, header, and URI parsers.
  * @constructor
  * @extends {goog.events.EventTarget}
@@ -27,7 +27,7 @@ jssip.message.MessageContext = function(rawMessageText, parserRegistry) {
   this.rawMessageText_ = rawMessageText;
 
   /**
-   * @type {!jssip.ParserRegistry}
+   * @type {!jssip.parser.ParserRegistry}
    * @private
    */
   this.parserRegistry_ = parserRegistry;
@@ -155,7 +155,7 @@ jssip.message.MessageContext.prototype.parseMessage_ = function(text) {
 /**
  * Runs a parser instance's parse method, guarding against parse
  * errors and collects parse warnings.
- * @param {!jssip.AbstractParser} parser The parser to invoke.
+ * @param {!jssip.parser.AbstractParser} parser The parser to invoke.
  * @return {Object} The parsed object or null if an error was encountered.
  * @private
  */

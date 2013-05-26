@@ -1,7 +1,7 @@
 goog.provide('jssip.message.MessageContextSpec');
 
 goog.require('goog.events.EventHandler');
-goog.require('jssip.ParserRegistry');
+goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.message.MessageContext');
 goog.require('jssip.message.MessageParserFactory');
 
@@ -22,7 +22,7 @@ describe('jssip.message.MessageContext', function() {
 
   beforeEach(function() {
     eventHandler = new goog.events.EventHandler();
-    parserRegistry = new jssip.ParserRegistry(
+    parserRegistry = new jssip.parser.ParserRegistry(
         new jssip.message.MessageParserFactory());
     createMessageContext = function(text) {
       return new jssip.message.MessageContext(text, parserRegistry);
@@ -80,7 +80,7 @@ describe('jssip.message.MessageContext', function() {
           });
         }
       });
-      var parserRegistry = new jssip.ParserRegistry(errorParserFactory);
+      var parserRegistry = new jssip.parser.ParserRegistry(errorParserFactory);
       var context = new jssip.message.MessageContext(
           requestText, parserRegistry);
 

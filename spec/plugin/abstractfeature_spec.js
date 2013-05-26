@@ -1,6 +1,6 @@
 goog.provide('jssip.plugin.AbstractFeatureSpec');
 
-goog.require('jssip.ParserRegistry');
+goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.core.EventBus');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureContext');
@@ -55,7 +55,7 @@ describe('jssip.plugin.AbstractFeature', function() {
       feature = new jssip.plugin.AbstractFeature(name, undefined,
           eventHandlerMap, featureTypes, headerParserMap, uriParserMap);
 
-      parserRegistry = new jssip.ParserRegistry({} /* messageParserFactory */);
+      parserRegistry = new jssip.parser.ParserRegistry({} /* messageParserFactory */);
 
       featureContext = new jssip.plugin.FeatureContext();
       featureContext.getParserRegistry = function() { return parserRegistry; }

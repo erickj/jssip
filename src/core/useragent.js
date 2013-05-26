@@ -4,7 +4,7 @@ goog.provide('jssip.core.UserAgent.Config');
 goog.require('goog.array');
 goog.require('goog.asserts');
 goog.require('goog.structs.Set');
-goog.require('jssip.ParserRegistry');
+goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.core.EventBus');
 goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.plugin.FeatureContextImpl');
@@ -46,8 +46,8 @@ jssip.core.UserAgent = function(plugins, config, parentEventBus) {
   /** @private {!jssip.core.EventBus} */
   this.eventBus_ = new jssip.core.EventBus(parentEventBus);
 
-  /** @private {!jssip.ParserRegistry} */
-  this.parserRegistry_ = new jssip.ParserRegistry(
+  /** @private {!jssip.parser.ParserRegistry} */
+  this.parserRegistry_ = new jssip.parser.ParserRegistry(
       new jssip.message.MessageParserFactory());
 
   var requiredFeatureTypes = [

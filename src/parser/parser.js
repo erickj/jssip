@@ -1,6 +1,6 @@
 goog.provide('jssip.ParseError');
 goog.provide('jssip.ParseWarning');
-goog.provide('jssip.Parser');
+goog.provide('jssip.parser.Parser');
 
 
 
@@ -39,11 +39,11 @@ jssip.ParseWarning = function(message) {
 /**
  * @interface
  */
-jssip.Parser = function() {};
+jssip.parser.Parser = function() {};
 
 
 /**
  * Parse something.
  * @return {*} The object that has been parsed.
  */
-jssip.Parser.prototype.parse = goog.abstractMethod;
+jssip.parser.Parser.prototype.parse = goog.abstractMethod;

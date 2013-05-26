@@ -1,6 +1,6 @@
-goog.provide('jssip.AbstractParser');
+goog.provide('jssip.parser.AbstractParser');
 
-goog.require('jssip.Parser');
+goog.require('jssip.parser.Parser');
 goog.require('jssip.util.Scanner');
 
 
@@ -10,9 +10,9 @@ goog.require('jssip.util.Scanner');
  * An abstract base class for parsers in the libary.
  * @param {string} rawText Text to be parsed.
  * @constructor
- * @implements {jssip.Parser}
+ * @implements {jssip.parser.Parser}
  */
-jssip.AbstractParser = function(rawText) {
+jssip.parser.AbstractParser = function(rawText) {
   /**
    * @type {string}
    * @private
@@ -43,7 +43,7 @@ jssip.AbstractParser = function(rawText) {
  * @return {string} The raw text.
  * @protected
  */
-jssip.AbstractParser.prototype.getRawText = function() {
+jssip.parser.AbstractParser.prototype.getRawText = function() {
   return this.rawText_;
 };
 
@@ -53,7 +53,7 @@ jssip.AbstractParser.prototype.getRawText = function() {
  * @return {number} The cursor position.
  * @protected
  */
-jssip.AbstractParser.prototype.getPosition = function() {
+jssip.parser.AbstractParser.prototype.getPosition = function() {
   return this.position_;
 };
 
@@ -61,7 +61,7 @@ jssip.AbstractParser.prototype.getPosition = function() {
 /**
  * @return {boolean} Whether we have scanned past the end of the text.
  */
-jssip.AbstractParser.prototype.isEof = function() {
+jssip.parser.AbstractParser.prototype.isEof = function() {
   return this.scanner_.isEof();
 };
 
@@ -74,7 +74,7 @@ jssip.AbstractParser.prototype.isEof = function() {
  * @return {string} The substring.
  * @protected
  */
-jssip.AbstractParser.prototype.readSubstring = function(start, opt_end) {
+jssip.parser.AbstractParser.prototype.readSubstring = function(start, opt_end) {
   opt_end = goog.isDef(opt_end) ? opt_end : this.rawText_.length;
   return this.scanner_.getSubstring(start, opt_end);
 };
@@ -85,7 +85,7 @@ jssip.AbstractParser.prototype.readSubstring = function(start, opt_end) {
  * @return {?string} The next line or null if we've read everything.
  * @protected
  */
-jssip.AbstractParser.prototype.readNextLine = function() {
+jssip.parser.AbstractParser.prototype.readNextLine = function() {
   if (this.scanner_.isEof()) return null;
 
   var crlfPos = this.scanner_.nextTokenPosition(jssip.util.Scanner.TOKEN.CRLF);
@@ -101,4 +101,4 @@ jssip.AbstractParser.prototype.readNextLine = function() {
  * The parse method is the public method for all parsers in the library.
  * @return {*} The object that has been parsed.
  */
-jssip.AbstractParser.prototype.parse = goog.abstractMethod;
+jssip.parser.AbstractParser.prototype.parse = goog.abstractMethod;

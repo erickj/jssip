@@ -2,7 +2,7 @@ goog.provide('jssip.message.MessageParser');
 goog.provide('jssip.message.MessageParserFactory');
 
 goog.require('goog.string');
-goog.require('jssip.AbstractParser');
+goog.require('jssip.parser.AbstractParser');
 goog.require('jssip.ParseError');
 goog.require('jssip.ParseWarning');
 goog.require('jssip.message.Message.Builder');
@@ -93,7 +93,7 @@ jssip.message.MessageParserFactory.prototype.createParser = function(text) {
  *
  * @param {string} rawMessageText The raw message text to parse.
  * @constructor
- * @extends {jssip.AbstractParser}
+ * @extends {jssip.parser.AbstractParser}
  */
 jssip.message.MessageParser = function(rawMessageText) {
   goog.base(this, rawMessageText);
@@ -103,7 +103,7 @@ jssip.message.MessageParser = function(rawMessageText) {
    */
   this.messageBuilder_ = new jssip.message.Message.Builder();
 };
-goog.inherits(jssip.message.MessageParser, jssip.AbstractParser);
+goog.inherits(jssip.message.MessageParser, jssip.parser.AbstractParser);
 
 
 /**

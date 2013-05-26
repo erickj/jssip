@@ -1,7 +1,7 @@
 goog.provide('jssip.uri.UriParser');
 goog.provide('jssip.uri.UriParserFactory');
 
-goog.require('jssip.Parser');
+goog.require('jssip.parser.Parser');
 
 
 
@@ -22,6 +22,6 @@ jssip.uri.UriParserFactory.prototype.createParser = function(uri) {};
 
 /**
  * @interface
- * @extends {jssip.Parser}
+ * @extends {jssip.parser.Parser}
  */
 jssip.uri.UriParser = function() {};
