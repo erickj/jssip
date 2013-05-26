@@ -72,7 +72,7 @@ describe('jssip.message.MessageContext', function() {
       warningContext = createMessageContext(messageWithWarnings);
     });
 
-    it('should rethrow errors that are NOT jssip.ParseErrors', function() {
+    it('should rethrow errors that are NOT jssip.parser.ParseErrors', function() {
       var errorParserFactory = /** @type {!jssip.message.MessageParserFactory} */ ({
         createParser: function(text) {
           return /** @type {!jssip.message.MessageParser} */ ({
@@ -97,7 +97,7 @@ describe('jssip.message.MessageContext', function() {
            expect(event.length).toBe(1);
 
            var parseError = errorContext.getParseErrors(0, 1)[0];
-           expect(parseError instanceof jssip.ParseError).toBe(true);
+           expect(parseError instanceof jssip.parser.ParseError).toBe(true);
          };
 
          eventHandler.listen(errorContext, events.PARSE_ERROR, handler);

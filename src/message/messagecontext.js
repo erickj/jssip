@@ -33,13 +33,13 @@ jssip.message.MessageContext = function(rawMessageText, parserRegistry) {
   this.parserRegistry_ = parserRegistry;
 
   /**
-   * @type {!Array<!jssip.ParseWarning>}
+   * @type {!Array<!jssip.parser.ParseWarning>}
    * @private
    */
   this.parseWarnings_ = [];
 
   /**
-   * @type {!Array.<!jssip.ParseError>}
+   * @type {!Array.<!jssip.parser.ParseError>}
    * @private
    */
   this.parseErrors_ = [];
@@ -86,7 +86,7 @@ jssip.message.MessageContext.prototype.init = function() {
  * Gets the parse errors in the specified range.
  * @param {number} start The start index.
  * @param {number} len The number of errors to retrieve.
- * @return {!Array.<!jssip.ParseError>} The parse errors.
+ * @return {!Array.<!jssip.parser.ParseError>} The parse errors.
  */
 jssip.message.MessageContext.prototype.getParseErrors = function(start, len) {
   return this.parseErrors_.slice(start, start + len);
@@ -97,7 +97,7 @@ jssip.message.MessageContext.prototype.getParseErrors = function(start, len) {
  * Gets the parse warnings in the specified range.
  * @param {number} start The start index.
  * @param {number} len The number of warnings to retrieve.
- * @return {!Array.<!jssip.ParseWarning>} The parse warnings.
+ * @return {!Array.<!jssip.parser.ParseWarning>} The parse warnings.
  */
 jssip.message.MessageContext.prototype.getParseWarnings = function(start, len) {
   return this.parseWarnings_.slice(start, start + len);
@@ -165,7 +165,7 @@ jssip.message.MessageContext.prototype.invokeParser_ = function(parser) {
     result = parser.parse();
   } catch (e) {
     result = null;
-    if (e instanceof jssip.ParseError) {
+    if (e instanceof jssip.parser.ParseError) {
       this.parseErrors_.push(e);
       this.dispatchEvent(new jssip.message.MessageContext.ParseEvent(
           jssip.message.MessageContext.EVENT.PARSE_ERROR,

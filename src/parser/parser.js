@@ -1,5 +1,5 @@
-goog.provide('jssip.ParseError');
-goog.provide('jssip.ParseWarning');
+goog.provide('jssip.parser.ParseError');
+goog.provide('jssip.parser.ParseWarning');
 goog.provide('jssip.parser.Parser');
 
 
@@ -13,10 +13,10 @@ goog.provide('jssip.parser.Parser');
  * @constructor
  * @extends {Error}
  */
-jssip.ParseError = function(message) {
+jssip.parser.ParseError = function(message) {
   goog.base(this, message);
 };
-goog.inherits(jssip.ParseError, Error);
+goog.inherits(jssip.parser.ParseError, Error);
 
 
 
@@ -27,7 +27,7 @@ goog.inherits(jssip.ParseError, Error);
  * @param {string} message The warning message.
  * @constructor
  */
-jssip.ParseWarning = function(message) {
+jssip.parser.ParseWarning = function(message) {
   /**
    * @type {string}
    */

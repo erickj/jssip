@@ -2,10 +2,10 @@ goog.provide('jssip.message.MessageParser');
 goog.provide('jssip.message.MessageParserFactory');
 
 goog.require('goog.string');
-goog.require('jssip.ParseError');
-goog.require('jssip.ParseWarning');
 goog.require('jssip.message.Message.Builder');
 goog.require('jssip.parser.AbstractParser');
+goog.require('jssip.parser.ParseError');
+goog.require('jssip.parser.ParseWarning');
 goog.require('jssip.util.TokenMatcher');
 
 
@@ -145,7 +145,7 @@ jssip.message.MessageParser.prototype.parse = function() {
 
 /**
  * Parse the start line.
- * @throws {jssip.ParseError}
+ * @throws {jssip.parser.ParseError}
  * @private
  */
 jssip.message.MessageParser.prototype.parseStartLine_ = function() {
@@ -153,7 +153,7 @@ jssip.message.MessageParser.prototype.parseStartLine_ = function() {
   var tokens = startLine.split(/\s+/);
 
   if (jssip.message.MessageParser.TOKEN_MATCHERS_.CR_OR_LF.test(startLine)) {
-    throw new jssip.ParseError('Invalid \n or \r in start line');
+    throw new jssip.parser.ParseError('Invalid \n or \r in start line');
   }
 
   if (this.testRequestLineTokens_(tokens)) {
@@ -167,7 +167,7 @@ jssip.message.MessageParser.prototype.parseStartLine_ = function() {
         setStatusCode(tokens[1]).
         setReasonPhrase(tokens[2]);
   } else {
-    throw new jssip.ParseError('Unable to parse start line');
+    throw new jssip.parser.ParseError('Unable to parse start line');
   }
 };
 
@@ -198,7 +198,7 @@ jssip.message.MessageParser.prototype.parseStartLine_ = function() {
    Thus, the above are all valid and equivalent, but the last is the
    preferred form.
 
- * @throws {jssip.ParseError}
+ * @throws {jssip.parser.ParseError}
  * @private
  */
 jssip.message.MessageParser.prototype.parseHeaders_ = function() {
@@ -216,15 +216,15 @@ jssip.message.MessageParser.prototype.parseHeaders_ = function() {
   // contain newlines.
   while ((line = this.readNextLine()) != '') {
     if (line === null) {
-      throw new jssip.ParseError('Reading header line returned null');
+      throw new jssip.parser.ParseError('Reading header line returned null');
     }
 
     // A regex is easier than splitting on colons. Another colon may
     // be in the value, and the split function limit parameter is foobar.
     var matches = line.match(colonRegex);
     if (!matches || matches.length != 3) {
-      this.parseWarnings.push(
-          new jssip.ParseWarning('Unable to parse malformed header: ' + line));
+      this.parseWarnings.push(new jssip.parser.ParseWarning(
+          'Unable to parse malformed header: ' + line));
       continue;
     }
     headers.push(goog.string.trimRight(matches[1]));
@@ -247,7 +247,7 @@ jssip.message.MessageParser.prototype.parseCrlf_ = function() {
   var position = this.getPosition();
   var token = '\r\n\r\n';
   if (this.readSubstring(position - token.length, position) != token) {
-    throw new jssip.ParseError(
+    throw new jssip.parser.ParseError(
         'Missing CRLF after headers. Packet may be truncated.');
   }
 };

@@ -45,7 +45,7 @@ describe('jssip.message.MessageParser', function() {
           try {
             this.actual();
           } catch(e) {
-            result = e instanceof jssip.ParseError;
+            result = e instanceof jssip.parser.ParseError;
           }
           return result;
         }

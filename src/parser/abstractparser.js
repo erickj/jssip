@@ -32,7 +32,7 @@ jssip.parser.AbstractParser = function(rawText) {
   this.position_ = 0;
 
   /**
-   * @type {!Array.<!jssip.ParseWarning>}
+   * @type {!Array.<!jssip.parser.ParseWarning>}
    */
   this.parseWarnings = [];
 };

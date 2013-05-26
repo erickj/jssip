@@ -1,8 +1,8 @@
 goog.provide('jssip.uri.SipUriParser');
 goog.provide('jssip.uri.SipUriParserFactory');
 
-goog.require('jssip.ParseError');
 goog.require('jssip.parser.AbstractParser');
+goog.require('jssip.parser.ParseError');
 goog.require('jssip.uri.Uri');
 goog.require('jssip.uri.Uri.Builder');
 goog.require('jssip.uri.UriParser');
@@ -86,13 +86,13 @@ jssip.uri.SipUriParser.propertyNamePositionList_ = [
 /**
  * @override
  * @return {!jssip.uri.Uri} The parsed URI.
- * @throws {jssip.ParseError}
+ * @throws {jssip.parser.ParseError}
  */
 jssip.uri.SipUriParser.prototype.parse = function() {
   var rawSipUri = this.getRawText();
   var parts = rawSipUri.match(jssip.uri.SipUriParser.regEx_);
   if (!parts) {
-    throw new jssip.ParseError('Unable to parse SIP URI ' + rawSipUri);
+    throw new jssip.parser.ParseError('Unable to parse SIP URI ' + rawSipUri);
   }
 
   var propertyPositionList = jssip.uri.SipUriParser.propertyNamePositionList_;
