@@ -8,7 +8,6 @@ goog.require('jssip.core.PropertyHolder');
  * @param {string} rawMessageText The raw message text.
  * @param {!jssip.parser.ParserRegistry} parserRegistry
  * @constructor
- * @extends {!jssip.core.PropertyHolder}
  */
 jssip.message.MessageContext = function(rawMessageText, parserRegistry) {
   var propertyMap = {};
@@ -36,8 +35,8 @@ jssip.message.MessageContext.PropertyName = {
  * @return {string} Message text.
  */
 jssip.message.MessageContext.prototype.getRawMessageText = function() {
-  return this.propertyHolder_.get(
-      jssip.message.MessageContext.PropertyName.RAWMESSAGE);
+  return /** @type {string} */ (this.propertyHolder_.get(
+      jssip.message.MessageContext.PropertyName.RAWMESSAGE));
 };
 
 
@@ -46,8 +45,8 @@ jssip.message.MessageContext.prototype.getRawMessageText = function() {
  * @return {!jssip.message.Message} The message object.
  */
 jssip.message.MessageContext.prototype.getMessage = function() {
-  var message = this.propertyHolder_.get(
-      jssip.message.MessageContext.PropertyName.MESSAGE);
+  var message = /** @type {!jssip.message.Message} */ (this.propertyHolder_.get(
+      jssip.message.MessageContext.PropertyName.MESSAGE));
   if (!message) {
     message = this.parserRegistry_.parseMessage(this.getRawMessageText());
     this.propertyHolder_.set(
