@@ -133,6 +133,7 @@ jssip.core.UserAgent.prototype.setupHandlers_ = function() {
  * to the user agent client and response to the user agent server.
  * @param {!jssip.net.TransportEvent} event
  * @suppress {invalidCasts}
+ * @private
  */
 jssip.core.UserAgent.prototype.handleTransportMesssage_ = function(event) {
   var messageContext =
@@ -150,6 +151,7 @@ jssip.core.UserAgent.prototype.handleTransportMesssage_ = function(event) {
     uac.handleResponse(messageContext);
   }
 };
+
 
 
 /**
