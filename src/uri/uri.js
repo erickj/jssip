@@ -16,6 +16,9 @@ jssip.uri.Uri = function(builder) {
   if (!this.get(jssip.uri.Uri.PropertyName.SCHEME)) {
     throw Error('Unable to set URI without a scheme');
   }
+  if (!this.get(jssip.uri.Uri.PropertyName.HOST)) {
+    throw Error('Unable to set URI without a host');
+  }
 };
 goog.inherits(jssip.uri.Uri, jssip.core.PropertyHolder);
 
@@ -49,6 +52,46 @@ jssip.uri.Uri.Scheme = {
   SIP: 'sip',
   SIPS: 'sips',
   TEL: 'tel'
+};
+
+
+// TODO(erick): Should create a UriSerialier superclass and subclass with
+// serializers for each known scheme.  Then instead of using uri.toString call
+// Serializer#serialize(uri), and dispatch based on URI scheme.
+/**
+ * Turns a URI into a string.
+ * @return {string} The serialized URI.
+ */
+jssip.uri.Uri.prototype.toString = function() {
+  // TODO(erick): As soon as non sip(s) URIs are needed see note above.
+  var scheme = this.get(jssip.uri.Uri.PropertyName.SCHEME);
+  if (scheme != jssip.uri.Uri.Scheme.SIP &&
+      scheme != jssip.uri.Uri.Scheme.SIPS) {
+    throw Error('Dont know how to serialize scheme ' + scheme);
+  }
+
+  var str = this.get(jssip.uri.Uri.PropertyName.SCHEME) + ":";
+  if (this.get(jssip.uri.Uri.PropertyName.USER)) {
+    str += this.get(jssip.uri.Uri.PropertyName.USER);
+    if (this.get(jssip.uri.Uri.PropertyName.PASSWORD)) {
+      str += ":" + this.get(jssip.uri.Uri.PropertyName.PASSWORD);
+    }
+    str += "@"
+  }
+
+  str += this.get(jssip.uri.Uri.PropertyName.HOST);
+
+  if (this.get(jssip.uri.Uri.PropertyName.PORT)) {
+    str += ":" + this.get(jssip.uri.Uri.PropertyName.PORT);
+  }
+  if (this.get(jssip.uri.Uri.PropertyName.PARAMETERS)) {
+    str += ";" + this.get(jssip.uri.Uri.PropertyName.PARAMETERS);
+  }
+  if (this.get(jssip.uri.Uri.PropertyName.HEADERS)) {
+    str += "?" + this.get(jssip.uri.Uri.PropertyName.HEADERS);
+  }
+
+  return str;
 };
 
 

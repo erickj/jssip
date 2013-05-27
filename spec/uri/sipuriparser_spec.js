@@ -25,6 +25,8 @@ describe('jssip.uri.SipUriParser', function() {
       return new jssip.uri.Uri.Builder();
     };
 
+    // TODO(erick): This was copied to uri_spec, find a better way to
+    // share test data.
     // Example SIP URIs, {@see http://tools.ietf.org/html/rfc3261#section-19.1.3}
     var expectedUriMap = {
       'sip:alice@atlanta.com': makeUriBuilder().
