@@ -63,6 +63,13 @@ jssip.plugin.FeatureContextImpl.prototype.isFeatureActive = function(name) {
 
 
 /** @override */
+jssip.plugin.FeatureContextImpl.prototype.isFeatureTypeActive = function(type) {
+  var feature = this.featureTypeMap_[type];
+  return !!feature && feature.isActive();
+};
+
+
+/** @override */
 jssip.plugin.FeatureContextImpl.prototype.getFacadeByName =
     function(name) {
   var feature = this.getFeatureByName_(name);

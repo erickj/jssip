@@ -38,6 +38,14 @@ describe('jssip.plugin.FeatureContextImpl', function() {
     });
   });
 
+  describe('#isFeatureTypeActive', function() {
+    it('should return the activity state for a feature type', function() {
+      expect(context.isFeatureTypeActive('atype')).toBe(false);
+      features[0].activate(context);
+      expect(context.isFeatureTypeActive('atype')).toBe(true);
+    });
+  });
+
   describe('facades', function() {
     beforeEach(function() {
       features[1].activate(context);

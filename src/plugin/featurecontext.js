@@ -24,9 +24,16 @@ jssip.plugin.FeatureContext.prototype.registerFeatureForType =
 
 /**
  * @param {string} name The feature name.
- * @return {boolean} Whether a feature is activated.
+ * @return {boolean} Whether a feature is active.
  */
 jssip.plugin.FeatureContext.prototype.isFeatureActive = function(name) {};
+
+
+/**
+ * @param {string} type The feature type.
+ * @return {boolean} Whether a feature implementing the type is active.
+ */
+jssip.plugin.FeatureContext.prototype.isFeatureTypeActive = function(type) {};
 
 
 /**
