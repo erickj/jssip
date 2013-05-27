@@ -2,6 +2,7 @@ goog.provide('jssip.message.MessageParserSpec');
 
 goog.require('jssip.message.MessageParser');
 goog.require('jssip.message.MessageParserFactory');
+goog.require('jssip.parser.Parser');
 
 describe('jssip.message.MessageParser', function() {
   describe('jssip.message.MessageParserFactory', function() {
@@ -93,16 +94,23 @@ describe('jssip.message.MessageParser', function() {
          expect(message.getHeaderValue('foo')).toEqual(['response-foo']);
        });
 
-    it('should add a parse warning on malformed headers and continue parsing',
+    it('should dispatch a parse warning on malformed headers and continue parsing',
        function() {
          var messageText = "SIP/2.0 200 OK\r\n" +
            "Foo\r\n" +
            "Bar: bar-value\r\n" +
            "\r\n";
          var parser = new jssip.message.MessageParser(messageText);
+         var handlerInvoked = false;
+         var handler = function(e) {
+           handlerInvoked = true;
+           expect(e.type).toEqual(jssip.parser.Parser.EventType.WARNING);
+           expect(e.value).toBe(messageText);
+         };
+         parser.addEventListener(jssip.parser.Parser.EventType.WARNING, handler);
          var message = parser.parse();
-         expect(parser.parseWarnings.length).toBe(1);
          expect(message.getHeaderValue('bar')).toEqual(['bar-value']);
+         expect(handlerInvoked).toBe(true);
        });
 
     it('should handle multi-line headers', function() {

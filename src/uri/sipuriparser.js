@@ -2,6 +2,7 @@ goog.provide('jssip.uri.SipUriParser');
 goog.provide('jssip.uri.SipUriParserFactory');
 
 goog.require('jssip.parser.AbstractParser');
+goog.require('jssip.parser.AbstractParserFactory');
 goog.require('jssip.parser.ParseError');
 goog.require('jssip.uri.Uri');
 goog.require('jssip.uri.Uri.Builder');
@@ -11,10 +12,18 @@ goog.require('jssip.uri.UriParserFactory');
 
 
 /**
+ * Factory for building URI parsers.
+ * @param {!goog.events.EventTarget} eventTarget The event target to use as the
+ *     parent event target for created parsers.
  * @constructor
  * @implements {jssip.uri.UriParserFactory}
+ * @extends {jssip.parser.AbstractParserFactory}
  */
-jssip.uri.SipUriParserFactory = function() {};
+jssip.uri.SipUriParserFactory = function(eventTarget) {
+  goog.base(this, eventTarget);
+};
+goog.inherits(
+    jssip.uri.SipUriParserFactory, jssip.parser.AbstractParserFactory);
 
 
 /**
@@ -22,7 +31,9 @@ jssip.uri.SipUriParserFactory = function() {};
  * @return {!jssip.uri.SipParser} The SIP URI parser.
  */
 jssip.uri.SipUriParserFactory.prototype.createParser = function(uri) {
-  return new jssip.uri.SipUriParser(uri);
+  var parser = new jssip.uri.SipUriParser(uri);
+  this.setupParser(parser);
+  return parser;
 };
 
 

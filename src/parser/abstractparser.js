@@ -1,41 +1,45 @@
 goog.provide('jssip.parser.AbstractParser');
 
+goog.require('goog.events.EventTarget');
 goog.require('jssip.parser.Parser');
+goog.require('jssip.parser.ParseEvent');
 goog.require('jssip.util.Scanner');
 
 
 
-// TODO(erick): fill this in as needed.
 /**
  * An abstract base class for parsers in the libary.
  * @param {string} rawText Text to be parsed.
  * @constructor
  * @implements {jssip.parser.Parser}
+ * @extends {goog.events.EventTarget}
  */
 jssip.parser.AbstractParser = function(rawText) {
-  /**
-   * @type {string}
-   * @private
-   */
+  /** @private {string} */
   this.rawText_ = rawText;
 
-  /**
-   * @type {!jssip.util.Scanner}
-   * @private
-   */
+  /** @private {!jssip.util.Scanner} */
   this.scanner_ = new jssip.util.Scanner(rawText);
 
-  /**
-   * @type {number}
-   * @private
-   */
+  /** @private {number} */
   this.position_ = 0;
-
-  /**
-   * @type {!Array.<!jssip.parser.ParseWarning>}
-   */
-  this.parseWarnings = [];
 };
+goog.inherits(jssip.parser.AbstractParser, goog.events.EventTarget);
+
+
+/**
+ * Dispatches a parser event.
+ * @param {string} message
+ * @param {jssip.parser.Parser.EventType=} opt_type An optional event type, the
+ *     default is warning.
+ * @protected
+ */
+jssip.parser.AbstractParser.prototype.dispatchParseEvent =
+    function(message, opt_type) {
+  this.dispatchEvent(new jssip.parser.ParseEvent(
+      opt_type || jssip.parser.Parser.EventType.WARNING,
+      message, this.rawText_));
+}
 
 
 /**
@@ -99,6 +103,6 @@ jssip.parser.AbstractParser.prototype.readNextLine = function() {
 
 /**
  * The parse method is the public method for all parsers in the library.
- * @return {*} The object that has been parsed.
+ * @return {!Object} The object that has been parsed.
  */
 jssip.parser.AbstractParser.prototype.parse = goog.abstractMethod;

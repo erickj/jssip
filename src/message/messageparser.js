@@ -4,26 +4,34 @@ goog.provide('jssip.message.MessageParserFactory');
 goog.require('goog.string');
 goog.require('jssip.message.Message.Builder');
 goog.require('jssip.parser.AbstractParser');
+goog.require('jssip.parser.AbstractParserFactory');
 goog.require('jssip.parser.ParseError');
-goog.require('jssip.parser.ParseWarning');
 goog.require('jssip.util.TokenMatcher');
 
 
 
 /**
  * Factory for building message parsers.
+ * @param {!goog.events.EventTarget} eventTarget The event target to use as the
+ *     parent event target for created parsers.
  * @constructor
+ * @extends {jssip.parser.AbstractParserFactory}
  */
-jssip.message.MessageParserFactory = function() {};
+jssip.message.MessageParserFactory = function(eventTarget) {
+  goog.base(this, eventTarget);
+};
+goog.inherits(
+    jssip.message.MessageParserFactory, jssip.parser.AbstractParserFactory);
 
 
 /**
- * Create the parser.
- * @param {string} text The text to parse.
+ * @override
  * @return {!jssip.message.MessageParser} The parser.
  */
 jssip.message.MessageParserFactory.prototype.createParser = function(text) {
-  return new jssip.message.MessageParser(text);
+  var parser = new jssip.message.MessageParser(text);
+  this.setupParser(parser);
+  return parser;
 };
 
 
@@ -223,8 +231,7 @@ jssip.message.MessageParser.prototype.parseHeaders_ = function() {
     // be in the value, and the split function limit parameter is foobar.
     var matches = line.match(colonRegex);
     if (!matches || matches.length != 3) {
-      this.parseWarnings.push(new jssip.parser.ParseWarning(
-          'Unable to parse malformed header: ' + line));
+      this.dispatchParseEvent('Unable to parse malformed header: ' + line);
       continue;
     }
     headers.push(goog.string.trimRight(matches[1]));

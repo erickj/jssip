@@ -48,7 +48,7 @@ jssip.core.UserAgent = function(plugins, config, parentEventBus) {
 
   /** @private {!jssip.parser.ParserRegistry} */
   this.parserRegistry_ = new jssip.parser.ParserRegistry(
-      new jssip.message.MessageParserFactory());
+      new jssip.message.MessageParserFactory(this.eventBus_), this.eventBus_);
 
   var requiredFeatureTypes = [
     jssip.core.UserAgent.CoreFeatureType.USERAGENTCLIENT,
