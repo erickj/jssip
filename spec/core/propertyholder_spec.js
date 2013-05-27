@@ -27,6 +27,21 @@ describe ('jssip.core.PropertyHolder', function() {
     });
   });
 
+  describe('#set', function() {
+    it('should throw an error on immutable property holders', function() {
+      expect(function() {
+        propertyHolder.set('never', 'gunna-see-this');
+      }).toThrow();
+    });
+
+    it('should set a key-value pair on a mutable property holder', function() {
+      var mutablePropertyHolder =
+          new jssip.core.PropertyHolder({}, false /* opt_isImmutable */);
+      mutablePropertyHolder.set('key', 'value');
+      expect(mutablePropertyHolder.get('key')).toBe('value');
+    });
+  });
+
   describe('#equals', function() {
     var equalPropertyHolder;
     var unequalPropertyHolder;
