@@ -90,6 +90,54 @@ describe("jssip.message.Message", function() {
       // dont throw because... don't need a reason phrase
       builder.build();
     });
+
+    describe('building headers', function() {
+      beforeEach(function() {
+        requestBuilder = new jssip.message.Message.Builder();
+        requestBuilder.setMethod(method).
+          setSipVersion(version).
+          setRequestUri(uri).
+          setBody(body);
+      });
+
+      describe('#setHeaders', function() {
+        it('should throw if used after #setHeader', function() {
+          requestBuilder.setHeader('foo', 'bar');
+          expect(function() {
+            requestBuilder.setHeaders(['fiz', 'buz']);
+          }).toThrow();
+        });
+      });
+
+      describe('#setHeader', function() {
+        it('should set name value pairs for header values', function() {
+          var message = requestBuilder.
+              setHeader('bloop', 'foo').
+              setHeader('bloop', 'bar').
+              setHeader('floop', 'flop').
+              setHeader('gloop', ['hop', 'on', 'pop']).
+              build();
+          expect(message.getHeaderValue('bloop')).toEqual(['foo', 'bar']);
+          expect(message.getHeaderValue('floop')).toEqual(['flop']);
+          expect(message.getHeaderValue('gloop')).toEqual(['hop', 'on', 'pop']);
+        });
+
+        it('should overwrite header values when explicitly set', function() {
+          var message = requestBuilder.
+              setHeader('bloop', 'foo').
+              setHeader('bloop', 'foo2', true /* opt_overwrite */).
+              build();
+          expect(message.getHeaderValue('bloop')).toEqual(['foo2']);
+        });
+
+        it('should throw if used after #setHeaders', function() {
+          requestBuilder.setHeaders(['fiz', 'buz']);
+          expect(function() {
+            requestBuilder.setHeader('foo', 'bar');
+          }).toThrow();
+        });
+      });
+    });
   });
 
   describe('Headers', function() {

@@ -1,6 +1,8 @@
 goog.provide('jssip.message.Message');
 goog.provide('jssip.message.Message.Builder');
 
+goog.require('goog.array');
+
 
 
 /**
@@ -259,11 +261,11 @@ jssip.message.Message.Builder = function() {
    */
   this.body_ = null;
 
-  /**
-   * @type {!Array.<string>}
-   * @private
-   */
-  this.headers_ = [];
+  /** @private {Array.<string>} */
+  this.headerList_ = null;
+
+  /** @private {Object.<!Array.<string>>} */
+  this.headerMap_ = null;
 };
 
 
@@ -311,7 +313,18 @@ jssip.message.Message.Builder.prototype.getBody = function() {
 
 /** @return {!Array.<string>} The headers. */
 jssip.message.Message.Builder.prototype.getHeaders = function() {
-  return this.headers_;
+  var headerList = this.headerList_;
+  if (!headerList) {
+    headerList = [];
+    for (var key in this.headerMap_) {
+      var values = this.headerMap_[key];
+      for (var i = 0; i < values.length; i++) {
+        headerList.push(key);
+        headerList.push(values[i]);
+      }
+    }
+  }
+  return headerList;
 };
 
 
@@ -403,13 +416,52 @@ jssip.message.Message.Builder.prototype.setBody = function(body) {
 
 
 /**
- * Set the headers array. Header name/value pairs are stored in the
- * even/odd indices.
+ * Set the headers array. Header name/value pairs are stored in the even/odd
+ * indices.  This should be used for message parsing, where we want to be able
+ * to reconstruct a message exactly as it was parsed or account for multiple
+ * headers with the same name in the mesage.
+ *
+ * This will throw an error if {@code #setHeader} has already been called.
+ *
  * @param {!Array.<string>} headers The header array.
  * @return {!jssip.message.Message.Builder} Return this.
+ * @throws {Error}
  */
 jssip.message.Message.Builder.prototype.setHeaders = function(headers) {
-  this.headers_ = headers;
+  if (this.headerMap_) {
+    throw Error('Unable to use header list with header map');
+  }
+  this.headerList_ = headers;
+  return this;
+};
+
+
+/**
+ * Sets a header key-value pair.  Multiple calls to this with the same key will
+ * overwrite existing values.
+ *
+ * This will throw an error if {@code #setHeaders} has already been called.
+ *
+ * @param {string} key The header name.
+ * @param {string|!Array.<string>} value A single value or value list.
+ * @param {boolean=} opt_overwrite Whether to overwrite any existing values for
+ *     the given header name or append.  The default is to append.
+ * @return {!jssip.message.Message.Builder} Return this.
+ * @throws {Error}
+ */
+jssip.message.Message.Builder.prototype.setHeader =
+    function(key, value, opt_overwrite) {
+  if (this.headerList_) {
+    throw Error('Unable to use header map with header list');
+  } else if (!this.headerMap_) {
+    this.headerMap_ = {};
+  }
+
+  if (this.headerMap_[key] && !opt_overwrite) {
+    this.headerMap_[key] = this.headerMap_[key].concat(value);
+  } else {
+    this.headerMap_[key] = goog.array.flatten(value);
+  }
   return this;
 };
 
