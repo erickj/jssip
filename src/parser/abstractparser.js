@@ -1,8 +1,8 @@
 goog.provide('jssip.parser.AbstractParser');
 
 goog.require('goog.events.EventTarget');
-goog.require('jssip.parser.Parser');
 goog.require('jssip.parser.ParseEvent');
+goog.require('jssip.parser.Parser');
 goog.require('jssip.util.Scanner');
 
 
@@ -39,7 +39,7 @@ jssip.parser.AbstractParser.prototype.dispatchParseEvent =
   this.dispatchEvent(new jssip.parser.ParseEvent(
       opt_type || jssip.parser.Parser.EventType.WARNING,
       message, this.rawText_));
-}
+};
 
 
 /**

@@ -33,7 +33,7 @@ jssip.parser.ParseEvent = function(type, opt_message, opt_value) {
   goog.base(this, type);
 
   /** @type {string} */
-  this.message = opt_message || "";
+  this.message = opt_message || '';
 
   /** @type {?string} */
   this.value = opt_value || null;
