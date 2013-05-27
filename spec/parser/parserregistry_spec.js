@@ -1,60 +1,85 @@
 goog.provide('jssip.parser.ParserRegistrySpec');
 
+goog.require('goog.events.EventTarget');
+goog.require('jssip.parser.ParseError');
 goog.require('jssip.parser.ParserRegistry');
 
 describe('jssip.parser.ParserRegistry', function() {
   var registry;
   var parserFactory;
   var parser;
+  var eventTarget;
 
   beforeEach(function() {
+    eventTarget = new goog.events.EventTarget();
     parser = jasmine.createSpyObj('messageParser', ['parse']);
+    parser.parse.andReturn({});
     parserFactory = {
       createParser: jasmine.createSpy().andReturn(parser)
     }
-    registry = new jssip.parser.ParserRegistry(parserFactory);
+    registry = new jssip.parser.ParserRegistry(parserFactory, eventTarget);
   });
 
-
-  describe('#parseMessage', function() {
-    it('should create a new parser and call parse', function() {
-      var messageText = 'im a message';
-      registry.parseMessage(messageText);
-      expect(parserFactory.createParser).toHaveBeenCalledWith(messageText);
-      expect(parser.parse).toHaveBeenCalled();
-    });
-  });
-
-  describe('#parseHeader', function() {
-    it('should create a new parser and call parse', function() {
-      var name = 'hdr';
-      var value = 'val';
-      registry.registerHeaderParserFactory(name, parserFactory);
-      registry.parseHeader(name, value);
-      expect(parserFactory.createParser).toHaveBeenCalledWith(name, value);
-      expect(parser.parse).toHaveBeenCalled();
+  describe('invoking parsers', function() {
+    describe('#parseMessage', function() {
+      it('should create a new parser and call parse', function() {
+        var messageText = 'im a message';
+        registry.parseMessage(messageText);
+        expect(parserFactory.createParser).toHaveBeenCalledWith(messageText);
+        expect(parser.parse).toHaveBeenCalled();
+      });
     });
 
-    it('should throw an error for an unknown header type', function() {
-      expect(function() {
-        registry.parseHeader('hdr', 'val');
-      }).toThrow();
-    });
-  });
+    describe('#parseHeader', function() {
+      it('should create a new parser and call parse', function() {
+        var name = 'hdr';
+        var value = 'val';
+        registry.registerHeaderParserFactory(name, parserFactory);
+        registry.parseHeader(name, value);
+        expect(parserFactory.createParser).toHaveBeenCalledWith(name, value);
+        expect(parser.parse).toHaveBeenCalled();
+      });
 
-  describe('#parseUri', function() {
-    it('should create a new parser and call parse', function() {
-      var uri = 'scheme:val';
-      registry.registerUriParserFactory('scheme', parserFactory);
-      registry.parseUri(uri);
-      expect(parserFactory.createParser).toHaveBeenCalledWith(uri);
-      expect(parser.parse).toHaveBeenCalled();
+      it('should throw an error for an unknown header type', function() {
+        expect(function() {
+          registry.parseHeader('hdr', 'val');
+        }).toThrow();
+      });
     });
 
-    it('should throw an error for an unknown URI scheme', function() {
-      expect(function() {
-        registry.parseUri('scheme', 'scheme:uri');
-      }).toThrow();
+    describe('#parseUri', function() {
+      it('should create a new parser and call parse', function() {
+        var uri = 'scheme:val';
+        registry.registerUriParserFactory('scheme', parserFactory);
+        registry.parseUri(uri);
+        expect(parserFactory.createParser).toHaveBeenCalledWith(uri);
+        expect(parser.parse).toHaveBeenCalled();
+      });
+
+      it('should throw an error for an unknown URI scheme', function() {
+        expect(function() {
+          registry.parseUri('scheme', 'scheme:uri');
+        }).toThrow();
+      });
+    });
+
+    describe('parsing with errors', function() {
+      it('should dispatch events for thrown ParseErrors', function() {
+        var handlerInvoked = false;
+        parser.parse.andCallFake(function() {
+          throw new jssip.parser.ParseError('a fake message');
+        });
+        var handler = function(e) {
+          handlerInvoked = true;
+          expect(e.message).toBe('a fake message');
+        };
+        eventTarget.addEventListener(
+            jssip.parser.Parser.EventType.ERROR, handler);
+        expect(function() {
+          registry.parseMessage('foo');
+        }).toThrow();
+        expect(handlerInvoked).toBe(true);
+      });
     });
   });
 

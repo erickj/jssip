@@ -1,5 +1,7 @@
 goog.provide('jssip.parser.ParserRegistry');
 
+goog.require('goog.dispose');
+goog.require('jssip.parser.ParseError');
 
 
 /**
@@ -7,9 +9,11 @@ goog.provide('jssip.parser.ParserRegistry');
  * message, header, and URI parsers.
  * @param {!jssip.message.MessageParserFactory} messageParserFactory The
  *     parser factory for providing message parser instances.
+ * @param {!goog.events.EventTarget} eventTarget The event target for
+ *     dispatching parse events to.
  * @constructor
  */
-jssip.parser.ParserRegistry = function(messageParserFactory) {
+jssip.parser.ParserRegistry = function(messageParserFactory, eventTarget) {
   /** @private {!Object.<string,!jssip.message.HeaderParserFactory>} */
   this.headerParserFactories_ = {};
 
@@ -21,6 +25,9 @@ jssip.parser.ParserRegistry = function(messageParserFactory) {
 
   /** @private {boolean} */
   this.finalized_ = false;
+
+  /** @private {!goog.events.EventTarget} */
+  this.eventTarget_ = eventTarget;
 };
 
 
@@ -30,7 +37,8 @@ jssip.parser.ParserRegistry = function(messageParserFactory) {
  * @return {!jssip.message.Message} The parsed message.
  */
 jssip.parser.ParserRegistry.prototype.parseMessage = function(rawMessageText) {
-  return this.messageParserFactory_.createParser(rawMessageText).parse();
+  return /** @type {!jssip.message.Message} */ (this.invokeParser_(
+      this.messageParserFactory_.createParser(rawMessageText)));
 };
 
 
@@ -45,7 +53,8 @@ jssip.parser.ParserRegistry.prototype.parseHeader = function(name, value) {
   if (!parserFactory) {
     throw Error('Unable to locate Header parser for header ' + name);
   }
-  return parserFactory.createParser(name, value).parse();
+  return /** @type {!jssip.message.Header} */ (
+      this.invokeParser_(parserFactory.createParser(name, value)));
 };
 
 
@@ -63,7 +72,34 @@ jssip.parser.ParserRegistry.prototype.parseUri = function(uri) {
   if (!parserFactory) {
     throw Error('Unable to locate URI parser for scheme ' + scheme);
   }
-  return parserFactory.createParser(uri).parse();
+  return /** @type {!jssip.uri.Uri} */ (
+      this.invokeParser_(parserFactory.createParser(uri)));
+};
+
+
+/**
+ * Runs a parser instance's parse method. If an exception is caught during
+ * parsing an event and the exception is a ParseError then an event will be
+ * dispatched to allow handlers to deal with the event.  In any case all
+ * exceptions will be rethrown.
+ * @param {!jssip.parser.Parser} parser The parser to invoke.
+ * @return {!Object} The parsed object.
+ * @throws {jssip.parser.ParseError}
+ * @throws {Error}
+ * @private
+ */
+jssip.parser.ParserRegistry.prototype.invokeParser_ = function(parser) {
+  try {
+    return goog.asserts.assert(parser.parse());
+  } catch (e) {
+    if (e instanceof jssip.parser.ParseError) {
+      this.eventTarget_.dispatchEvent(new jssip.parser.ParseEvent(
+          jssip.parser.Parser.EventType.ERROR, e.message));
+    }
+    throw e;
+  } finally {
+    goog.dispose(parser);
+  }
 };
 
 
