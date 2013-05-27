@@ -43,7 +43,7 @@ jssip.core.PropertyHolder.prototype.get = function(key) {
  */
 jssip.core.PropertyHolder.prototype.set = function(key, value) {
   if (this.isImmutable_) {
-    throw Erorr('Unable to set value on immutable property holder');
+    throw Error('Unable to set value on immutable property holder');
   }
   this.propertyMap_.set(key, value);
 };
