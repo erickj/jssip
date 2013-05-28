@@ -6,6 +6,8 @@ goog.require('goog.asserts');
 goog.require('goog.structs.Set');
 goog.require('jssip.core.EventBus');
 goog.require('jssip.core.PropertyHolder');
+goog.require('jssip.core.feature.MessageEvent');
+goog.require('jssip.core.feature.TransportLayer');
 goog.require('jssip.message.MessageContext');
 goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.net.TransportEvent');
@@ -31,11 +33,9 @@ goog.require('jssip.plugin.FeatureSet');
  * @param {!jssip.core.UserAgent.Config} config The config.
  * @param {!jssip.core.EventBus} parentEventBus The parent of the user agents
  *     event bus.
- * @param {!jssip.net.TransportManager} transportManager
  * @constructor
  */
-jssip.core.UserAgent =
-    function(plugins, config, parentEventBus, transportManager) {
+jssip.core.UserAgent = function(plugins, config, parentEventBus) {
   /** @private {!Array.<!jssip.plugin.Plugin>} */
   this.availablePlugins_ = plugins;
 
@@ -52,9 +52,6 @@ jssip.core.UserAgent =
   /** @private {!jssip.core.EventBus} */
   this.eventBus_ = new jssip.core.EventBus(parentEventBus);
 
-  /** @private {!jssip.net.TransportManager} */
-  this.transportManager_ = transportManager;
-
   /** @private {!jssip.parser.ParserRegistry} */
   this.parserRegistry_ = new jssip.parser.ParserRegistry(
       new jssip.message.MessageParserFactory(this.eventBus_), this.eventBus_);
@@ -62,7 +59,7 @@ jssip.core.UserAgent =
   var requiredFeatureTypes = [
     jssip.core.UserAgent.CoreFeatureType.USERAGENTCLIENT,
     jssip.core.UserAgent.CoreFeatureType.USERAGENTSERVER,
-    jssip.core.UserAgent.CoreFeatureType.MEDIAOFFERANSWER
+    jssip.core.UserAgent.CoreFeatureType.TRANSPORTLAYER
   ];
 
   /** @private {!jssip.plugin.FeatureContextImpl} */
@@ -76,7 +73,7 @@ jssip.core.UserAgent =
 jssip.core.UserAgent.CoreFeatureType = {
   USERAGENTCLIENT: 'useragentclient',
   USERAGENTSERVER: 'useragentserver',
-  MEDIAOFFERANSWER: 'mediaofferanswer'
+  TRANSPORTLAYER: 'transportlayer'
 };
 
 
@@ -122,24 +119,22 @@ jssip.core.UserAgent.prototype.activateFeatures_ = function() {
  * @private
  */
 jssip.core.UserAgent.prototype.setupHandlers_ = function() {
-  this.transportManager_.addEventListener(
-      jssip.net.TransportManager.EventType.MESSAGE,
+  this.eventBus_.addEventListener(
+      jssip.core.feature.TransportLayer.EventType.RECEIVE_MESSAGE,
       goog.bind(this.handleTransportMesssage_, this));
 };
 
 
 // TODO(erick): Figure out how to restructure so I don't need the @suppress
 /**
- * Handles raw inbound messages from the transport manager.  Requests are handed
- * to the user agent client and response to the user agent server.
- * @param {!jssip.net.TransportEvent} event
+ * Handles raw inbound messages from the transport layer.  Requests are handed
+ * to the user agent server and response to the user agent client.
+ * @param {!jssip.core.feature.MessageEvent} event
  * @suppress {invalidCasts}
  * @private
  */
 jssip.core.UserAgent.prototype.handleTransportMesssage_ = function(event) {
-  var messageContext =
-      new jssip.message.MessageContext(event.message, this.parserRegistry_);
-
+  var messageContext = event.messageContext;
   if (messageContext.getMessage().isRequest()) {
     var uas = /** @type {!jssip.core.feature.UserAgentServer} */ (
         this.featureContext_.getFacadeByType(
