@@ -24,7 +24,6 @@ goog.inherits(jssip.uri.Uri, jssip.core.PropertyHolder);
 
 
 /**
- * @param {jssip.uri.Uri.PropertyName} propertyName
  * @override
  * @return {?string}
  */
@@ -70,25 +69,25 @@ jssip.uri.Uri.prototype.toString = function() {
     throw Error('Dont know how to serialize scheme ' + scheme);
   }
 
-  var str = this.get(jssip.uri.Uri.PropertyName.SCHEME) + ":";
+  var str = this.get(jssip.uri.Uri.PropertyName.SCHEME) + ':';
   if (this.get(jssip.uri.Uri.PropertyName.USER)) {
     str += this.get(jssip.uri.Uri.PropertyName.USER);
     if (this.get(jssip.uri.Uri.PropertyName.PASSWORD)) {
-      str += ":" + this.get(jssip.uri.Uri.PropertyName.PASSWORD);
+      str += ':' + this.get(jssip.uri.Uri.PropertyName.PASSWORD);
     }
-    str += "@"
+    str += '@';
   }
 
   str += this.get(jssip.uri.Uri.PropertyName.HOST);
 
   if (this.get(jssip.uri.Uri.PropertyName.PORT)) {
-    str += ":" + this.get(jssip.uri.Uri.PropertyName.PORT);
+    str += ':' + this.get(jssip.uri.Uri.PropertyName.PORT);
   }
   if (this.get(jssip.uri.Uri.PropertyName.PARAMETERS)) {
-    str += ";" + this.get(jssip.uri.Uri.PropertyName.PARAMETERS);
+    str += ';' + this.get(jssip.uri.Uri.PropertyName.PARAMETERS);
   }
   if (this.get(jssip.uri.Uri.PropertyName.HEADERS)) {
-    str += "?" + this.get(jssip.uri.Uri.PropertyName.HEADERS);
+    str += '?' + this.get(jssip.uri.Uri.PropertyName.HEADERS);
   }
 
   return str;

@@ -314,7 +314,7 @@ jssip.message.Message.Builder.prototype.getBody = function() {
 /** @return {!Array.<string>} The headers. */
 jssip.message.Message.Builder.prototype.getHeaders = function() {
   var headerList = this.headerList_;
-  if (!headerList) {
+  if (!headerList && this.headerMap_) {
     headerList = [];
     for (var key in this.headerMap_) {
       var values = this.headerMap_[key];
@@ -324,7 +324,7 @@ jssip.message.Message.Builder.prototype.getHeaders = function() {
       }
     }
   }
-  return headerList;
+  return headerList || [];
 };
 
 

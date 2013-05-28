@@ -1,8 +1,8 @@
 goog.provide('jssip.sip.core.CoreFeature');
 goog.provide('jssip.sip.core.CoreFeature.Facade');
 
-goog.require('goog.crypt')
-goog.require('goog.crypt.Sha256')
+goog.require('goog.crypt');
+goog.require('goog.crypt.Sha256');
 goog.require('jssip.core.UserAgent');
 goog.require('jssip.core.feature.MessageEvent');
 goog.require('jssip.core.feature.UserAgentClient');
@@ -12,6 +12,7 @@ goog.require('jssip.message.BuilderMessageContext');
 goog.require('jssip.message.Message.Builder');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureFacade');
+goog.require('jssip.uri.Uri');
 
 
 
@@ -81,7 +82,7 @@ jssip.sip.core.CoreFeature.prototype.createRequest =
       getUserAgentConfigProperty(
           jssip.core.UserAgent.ConfigProperty.ADDRESS_OF_RECORD);
   headerMap[rfc3261.HeaderType.CALL_ID] = this.generateCallId_();
-  headerMap[rfc3261.HeaderType.CSEQ] = this.generateCSeq_();
+  headerMap[rfc3261.HeaderType.CSEQ] = this.generateCSeq_(method);
   headerMap[rfc3261.HeaderType.MAX_FORWARDS] = this.generateMaxForwards_();
 
   for (var headerName in headerMap) {
@@ -102,7 +103,7 @@ jssip.sip.core.CoreFeature.prototype.createRequest =
  * @private
  */
 jssip.sip.core.CoreFeature.prototype.generateCallId_ = function() {
-  var seed = "" + Math.random();
+  var seed = '' + Math.random();
   var sha256 = new goog.crypt.Sha256();
   sha256.update(goog.crypt.stringToByteArray(seed));
   return goog.crypt.byteArrayToHex(sha256.digest());
@@ -112,14 +113,14 @@ jssip.sip.core.CoreFeature.prototype.generateCallId_ = function() {
 /**
  * Generates a CSeq.
  * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.5}
- * @param {string} method The method
+ * @param {string} method
  * @return {string} A CSeq.
  * @private
  */
 jssip.sip.core.CoreFeature.prototype.generateCSeq_ = function(method) {
   // TODO(erick): I don't see any reason right now to choose anything other than
   // 1.  Find out if this is the case.
-  return "1 " + method;
+  return '1 ' + method;
 };
 
 

@@ -31,7 +31,7 @@ jssip.message.RawMessageContext.PropertyName = {
  * @return {string} Message text.
  */
 jssip.message.RawMessageContext.prototype.getRawMessageText = function() {
-  return /** @type {string} */ (this.propertyHolder_.get(
+  return /** @type {string} */ (this.getPropertyHolder().get(
       jssip.message.MessageContext.PropertyName.RAWMESSAGE));
 };
 

@@ -46,6 +46,15 @@ jssip.message.MessageContext.prototype.getParserRegistry = function() {
 
 
 /**
+ * @return {!jssip.core.PropertyHolder}
+ * @protected
+ */
+jssip.message.MessageContext.prototype.getPropertyHolder = function() {
+  return this.propertyHolder_;
+};
+
+
+/**
  * Returns the message.
  * @return {!jssip.message.Message} The message object.
  */

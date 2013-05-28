@@ -36,7 +36,7 @@ jssip.plugin.FeatureContextImpl = function(featureSet, eventBus, parserRegistry,
   /** @private {!Array.<string>} */
   this.requiredFeatureTypes_ = requiredFeatureTypes;
 
-  /** @provate {!jssip.core.UserAgent.Config} */
+  /** @private {!jssip.core.UserAgent.Config} */
   this.userAgentConfig_ = userAgentConfig;
 
   /** @private {boolean} */
@@ -107,7 +107,9 @@ jssip.plugin.FeatureContextImpl.prototype.getParserRegistry = function() {
 /** @override */
 jssip.plugin.FeatureContextImpl.prototype.getUserAgentConfigProperty =
     function(property) {
-  return this.userAgentConfig_.get(property) || null;
+  var value = this.userAgentConfig_.get(property);
+  goog.asserts.assert(goog.isString(value) || !goog.isDef(value));
+  return goog.isString(value) ? value : null;
 };
 
 

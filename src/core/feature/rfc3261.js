@@ -2,14 +2,14 @@ goog.provide('jssip.core.feature.rfc3261');
 
 
 /** @const {string} */
-jssip.core.feature.rfc3261.SIP_VERSION = "SIP/2.0";
+jssip.core.feature.rfc3261.SIP_VERSION = 'SIP/2.0';
 
 
 /**
  * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.5}
  * @const {string}
  */
-jssip.core.feature.rfc3261.MAX_FORWARDS = "70";
+jssip.core.feature.rfc3261.MAX_FORWARDS = '70';
 
 
 /**

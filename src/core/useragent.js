@@ -156,6 +156,7 @@ jssip.core.UserAgent.ConfigProperty = {
 };
 
 
+
 /**
  * @param {!Array.<string>} featureNames The names of features to activate.
  * @param {!Object.<jssip.core.UserAgent.ConfigProperty, string>} properties

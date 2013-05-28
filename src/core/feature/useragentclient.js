@@ -22,13 +22,6 @@ jssip.core.feature.UserAgentClient.EventType = {
 
 
 /**
- * Provide the user agent with its required configuration information.
- * @param {!jssip.core.PropertyHolder} uacConfig
- */
-jssip.core.feature.UserAgentClient.prototype.setConfig = function(uacConfig) {};
-
-
-/**
  * Creates a message builder that this UAC will use as a request message.  A new
  * CALL-ID and CSEQ will be generated for this message and will be publicly
  * accessible to other plugins via {@code #getPendingRequest}.
