@@ -1,5 +1,5 @@
-goog.provide('jssip.sip.core.CoreFeature');
-goog.provide('jssip.sip.core.CoreFeature.Facade');
+goog.provide('jssip.sip.core.UserAgentFeature');
+goog.provide('jssip.sip.core.UserAgentFeature.Facade');
 
 goog.require('goog.crypt');
 goog.require('goog.crypt.Sha256');
@@ -21,9 +21,9 @@ goog.require('jssip.uri.Uri');
  * @constructor
  * @extends {jssip.plugin.AbstractFeature}
  */
-jssip.sip.core.CoreFeature = function(name) {
-  /** @private {!jssip.sip.core.CoreFeature.Facade} */
-  this.facade_ = new jssip.sip.core.CoreFeature.Facade(this);
+jssip.sip.core.UserAgentFeature = function(name) {
+  /** @private {!jssip.sip.core.UserAgentFeature.Facade} */
+  this.facade_ = new jssip.sip.core.UserAgentFeature.Facade(this);
 
   var featureTypes = [
     jssip.core.UserAgent.CoreFeatureType.USERAGENTCLIENT,
@@ -32,7 +32,7 @@ jssip.sip.core.CoreFeature = function(name) {
   goog.base(this, name, this.facade_, undefined /* opt_eventHandlerMap */,
       featureTypes);
 };
-goog.inherits(jssip.sip.core.CoreFeature, jssip.plugin.AbstractFeature);
+goog.inherits(jssip.sip.core.UserAgentFeature, jssip.plugin.AbstractFeature);
 
 
 /**
@@ -41,7 +41,7 @@ goog.inherits(jssip.sip.core.CoreFeature, jssip.plugin.AbstractFeature);
  * @private
  * @return {!jssip.core.feature.MessageEvent}
  */
-jssip.sip.core.CoreFeature.prototype.createEvent_ =
+jssip.sip.core.UserAgentFeature.prototype.createEvent_ =
     function(messageContext, type) {
   return new jssip.core.feature.MessageEvent(messageContext, type);
 };
@@ -54,7 +54,7 @@ jssip.sip.core.CoreFeature.prototype.createEvent_ =
  * @param {(string|!jssip.uri.Uri)=} opt_toUri A URI to use for TO header, if
  *     none is provided the {@code requestUri} will be used.
  */
-jssip.sip.core.CoreFeature.prototype.createRequest =
+jssip.sip.core.UserAgentFeature.prototype.createRequest =
     function(method, requestUri, opt_toUri) {
   var rfc3261 = jssip.core.feature.rfc3261;
   var messageBuilder = new jssip.message.Message.Builder();
@@ -102,7 +102,7 @@ jssip.sip.core.CoreFeature.prototype.createRequest =
  * @return {string} A call id.
  * @private
  */
-jssip.sip.core.CoreFeature.prototype.generateCallId_ = function() {
+jssip.sip.core.UserAgentFeature.prototype.generateCallId_ = function() {
   var seed = '' + Math.random();
   var sha256 = new goog.crypt.Sha256();
   sha256.update(goog.crypt.stringToByteArray(seed));
@@ -117,7 +117,7 @@ jssip.sip.core.CoreFeature.prototype.generateCallId_ = function() {
  * @return {string} A CSeq.
  * @private
  */
-jssip.sip.core.CoreFeature.prototype.generateCSeq_ = function(method) {
+jssip.sip.core.UserAgentFeature.prototype.generateCSeq_ = function(method) {
   // TODO(erick): I don't see any reason right now to choose anything other than
   // 1.  Find out if this is the case.
   return '1 ' + method;
@@ -130,7 +130,7 @@ jssip.sip.core.CoreFeature.prototype.generateCSeq_ = function(method) {
  * @return {string}
  * @private
  */
-jssip.sip.core.CoreFeature.prototype.generateMaxForwards_ = function() {
+jssip.sip.core.UserAgentFeature.prototype.generateMaxForwards_ = function() {
   return jssip.core.feature.rfc3261.MAX_FORWARDS;
 };
 
@@ -139,7 +139,7 @@ jssip.sip.core.CoreFeature.prototype.generateMaxForwards_ = function() {
  * Sends a request message.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.sip.core.CoreFeature.prototype.sendRequest = function(messageContext) {
+jssip.sip.core.UserAgentFeature.prototype.sendRequest = function(messageContext) {
   // TODO(erick)
 };
 
@@ -148,7 +148,7 @@ jssip.sip.core.CoreFeature.prototype.sendRequest = function(messageContext) {
  * Receives a response off the wire and dispatches a UAC RECEIVE_MESSAGE event.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.sip.core.CoreFeature.prototype.handleResponse = function(messageContext) {
+jssip.sip.core.UserAgentFeature.prototype.handleResponse = function(messageContext) {
   var event = this.createEvent_(
       messageContext,
       jssip.core.feature.UserAgentClient.EventType.RECEIVE_MESSAGE);
@@ -160,7 +160,7 @@ jssip.sip.core.CoreFeature.prototype.handleResponse = function(messageContext) {
  * Receives a request off the wire and dispatches a UAS RECEIVE_MESSAGE event.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.sip.core.CoreFeature.prototype.handleRequest = function(messageContext) {
+jssip.sip.core.UserAgentFeature.prototype.handleRequest = function(messageContext) {
   var event = this.createEvent_(
       messageContext,
       jssip.core.feature.UserAgentServer.EventType.RECEIVE_MESSAGE);
@@ -170,42 +170,42 @@ jssip.sip.core.CoreFeature.prototype.handleRequest = function(messageContext) {
 
 
 /**
- * @param {!jssip.sip.core.CoreFeature} delegate The core feature instance to
+ * @param {!jssip.sip.core.UserAgentFeature} delegate The core feature instance to
  *     delegate to.
  * @constructor
  * @implements {jssip.core.feature.UserAgentClient}
  * @implements {jssip.core.feature.UserAgentServer}
  * @implements {jssip.plugin.FeatureFacade}
  */
-jssip.sip.core.CoreFeature.Facade = function(delegate) {
-  /** @private {!jssip.core.feature.CoreFeature} */
+jssip.sip.core.UserAgentFeature.Facade = function(delegate) {
+  /** @private {!jssip.core.feature.UserAgentFeature} */
   this.delegate_ = delegate;
 };
 
 
 /** @override */
-jssip.sip.core.CoreFeature.Facade.prototype.createRequest =
+jssip.sip.core.UserAgentFeature.Facade.prototype.createRequest =
     function(method, requestUri, opt_toUri) {
   this.delegate_.createRequest(method, requestUri, opt_toUri);
 };
 
 
 /** @override */
-jssip.sip.core.CoreFeature.Facade.prototype.sendRequest =
+jssip.sip.core.UserAgentFeature.Facade.prototype.sendRequest =
     function(messageContext) {
   this.delegate_.sendRequest(messageContext);
 };
 
 
 /** @override */
-jssip.sip.core.CoreFeature.Facade.prototype.handleResponse =
+jssip.sip.core.UserAgentFeature.Facade.prototype.handleResponse =
     function(messageContext) {
   this.delegate_.handleResponse(messageContext);
 };
 
 
 /** @override */
-jssip.sip.core.CoreFeature.Facade.prototype.handleRequest =
+jssip.sip.core.UserAgentFeature.Facade.prototype.handleRequest =
     function(messageContext) {
   this.delegate_.handleRequest(messageContext);
 };

@@ -3,7 +3,7 @@ goog.provide('jssip.sip.core.CorePlugin');
 
 goog.require('jssip.plugin.AbstractPlugin');
 goog.require('jssip.plugin.FeatureSet');
-goog.require('jssip.sip.core.CoreFeature');
+goog.require('jssip.sip.core.UserAgentFeature');
 goog.require('jssip.sip.core.DialogFeature');
 goog.require('jssip.sip.core.TransactionFeature');
 
@@ -41,7 +41,7 @@ jssip.sip.core.CorePlugin.makeFeatureName = function(featureSuffix) {
 
 /** @enum {string} */
 jssip.sip.core.CorePlugin.FeatureName = {
-  CORE: jssip.sip.core.CorePlugin.makeFeatureName('core'),
+  USERAGENT: jssip.sip.core.CorePlugin.makeFeatureName('useragent'),
   DIALOG: jssip.sip.core.CorePlugin.makeFeatureName('dialog'),
   TRANSACTION: jssip.sip.core.CorePlugin.makeFeatureName('transaction')
 };
@@ -50,8 +50,8 @@ jssip.sip.core.CorePlugin.FeatureName = {
 /** @return {!jssip.plugin.FeatureSet} */
 jssip.sip.core.CorePlugin.featureSetFactory = function() {
   return new jssip.plugin.FeatureSet([
-    new jssip.sip.core.CoreFeature(
-        jssip.sip.core.CorePlugin.FeatureName.CORE),
+    new jssip.sip.core.UserAgentFeature(
+        jssip.sip.core.CorePlugin.FeatureName.USERAGENT),
     new jssip.sip.core.DialogFeature(
         jssip.sip.core.CorePlugin.FeatureName.DIALOG),
     new jssip.sip.core.TransactionFeature(
