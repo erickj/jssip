@@ -64,3 +64,12 @@ jssip.plugin.FeatureContext.prototype.getEventBus = function() {};
  * @return {!jssip.parser.ParserRegistry} The registry.
  */
 jssip.plugin.FeatureContext.prototype.getParserRegistry = function() {};
+
+
+/**
+ * Gets a configuration value from the user agent.
+ * @param {jssip.core.UserAgent.ConfigProperty} property
+ * @return {?string}
+ */
+jssip.plugin.FeatureContext.prototype.getUserAgentConfigProperty =
+    function(property) {};

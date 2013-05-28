@@ -12,13 +12,15 @@ goog.require('jssip.plugin.FeatureContext');
  * @param {!jssip.core.EventBus} eventBus The event bus.
  * @param {!jssip.parser.ParserRegistry} parserRegistry The parser registry.
  * @param {!Array.<string>} requiredFeatureTypes An array of feature types that
- * will be checked against the set of registered feature types when
- * {@code finalize} is called.
+ *     will be checked against the set of registered feature types when
+ *     {@code finalize} is called.
+ * @param {!jssip.core.UserAgent.Config} userAgentConfig The user agent
+ *     configuration.
  * @constructor
  * @implements {jssip.plugin.FeatureContext}
  */
-jssip.plugin.FeatureContextImpl = function(
-    featureSet, eventBus, parserRegistry, requiredFeatureTypes) {
+jssip.plugin.FeatureContextImpl = function(featureSet, eventBus, parserRegistry,
+    requiredFeatureTypes, userAgentConfig) {
   /** @private {!jssip.plugin.FeatureSet} */
   this.featureSet_ = featureSet;
 
@@ -33,6 +35,9 @@ jssip.plugin.FeatureContextImpl = function(
 
   /** @private {!Array.<string>} */
   this.requiredFeatureTypes_ = requiredFeatureTypes;
+
+  /** @provate {!jssip.core.UserAgent.Config} */
+  this.userAgentConfig_ = userAgentConfig;
 
   /** @private {boolean} */
   this.finalized_ = false;
@@ -96,6 +101,13 @@ jssip.plugin.FeatureContextImpl.prototype.getEventBus = function() {
 /** @override */
 jssip.plugin.FeatureContextImpl.prototype.getParserRegistry = function() {
   return this.parserRegistry_;
+};
+
+
+/** @override */
+jssip.plugin.FeatureContextImpl.prototype.getUserAgentConfigProperty =
+    function(property) {
+  return this.userAgentConfig_.get(property) || null;
 };
 
 

@@ -5,6 +5,7 @@ goog.require('goog.array');
 goog.require('goog.asserts');
 goog.require('goog.structs.Set');
 goog.require('jssip.core.EventBus');
+goog.require('jssip.core.PropertyHolder');
 goog.require('jssip.message.MessageContext');
 goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.net.TransportEvent');
@@ -67,7 +68,7 @@ jssip.core.UserAgent =
   /** @private {!jssip.plugin.FeatureContextImpl} */
   this.featureContext_ = new jssip.plugin.FeatureContextImpl(
       this.availableFeatureSet_, this.eventBus_, this.parserRegistry_,
-      requiredFeatureTypes);
+      requiredFeatureTypes, this.config_);
 };
 
 
@@ -153,18 +154,30 @@ jssip.core.UserAgent.prototype.handleTransportMesssage_ = function(event) {
 };
 
 
+/** @enum {string} */
+jssip.core.UserAgent.ConfigProperty = {
+  ADDRESS_OF_RECORD: 'aor',
+  OUTBOUND_PROXY: 'outboundproxy'
+};
+
 
 /**
  * @param {!Array.<string>} featureNames The names of features to activate.
+ * @param {!Object.<jssip.core.UserAgent.ConfigProperty, string>} properties
+ *     The configuration property map.
  * @constructor
+ * @extends {jssip.core.PropertyHolder}
  */
-jssip.core.UserAgent.Config = function(featureNames) {
+jssip.core.UserAgent.Config = function(featureNames, properties) {
+  goog.base(this, properties);
+
   /** @private {!Array.<string>} */
   this.featureNames_ = featureNames;
 };
+goog.inherits(jssip.core.UserAgent.Config, jssip.core.PropertyHolder);
 
 
 /** @return {!Array.<string>} The features to activate. */
 jssip.core.UserAgent.Config.prototype.getFeatureNames = function() {
-  return /** @type {!Array.<string>} */ (goog.array.clone(this.featureNames_));
+  return this.featureNames_;
 };

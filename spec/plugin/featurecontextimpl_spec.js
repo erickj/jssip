@@ -2,6 +2,7 @@ goog.provide('jssip.plugin.FeatureContextImplSpec');
 
 goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.core.EventBus');
+goog.require('jssip.core.UserAgent.Config');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureContextImpl');
 goog.require('jssip.plugin.FeatureSet');
@@ -14,6 +15,7 @@ describe('jssip.plugin.FeatureContextImpl', function() {
   var eventBus;
   var parserRegistry;
   var requiredFeatureTypes;
+  var userAgentConfig;
 
   beforeEach(function() {
     var f1 = new jssip.plugin.AbstractFeature(
@@ -25,9 +27,13 @@ describe('jssip.plugin.FeatureContextImpl', function() {
     eventBus = new jssip.core.EventBus();
     parserRegistry = new jssip.parser.ParserRegistry();
     requiredFeatureTypes = ['atype'];
+    var config = {};
+    config[jssip.core.UserAgent.ConfigProperty.ADDRESS_OF_RECORD] = 'aor';
+    userAgentConfig = new jssip.core.UserAgent.Config(
+        [] /* featureNames */, config);
 
-    context = new jssip.plugin.FeatureContextImpl(
-        featureSet, eventBus, parserRegistry, requiredFeatureTypes);
+    context = new jssip.plugin.FeatureContextImpl(featureSet, eventBus,
+        parserRegistry, requiredFeatureTypes, userAgentConfig);
   });
 
   describe('#isFeatureActive', function() {
@@ -99,6 +105,19 @@ describe('jssip.plugin.FeatureContextImpl', function() {
   describe('#getParserRegistry', function() {
     it('should get the parser registry', function() {
       expect(context.getParserRegistry()).toBe(parserRegistry);
+    });
+  });
+
+  describe('#getUserAgentConfigProperty', function() {
+    it('should get a property value that is set', function() {
+      var prop = jssip.core.UserAgent.ConfigProperty.ADDRESS_OF_RECORD;
+      var value = userAgentConfig.get(prop);
+      expect(context.getUserAgentConfigProperty(prop)).toBe(value);
+    });
+
+    it('should get null for properties that are not set', function() {
+      var prop = jssip.core.UserAgent.ConfigProperty.OUTBOUND_PROXY;
+      expect(context.getUserAgentConfigProperty(prop)).toBe(null);
     });
   });
 
