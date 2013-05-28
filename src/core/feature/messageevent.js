@@ -7,8 +7,7 @@ goog.require('goog.events.Event');
 /**
  * A message event.
  * @param {!jssip.message.MessageContext} messageContext
- * @param {jssip.core.feature.UserAgentClient.EventType|
- *     jssip.core.feature.UserAgentServer.EventType} type
+ * @param {string} type
  * @param {Object=} opt_target {@see goog.events.Event}.
  * @constructor
  * @extends {goog.events.Event}
