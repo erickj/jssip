@@ -1,7 +1,5 @@
 goog.provide('jssip.core.feature.UserAgentServer');
 
-goog.require('jssip.core.UserAgent');
-
 
 
 /**
@@ -11,13 +9,6 @@ goog.require('jssip.core.UserAgent');
  */
 jssip.core.feature.UserAgentServer = function() {
 };
-
-
-/**
- * @const {jssip.core.UserAgent.CoreFeatureType}
- */
-jssip.core.feature.UserAgentServer.FEATURE_TYPE =
-    jssip.core.UserAgent.CoreFeatureType.USERAGENTSERVER;
 
 
 /** @enum {string} */
