@@ -5,14 +5,13 @@ goog.require('jssip.core.PropertyHolder');
 
 
 /**
- * @param {string} rawMessageText The raw message text.
+ * @param {jssip.message.MessageContext.Type} type
+ * @param {!Object} propertyMap
  * @param {!jssip.parser.ParserRegistry} parserRegistry
  * @constructor
  */
-jssip.message.MessageContext = function(rawMessageText, parserRegistry) {
-  var propertyMap = {};
-  propertyMap[jssip.message.MessageContext.PropertyName.RAWMESSAGE] =
-      rawMessageText;
+jssip.message.MessageContext = function(type, propertyMap, parserRegistry) {
+  propertyMap[jssip.message.MessageContext.PropertyName.TYPE] = type;
 
   /** @private {!jssip.core.PropertyHolder} */
   this.propertyHolder_ =
@@ -24,19 +23,25 @@ jssip.message.MessageContext = function(rawMessageText, parserRegistry) {
 
 
 /** @enum {string} */
+jssip.message.MessageContext.Type = {
+  RAW: 'raw',
+  BUILDER: 'builder'
+};
+
+
+/** @enum {string} */
 jssip.message.MessageContext.PropertyName = {
   MESSAGE: 'message',
-  RAWMESSAGE: 'rawmessage'
+  TYPE: 'type'
 };
 
 
 /**
- * Returns the raw message text.
- * @return {string} Message text.
+ * @return {!jssip.parser.ParserRegistry}
+ * @protected
  */
-jssip.message.MessageContext.prototype.getRawMessageText = function() {
-  return /** @type {string} */ (this.propertyHolder_.get(
-      jssip.message.MessageContext.PropertyName.RAWMESSAGE));
+jssip.message.MessageContext.prototype.getParserRegistry = function() {
+  return this.parserRegistry_;
 };
 
 
@@ -45,12 +50,20 @@ jssip.message.MessageContext.prototype.getRawMessageText = function() {
  * @return {!jssip.message.Message} The message object.
  */
 jssip.message.MessageContext.prototype.getMessage = function() {
-  var message = /** @type {!jssip.message.Message} */ (this.propertyHolder_.get(
-      jssip.message.MessageContext.PropertyName.MESSAGE));
+  var message = this.propertyHolder_.get(
+      jssip.message.MessageContext.PropertyName.MESSAGE);
   if (!message) {
-    message = this.parserRegistry_.parseMessage(this.getRawMessageText());
+    message = this.getMessageInternal();
     this.propertyHolder_.set(
         jssip.message.MessageContext.PropertyName.MESSAGE, message);
   }
-  return message;
+  return /** @type {!jssip.message.Message} */ (message);
 };
+
+
+/**
+ * The protected getter for the message when it has not been set yet.
+ * @return {!jssip.message.Message} The message object.
+ * @protected
+ */
+jssip.message.MessageContext.prototype.getMessageInternal = goog.abstractMethod;
