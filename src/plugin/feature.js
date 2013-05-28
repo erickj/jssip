@@ -1,4 +1,5 @@
 goog.provide('jssip.plugin.Feature');
+// TODO(erick): Remove this.
 goog.provide('jssip.plugin.Feature.Event');
 
 
