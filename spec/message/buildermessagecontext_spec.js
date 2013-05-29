@@ -2,14 +2,14 @@ goog.provide('jssip.message.BuilderMessageContextSpec');
 
 goog.require('jssip.message.BuilderMessageContext');
 goog.require('jssip.message.Message.Builder');
+goog.require('jssip.testing.SharedMessageContextSpec');
 
 
 describe('jssip.message.RawMessageContext', function() {
   var messageContext;
   var builder;
   var parserRegistry;
-
-  beforeEach(function() {
+  var factoryFn = function() {
     builder = new jssip.message.Message.Builder();
     builder.setMethod('FOO').
         setSipVersion('SIP/2.0').
@@ -17,9 +17,11 @@ describe('jssip.message.RawMessageContext', function() {
         setHeaders(['name', 'value']);
 
     parserRegistry = /** @type {!jssip.parser.ParserRegistry} */ ({});
-    messageContext =
+    return messageContext =
         new jssip.message.BuilderMessageContext(builder, parserRegistry);
-  });
+  };
+
+  beforeEach(factoryFn);
 
   describe('#getBuilder', function() {
     it('should return the builder', function() {
@@ -40,4 +42,6 @@ describe('jssip.message.RawMessageContext', function() {
       expect(builder.build.calls.length).toBe(1);
     });
   });
+
+  sharedMessageContextBehaviors(factoryFn);
 });
