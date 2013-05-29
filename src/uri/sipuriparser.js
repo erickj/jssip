@@ -72,7 +72,7 @@ goog.inherits(jssip.uri.SipUriParser, jssip.parser.AbstractParser);
  * @private {!RegExp}
  */
 jssip.uri.SipUriParser.regEx_ = new RegExp(
-    '^([^:]+)[:]' +                     // scheme
+    '^(sip[s]?)[:]' +                   // scheme
     '(?:([^:@]*)(?:[:]([^@]*))?[@])?' + // user/password
     '([^:;?]+)' +                       // host
     '(?:[:]([\d]+))?' +                 // port
