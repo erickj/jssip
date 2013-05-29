@@ -50,8 +50,8 @@ jssip.sip.core.UserAgentFeature.prototype.createEvent_ =
 /**
  * @see {jssip.core.feature.UserAgentClient#createRequest}
  * @param {string} method A request method.
- * @param {string|!jssip.uri.Uri} requestUri A URI.
- * @param {(string|!jssip.uri.Uri)=} opt_toUri A URI to use for TO header, if
+ * @param {!jssip.uri.Uri} requestUri A URI.
+ * @param {!jssip.uri.Uri=} opt_toUri A URI to use for TO header, if
  *     none is provided the {@code requestUri} will be used.
  */
 jssip.sip.core.UserAgentFeature.prototype.createRequest =
@@ -67,17 +67,9 @@ jssip.sip.core.UserAgentFeature.prototype.createRequest =
 
   // TODO(erick): Set the request URI according to 3261#12.2.1.1
   // TODO(erick): Validate the URI, parsing a string is probably reasonable.
-  requestUri = (requestUri instanceof jssip.uri.Uri) ?
-      requestUri.toString() : requestUri;
-  messageBuilder.setRequestUri(requestUri);
+  messageBuilder.setRequestUri(requestUri.toString());
 
-  // TODO(erick): Set the To header according to 3261#20.39 e.g. allow for
-  // display-names in the To and figure out something to do with dialog tags.
-  var toUri = opt_toUri || requestUri;
-  if (toUri instanceof jssip.uri.Uri) {
-    toUri = toUri.toString();
-  }
-  headerMap[rfc3261.HeaderType.TO] = toUri;
+  headerMap[rfc3261.HeaderType.TO] = this.getToUri_(opt_toUri || requestUri);
   headerMap[rfc3261.HeaderType.FROM] = this.getFeatureContext().
       getUserAgentConfigProperty(
           jssip.core.UserAgent.ConfigProperty.ADDRESS_OF_RECORD);
@@ -93,6 +85,17 @@ jssip.sip.core.UserAgentFeature.prototype.createRequest =
       jssip.core.feature.UserAgentClient.EventType.CREATE_MESSAGE));
 };
 
+
+/**
+ * @param {!jssip.uri.Uri} toUri
+ * @return {string}
+ * @private
+ */
+jssip.sip.core.UserAgentFeature.prototype.getToUri_ = function(toUri) {
+  // TODO(erick): Set the To header according to 3261#20.39 e.g. allow for
+  // display-names in the To and figure out something to do with dialog tags.
+  return toUri.toString();
+};
 
 // TODO(erick): Make Call-ID generation more robust, currently this is just a
 // Sha256 of a random number.

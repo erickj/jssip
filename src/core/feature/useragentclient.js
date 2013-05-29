@@ -23,8 +23,7 @@ jssip.core.feature.UserAgentClient.EventType = {
 
 /**
  * Creates a message builder that this UAC will use as a request message.  A new
- * CALL-ID and CSEQ will be generated for this message and will be publicly
- * accessible to other plugins via {@code #getPendingRequest}.
+ * CALL-ID and CSEQ will be generated for this message.
  *
  * For general information on UAC request generation:
  * @see {http://tools.ietf.org/html/rfc3261#section-8.1}
@@ -34,8 +33,8 @@ jssip.core.feature.UserAgentClient.EventType = {
  * @see {http://tools.ietf.org/html/rfc3261#section-12.2.1.1}
  *
  * @param {string} method A request method.
- * @param {string|!jssip.uri.Uri} requestUri A URI.
- * @param {(string|!jssip.uri.Uri)=} opt_toUri A URI to use for TO header, if
+ * @param {!jssip.uri.Uri} requestUri A URI.
+ * @param {!jssip.uri.Uri=} opt_toUri A URI to use for TO header, if
  *     none is provided the {@code requestUri} will be used.
  */
 jssip.core.feature.UserAgentClient.prototype.createRequest =
