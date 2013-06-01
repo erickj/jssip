@@ -152,7 +152,10 @@ jssip.core.UserAgent.prototype.handleTransportMesssage_ = function(event) {
 /** @enum {string} */
 jssip.core.UserAgent.ConfigProperty = {
   ADDRESS_OF_RECORD: 'aor',
-  OUTBOUND_PROXY: 'outboundproxy'
+  DISPLAY_NAME: 'displayname',
+  OUTBOUND_PROXY: 'outboundproxy',
+  VIA_SENT_BY: 'viasentby',
+  CONTACT: 'contact'
 };
 
 

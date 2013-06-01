@@ -6,10 +6,24 @@ jssip.core.feature.rfc3261.SIP_VERSION = 'SIP/2.0';
 
 
 /**
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.3}
+ * @const {string}
+ */
+jssip.core.feature.rfc3261.DEFAULT_DISPLAY_NAME = 'Anonymous';
+
+
+/**
  * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.5}
  * @const {string}
  */
 jssip.core.feature.rfc3261.MAX_FORWARDS = '70';
+
+
+/**
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.7}
+ * @const {string}
+ */
+jssip.core.feature.rfc3261.BRANCH_ID_PREFIX = 'z9hG4bK';
 
 
 /**

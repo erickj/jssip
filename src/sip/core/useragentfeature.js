@@ -69,13 +69,14 @@ jssip.sip.core.UserAgentFeature.prototype.createRequest =
   // TODO(erick): Validate the URI, parsing a string is probably reasonable.
   messageBuilder.setRequestUri(requestUri.toString());
 
-  headerMap[rfc3261.HeaderType.TO] = this.getToUri_(opt_toUri || requestUri);
-  headerMap[rfc3261.HeaderType.FROM] = this.getFeatureContext().
-      getUserAgentConfigProperty(
-          jssip.core.UserAgent.ConfigProperty.ADDRESS_OF_RECORD);
+  var toUri = opt_toUri || requestUri;
+  headerMap[rfc3261.HeaderType.TO] = this.generateToHeader_(toUri);
+  headerMap[rfc3261.HeaderType.FROM] = this.generateFromHeader_();
   headerMap[rfc3261.HeaderType.CALL_ID] = this.generateCallId_();
   headerMap[rfc3261.HeaderType.CSEQ] = this.generateCSeq_(method);
   headerMap[rfc3261.HeaderType.MAX_FORWARDS] = this.generateMaxForwards_();
+  headerMap[rfc3261.HeaderType.VIA] = this.generateVia_();
+  headerMap[rfc3261.HeaderType.CONTACT] = this.generateContact_();
 
   for (var headerName in headerMap) {
     messageBuilder.setHeader(headerName, headerMap[headerName]);
@@ -91,11 +92,42 @@ jssip.sip.core.UserAgentFeature.prototype.createRequest =
  * @return {string}
  * @private
  */
-jssip.sip.core.UserAgentFeature.prototype.getToUri_ = function(toUri) {
+jssip.sip.core.UserAgentFeature.prototype.generateToHeader_ = function(toUri) {
   // TODO(erick): Set the To header according to 3261#20.39 e.g. allow for
   // display-names in the To and figure out something to do with dialog tags.
   return toUri.toString();
 };
+
+/**
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.3}
+ * @see {http://tools.ietf.org/html/rfc3261#section-20.20}
+ * @return {string}
+ * @private
+ */
+jssip.sip.core.UserAgentFeature.prototype.generateFromHeader_ = function() {
+  var aor = this.getFeatureContext().getUserAgentConfigProperty(
+      jssip.core.UserAgent.ConfigProperty.ADDRESS_OF_RECORD);
+  var displayName = this.getFeatureContext().getUserAgentConfigProperty(
+      jssip.core.UserAgent.ConfigProperty.DISPLAY_NAME) ||
+      jssip.core.feature.rfc3261.DEFAULT_DISPLAY_NAME;
+  // TODO(erick): Need to build this so it has a scheme.
+  return displayName + ' <' + aor + '>;tag=' + this.generateTag_();
+};
+
+
+/**
+ * Generate a tag for From and To headers
+ * @see {http://tools.ietf.org/html/rfc3261#section-19.3}
+ * @return {string}
+ * @private
+ */
+jssip.sip.core.UserAgentFeature.prototype.generateTag_ = function() {
+  var randomStr = this.generateHexDigest_();
+  // I am arbitrarily choosing length 7!  As long as it's more than 32 bits of
+  // randomness, then I don't see a problem
+  return randomStr.substring(0, 7);
+};
+
 
 // TODO(erick): Make Call-ID generation more robust, currently this is just a
 // Sha256 of a random number.
@@ -106,10 +138,7 @@ jssip.sip.core.UserAgentFeature.prototype.getToUri_ = function(toUri) {
  * @private
  */
 jssip.sip.core.UserAgentFeature.prototype.generateCallId_ = function() {
-  var seed = '' + Math.random();
-  var sha256 = new goog.crypt.Sha256();
-  sha256.update(goog.crypt.stringToByteArray(seed));
-  return goog.crypt.byteArrayToHex(sha256.digest());
+  return this.generateHexDigest_();
 };
 
 
@@ -129,12 +158,67 @@ jssip.sip.core.UserAgentFeature.prototype.generateCSeq_ = function(method) {
 
 /**
  * Get the standard Max-Forwards value.  The RFC states it SHOULD be 70.
- * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.5}
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.6}
  * @return {string}
  * @private
  */
 jssip.sip.core.UserAgentFeature.prototype.generateMaxForwards_ = function() {
   return jssip.core.feature.rfc3261.MAX_FORWARDS;
+};
+
+
+/**
+ * Gets a Via header.
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.7}
+ * @return {string}
+ * @private
+ */
+jssip.sip.core.UserAgentFeature.prototype.generateVia_ = function() {
+  // TODO(erick): This should be overwritten by the transport plugin w/ the the
+  // correct transport protocol.
+  var viaSentBy = this.getFeatureContext().getUserAgentConfigProperty(
+      jssip.core.UserAgent.ConfigProperty.VIA_SENT_BY);
+  var branchId = jssip.core.feature.rfc3261.BRANCH_ID_PREFIX + '-' +
+      this.generateHexDigest_();
+  return 'SIP/2.0/UDP ' + viaSentBy + ';branch=' + this.generateBranchId_();
+};
+
+
+/**
+ * @return {string}
+ * @private
+ */
+jssip.sip.core.UserAgentFeature.prototype.generateBranchId_ = function() {
+  return jssip.core.feature.rfc3261.BRANCH_ID_PREFIX + "-" +
+      this.generateHexDigest_();
+};
+
+
+/**
+ * Generates a Contact header.
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.8}
+ * @see {http://tools.ietf.org/html/rfc3261#section-20.10}
+ * @return {string}
+ * @private
+ */
+jssip.sip.core.UserAgentFeature.prototype.generateContact_ = function() {
+  return '<' + this.getFeatureContext().getUserAgentConfigProperty(
+      jssip.core.UserAgent.ConfigProperty.CONTACT) + '>';
+};
+
+
+/**
+ * Generate a Sha256 hex digest. If no seed is provided, then a random seed will
+ * be generated.
+ * @param {string=} opt_seed A seed for the digest.
+ * @return {string}
+ */
+jssip.sip.core.UserAgentFeature.prototype.generateHexDigest_ =
+    function(opt_seed) {
+  var seed = opt_seed || '' + Math.random();
+  var sha256 = new goog.crypt.Sha256();
+  sha256.update(goog.crypt.stringToByteArray(seed));
+  return goog.crypt.byteArrayToHex(sha256.digest());
 };
 
 
