@@ -119,12 +119,12 @@ goog.inherits(jssip.message.MessageParser, jssip.parser.AbstractParser);
  * @private
  */
 jssip.message.MessageParser.TOKEN_MATCHERS_ = {
-  METHOD: new jssip.util.RegexpTokenMatcher(/^[a-zA-Z\d-.!%*_+`'~]+$/),
+  METHOD: new jssip.util.RegexpTokenMatcher(/^[a-zA-Z\d\-.!%*_+`'~]+$/),
   // A primitive matcher for what is needed at this level
   REQUEST_URI: new jssip.util.AnyTokenMatcher([
     new jssip.util.RegexpTokenMatcher(/^sip[s]?:.*$/),
     // absolute URI matcher
-    new jssip.util.RegexpTokenMatcher(/^[a-zA-Z][a-zA-Z\d+-.]*:.*$/)
+    new jssip.util.RegexpTokenMatcher(/^[a-zA-Z][a-zA-Z\d+\-.]*:.*$/)
   ]),
   SIP_VERSION: new jssip.util.RegexpTokenMatcher(/^SIP\/[\d]\.[\d]$/),
   STATUS_CODE: new jssip.util.RegexpTokenMatcher(/^[123456][\d][\d]$/),
