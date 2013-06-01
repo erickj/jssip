@@ -50,3 +50,10 @@ jssip.Endpoint.prototype.load = function() {
   }
   this.eventBus_.dispatchEvent(jssip.Endpoint.Event.LOADEND);
 };
+
+
+// TODO(erick): Move this to some export.js to only include during
+// advanced compilation.  Also provide a facade to export instead of
+// the actual object.
+goog.exportSymbol('jssip.Endpoint', jssip.Endpoint);
+goog.exportSymbol('jssip.Endpoint.prototype', jssip.Endpoint.prototype);
