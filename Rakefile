@@ -19,6 +19,8 @@ CLSR_DEPSWRITER = CLSR_BUILD_DIR + '/depswriter.py'
 CLSR_COMPILER = 'lib/closure-compiler/compiler.jar'
 CLSR_DEPS = 'lib/closure-library/goog/deps.js'
 
+RHINO_JS = THIRD_PARTY_DIR + '/rhino/js.jar'
+
 JSSIP_DEPS = BUILD_DIR + '/this-is-stupid_see-note-in-file.deps.js'
 
 TEST_PROTOCOL = 'file://'
@@ -94,9 +96,22 @@ end
 
 
 desc 'Run tests and build'
-task :test => [:init, :lint, :'build:simple', :'test:genspecs', :'test:specs']
+task :test => [:init, :lint, :'test:rhino', :'test:genspecs', :'test:specs']
 
 namespace :test do
+  desc 'Load endpoint.js into Rhino to check for warnings and fatal errors'
+  task :rhino => [:'build:concat', :'build:simple', :'build:compile'] do |t, args|
+    targets = [Utils.get_js_script_name(DEFAULT_TARGET),
+               Utils.get_js_script_name(DEFAULT_TARGET, 'min'),
+               Utils.get_js_script_name(DEFAULT_TARGET, 'opt')]
+    targets.each do |target|
+      target_path = BUILD_DIR + '/' + target
+      puts("Rhino test: " + target_path)
+      %x{java -jar #{RHINO_JS} -w -fatal-warnings -f #{target_path}}
+      raise "Rhino: failed to load #{target_path}" unless $? == 0
+    end
+  end
+
   desc 'Run spec for [target]'
   task :spec, :target do |t, args|
     target = args[:target]
