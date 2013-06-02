@@ -1,4 +1,7 @@
 Get Rhino from:
 
 https://developer.mozilla.org/en-US/docs/Rhino/Download_Rhino
+https://github.com/mozilla/rhino
 
+NOTE: Make sure to use the js.jar from the root of the Rhino project, do NOT use
+the one from the build directory!!!
