@@ -1,36 +1,36 @@
-goog.provide('jssip.sip.feature.rfc3261');
+goog.provide('jssip.sip.protocol.rfc3261');
 
 
 /** @const {string} */
-jssip.sip.feature.rfc3261.SIP_VERSION = 'SIP/2.0';
+jssip.sip.protocol.rfc3261.SIP_VERSION = 'SIP/2.0';
 
 
 /**
  * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.3}
  * @const {string}
  */
-jssip.sip.feature.rfc3261.DEFAULT_DISPLAY_NAME = 'Anonymous';
+jssip.sip.protocol.rfc3261.DEFAULT_DISPLAY_NAME = 'Anonymous';
 
 
 /**
  * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.5}
  * @const {string}
  */
-jssip.sip.feature.rfc3261.MAX_FORWARDS = '70';
+jssip.sip.protocol.rfc3261.MAX_FORWARDS = '70';
 
 
 /**
  * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.7}
  * @const {string}
  */
-jssip.sip.feature.rfc3261.BRANCH_ID_PREFIX = 'z9hG4bK';
+jssip.sip.protocol.rfc3261.BRANCH_ID_PREFIX = 'z9hG4bK';
 
 
 /**
  * @see {http://tools.ietf.org/html/rfc3261#section-27.4}
  * @enum {string}
  */
-jssip.sip.feature.rfc3261.MethodType = {
+jssip.sip.protocol.rfc3261.MethodType = {
   INVITE: 'INVITE',
   ACK: 'ACK',
   BYE: 'BYE',
@@ -45,7 +45,7 @@ jssip.sip.feature.rfc3261.MethodType = {
  * @see {http://tools.ietf.org/html/rfc3261#section-20}
  * @enum {string}
  */
-jssip.sip.feature.rfc3261.HeaderType = {
+jssip.sip.protocol.rfc3261.HeaderType = {
   ACCEPT: 'Accept',
   ACCEPT_ENCODING: 'Accept-Encoding',
   ACCEPT_LANGUAGE: 'Accept-Language',
@@ -94,7 +94,7 @@ jssip.sip.feature.rfc3261.HeaderType = {
 
 
 /** @enum {string} */
-jssip.sip.feature.rfc3261.CompactHeaderType = {
+jssip.sip.protocol.rfc3261.CompactHeaderType = {
   CALL_ID: 'i',
   CONTACT: 'm',
   CONTENT_ENCODING: 'e',

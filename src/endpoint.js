@@ -2,7 +2,7 @@ goog.provide('jssip.Endpoint');
 
 goog.require('jssip.event.EventBus');
 goog.require('jssip.sip.UserAgent');
-goog.require('jssip.sip.core.CorePlugin');
+goog.require('jssip.sip.plugin.core.CorePlugin');
 
 
 
@@ -25,7 +25,7 @@ jssip.Endpoint = function(plugins, configs) {
   /** @private {!Array.<!jssip.sip.UserAgent>} */
   this.userAgents_ = [];
 
-  plugins.push(new jssip.sip.core.CorePlugin());
+  plugins.push(new jssip.sip.plugin.core.CorePlugin());
   for (var i = 0; i < configs.length; i++) {
     this.userAgents_.push(
         new jssip.sip.UserAgent(plugins, configs[i], this.eventBus_));

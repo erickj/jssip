@@ -1,4 +1,4 @@
-goog.provide('jssip.sip.feature.MessageEvent');
+goog.provide('jssip.sip.event.MessageEvent');
 
 goog.require('goog.events.Event');
 
@@ -12,10 +12,10 @@ goog.require('goog.events.Event');
  * @constructor
  * @extends {goog.events.Event}
  */
-jssip.sip.feature.MessageEvent = function(messageContext, type, opt_target) {
+jssip.sip.event.MessageEvent = function(messageContext, type, opt_target) {
   goog.base(this, type, opt_target);
 
   /** @type {!jssip.message.MessageContext} */
   this.messageContext = messageContext;
 };
-goog.inherits(jssip.sip.feature.MessageEvent, goog.events.Event);
+goog.inherits(jssip.sip.event.MessageEvent, goog.events.Event);

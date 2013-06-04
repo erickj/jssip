@@ -1,4 +1,4 @@
-goog.provide('jssip.sip.feature.UserAgentServer');
+goog.provide('jssip.sip.protocol.UserAgentServer');
 
 
 
@@ -7,12 +7,12 @@ goog.provide('jssip.sip.feature.UserAgentServer');
  * implement this interface.
  * @interface
  */
-jssip.sip.feature.UserAgentServer = function() {
+jssip.sip.protocol.UserAgentServer = function() {
 };
 
 
 /** @enum {string} */
-jssip.sip.feature.UserAgentServer.EventType = {
+jssip.sip.protocol.UserAgentServer.EventType = {
   CREATE_MESSAGE: 'uas-create-message',
   RECEIVE_MESSAGE: 'uas-receive-message',
   SEND_MESSAGE: 'uas-send-message'
@@ -22,5 +22,5 @@ jssip.sip.feature.UserAgentServer.EventType = {
 /**
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.sip.feature.UserAgentServer.prototype.handleRequest =
+jssip.sip.protocol.UserAgentServer.prototype.handleRequest =
     function(messageContext) {};

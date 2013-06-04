@@ -12,8 +12,8 @@ goog.require('jssip.net.TransportManager');
 goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.plugin.FeatureContextImpl');
 goog.require('jssip.plugin.FeatureSet');
-goog.require('jssip.sip.feature.MessageEvent');
-goog.require('jssip.sip.feature.TransportLayer');
+goog.require('jssip.sip.event.MessageEvent');
+goog.require('jssip.sip.protocol.TransportLayer');
 goog.require('jssip.util.PropertyHolder');
 
 
@@ -120,7 +120,7 @@ jssip.sip.UserAgent.prototype.activateFeatures_ = function() {
  */
 jssip.sip.UserAgent.prototype.setupHandlers_ = function() {
   this.eventBus_.addEventListener(
-      jssip.sip.feature.TransportLayer.EventType.RECEIVE_MESSAGE,
+      jssip.sip.protocol.TransportLayer.EventType.RECEIVE_MESSAGE,
       goog.bind(this.handleTransportMesssage_, this));
 };
 
@@ -129,19 +129,19 @@ jssip.sip.UserAgent.prototype.setupHandlers_ = function() {
 /**
  * Handles raw inbound messages from the transport layer.  Requests are handed
  * to the user agent server and response to the user agent client.
- * @param {!jssip.sip.feature.MessageEvent} event
+ * @param {!jssip.sip.event.MessageEvent} event
  * @suppress {invalidCasts}
  * @private
  */
 jssip.sip.UserAgent.prototype.handleTransportMesssage_ = function(event) {
   var messageContext = event.messageContext;
   if (messageContext.getMessage().isRequest()) {
-    var uas = /** @type {!jssip.sip.feature.UserAgentServer} */ (
+    var uas = /** @type {!jssip.sip.protocol.UserAgentServer} */ (
         this.featureContext_.getFacadeByType(
             jssip.sip.UserAgent.CoreFeatureType.USERAGENTSERVER));
     uas.handleRequest(messageContext);
   } else {
-    var uac = /** @type {!jssip.sip.feature.UserAgentClient} */ (
+    var uac = /** @type {!jssip.sip.protocol.UserAgentClient} */ (
         this.featureContext_.getFacadeByType(
             jssip.sip.UserAgent.CoreFeatureType.USERAGENTCLIENT));
     uac.handleResponse(messageContext);

@@ -1,5 +1,5 @@
-goog.provide('jssip.sip.core.UserAgentFeature');
-goog.provide('jssip.sip.core.UserAgentFeature.Facade');
+goog.provide('jssip.sip.plugin.core.UserAgentFeature');
+goog.provide('jssip.sip.plugin.core.UserAgentFeature.Facade');
 
 goog.require('goog.crypt');
 goog.require('goog.crypt.Sha256');
@@ -8,10 +8,10 @@ goog.require('jssip.message.Message.Builder');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureFacade');
 goog.require('jssip.sip.UserAgent');
-goog.require('jssip.sip.feature.MessageEvent');
-goog.require('jssip.sip.feature.UserAgentClient');
-goog.require('jssip.sip.feature.UserAgentServer');
-goog.require('jssip.sip.feature.rfc3261');
+goog.require('jssip.sip.event.MessageEvent');
+goog.require('jssip.sip.protocol.UserAgentClient');
+goog.require('jssip.sip.protocol.UserAgentServer');
+goog.require('jssip.sip.protocol.rfc3261');
 goog.require('jssip.uri.Uri');
 
 
@@ -21,9 +21,9 @@ goog.require('jssip.uri.Uri');
  * @constructor
  * @extends {jssip.plugin.AbstractFeature}
  */
-jssip.sip.core.UserAgentFeature = function(name) {
-  /** @private {!jssip.sip.core.UserAgentFeature.Facade} */
-  this.facade_ = new jssip.sip.core.UserAgentFeature.Facade(this);
+jssip.sip.plugin.core.UserAgentFeature = function(name) {
+  /** @private {!jssip.sip.plugin.core.UserAgentFeature.Facade} */
+  this.facade_ = new jssip.sip.plugin.core.UserAgentFeature.Facade(this);
 
   var featureTypes = [
     jssip.sip.UserAgent.CoreFeatureType.USERAGENTCLIENT,
@@ -32,31 +32,32 @@ jssip.sip.core.UserAgentFeature = function(name) {
   goog.base(this, name, this.facade_, undefined /* opt_eventHandlerMap */,
       featureTypes);
 };
-goog.inherits(jssip.sip.core.UserAgentFeature, jssip.plugin.AbstractFeature);
+goog.inherits(
+    jssip.sip.plugin.core.UserAgentFeature, jssip.plugin.AbstractFeature);
 
 
 /**
  * @param {!jssip.message.MessageContext} messageContext
  * @param {string} type
  * @private
- * @return {!jssip.sip.feature.MessageEvent}
+ * @return {!jssip.sip.event.MessageEvent}
  */
-jssip.sip.core.UserAgentFeature.prototype.createEvent_ =
+jssip.sip.plugin.core.UserAgentFeature.prototype.createEvent_ =
     function(messageContext, type) {
-  return new jssip.sip.feature.MessageEvent(messageContext, type);
+  return new jssip.sip.event.MessageEvent(messageContext, type);
 };
 
 
 /**
- * @see {jssip.sip.feature.UserAgentClient#createRequest}
+ * @see {jssip.sip.protocol.UserAgentClient#createRequest}
  * @param {string} method A request method.
  * @param {!jssip.uri.Uri} requestUri A URI.
  * @param {!jssip.uri.Uri=} opt_toUri A URI to use for TO header, if
  *     none is provided the {@code requestUri} will be used.
  */
-jssip.sip.core.UserAgentFeature.prototype.createRequest =
+jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
     function(method, requestUri, opt_toUri) {
-  var rfc3261 = jssip.sip.feature.rfc3261;
+  var rfc3261 = jssip.sip.protocol.rfc3261;
   var messageBuilder = new jssip.message.Message.Builder();
   var messageContext = new jssip.message.BuilderMessageContext(
       messageBuilder, this.getFeatureContext().getParserRegistry());
@@ -83,7 +84,7 @@ jssip.sip.core.UserAgentFeature.prototype.createRequest =
   }
 
   this.dispatchEvent(this.createEvent_(messageContext,
-      jssip.sip.feature.UserAgentClient.EventType.CREATE_MESSAGE));
+      jssip.sip.protocol.UserAgentClient.EventType.CREATE_MESSAGE));
 };
 
 
@@ -92,7 +93,8 @@ jssip.sip.core.UserAgentFeature.prototype.createRequest =
  * @return {string}
  * @private
  */
-jssip.sip.core.UserAgentFeature.prototype.generateToHeader_ = function(toUri) {
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateToHeader_ =
+    function(toUri) {
   // TODO(erick): Set the To header according to 3261#20.39 e.g. allow for
   // display-names in the To and figure out something to do with dialog tags.
   return toUri.toString();
@@ -105,12 +107,13 @@ jssip.sip.core.UserAgentFeature.prototype.generateToHeader_ = function(toUri) {
  * @return {string}
  * @private
  */
-jssip.sip.core.UserAgentFeature.prototype.generateFromHeader_ = function() {
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateFromHeader_ =
+    function() {
   var aor = this.getFeatureContext().getUserAgentConfigProperty(
       jssip.sip.UserAgent.ConfigProperty.ADDRESS_OF_RECORD);
   var displayName = this.getFeatureContext().getUserAgentConfigProperty(
       jssip.sip.UserAgent.ConfigProperty.DISPLAY_NAME) ||
-      jssip.sip.feature.rfc3261.DEFAULT_DISPLAY_NAME;
+      jssip.sip.protocol.rfc3261.DEFAULT_DISPLAY_NAME;
   // TODO(erick): Need to build this so it has a scheme.
   return displayName + ' <' + aor + '>;tag=' + this.generateTag_();
 };
@@ -122,7 +125,7 @@ jssip.sip.core.UserAgentFeature.prototype.generateFromHeader_ = function() {
  * @return {string}
  * @private
  */
-jssip.sip.core.UserAgentFeature.prototype.generateTag_ = function() {
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateTag_ = function() {
   var randomStr = this.generateHexDigest_();
   // I am arbitrarily choosing length 7!  As long as it's more than 32 bits of
   // randomness, then I don't see a problem
@@ -138,7 +141,7 @@ jssip.sip.core.UserAgentFeature.prototype.generateTag_ = function() {
  * @return {string} A call id.
  * @private
  */
-jssip.sip.core.UserAgentFeature.prototype.generateCallId_ = function() {
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateCallId_ = function() {
   return this.generateHexDigest_();
 };
 
@@ -150,7 +153,8 @@ jssip.sip.core.UserAgentFeature.prototype.generateCallId_ = function() {
  * @return {string} A CSeq.
  * @private
  */
-jssip.sip.core.UserAgentFeature.prototype.generateCSeq_ = function(method) {
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateCSeq_ =
+    function(method) {
   // TODO(erick): I don't see any reason right now to choose anything other than
   // 1.  Find out if this is the case.
   return '1 ' + method;
@@ -163,8 +167,9 @@ jssip.sip.core.UserAgentFeature.prototype.generateCSeq_ = function(method) {
  * @return {string}
  * @private
  */
-jssip.sip.core.UserAgentFeature.prototype.generateMaxForwards_ = function() {
-  return jssip.sip.feature.rfc3261.MAX_FORWARDS;
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateMaxForwards_ =
+    function() {
+  return jssip.sip.protocol.rfc3261.MAX_FORWARDS;
 };
 
 
@@ -174,12 +179,12 @@ jssip.sip.core.UserAgentFeature.prototype.generateMaxForwards_ = function() {
  * @return {string}
  * @private
  */
-jssip.sip.core.UserAgentFeature.prototype.generateVia_ = function() {
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateVia_ = function() {
   // TODO(erick): This should be overwritten by the transport plugin w/ the the
   // correct transport protocol.
   var viaSentBy = this.getFeatureContext().getUserAgentConfigProperty(
       jssip.sip.UserAgent.ConfigProperty.VIA_SENT_BY);
-  var branchId = jssip.sip.feature.rfc3261.BRANCH_ID_PREFIX + '-' +
+  var branchId = jssip.sip.protocol.rfc3261.BRANCH_ID_PREFIX + '-' +
       this.generateHexDigest_();
   return 'SIP/2.0/UDP ' + viaSentBy + ';branch=' + this.generateBranchId_();
 };
@@ -189,8 +194,9 @@ jssip.sip.core.UserAgentFeature.prototype.generateVia_ = function() {
  * @return {string}
  * @private
  */
-jssip.sip.core.UserAgentFeature.prototype.generateBranchId_ = function() {
-  return jssip.sip.feature.rfc3261.BRANCH_ID_PREFIX + '-' +
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateBranchId_ =
+    function() {
+  return jssip.sip.protocol.rfc3261.BRANCH_ID_PREFIX + '-' +
       this.generateHexDigest_();
 };
 
@@ -202,7 +208,7 @@ jssip.sip.core.UserAgentFeature.prototype.generateBranchId_ = function() {
  * @return {string}
  * @private
  */
-jssip.sip.core.UserAgentFeature.prototype.generateContact_ = function() {
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateContact_ = function() {
   return '<' + this.getFeatureContext().getUserAgentConfigProperty(
       jssip.sip.UserAgent.ConfigProperty.CONTACT) + '>';
 };
@@ -215,7 +221,7 @@ jssip.sip.core.UserAgentFeature.prototype.generateContact_ = function() {
  * @return {string}
  * @private
  */
-jssip.sip.core.UserAgentFeature.prototype.generateHexDigest_ =
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateHexDigest_ =
     function(opt_seed) {
   var seed = opt_seed || '' + Math.random();
   var sha256 = new goog.crypt.Sha256();
@@ -228,7 +234,7 @@ jssip.sip.core.UserAgentFeature.prototype.generateHexDigest_ =
  * Sends a request message.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.sip.core.UserAgentFeature.prototype.sendRequest =
+jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequest =
     function(messageContext) {
   // TODO(erick)
 };
@@ -238,11 +244,11 @@ jssip.sip.core.UserAgentFeature.prototype.sendRequest =
  * Receives a response off the wire and dispatches a UAC RECEIVE_MESSAGE event.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.sip.core.UserAgentFeature.prototype.handleResponse =
+jssip.sip.plugin.core.UserAgentFeature.prototype.handleResponse =
     function(messageContext) {
   var event = this.createEvent_(
       messageContext,
-      jssip.sip.feature.UserAgentClient.EventType.RECEIVE_MESSAGE);
+      jssip.sip.protocol.UserAgentClient.EventType.RECEIVE_MESSAGE);
   this.dispatchEvent(event);
 };
 
@@ -251,53 +257,53 @@ jssip.sip.core.UserAgentFeature.prototype.handleResponse =
  * Receives a request off the wire and dispatches a UAS RECEIVE_MESSAGE event.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.sip.core.UserAgentFeature.prototype.handleRequest =
+jssip.sip.plugin.core.UserAgentFeature.prototype.handleRequest =
     function(messageContext) {
   var event = this.createEvent_(
       messageContext,
-      jssip.sip.feature.UserAgentServer.EventType.RECEIVE_MESSAGE);
+      jssip.sip.protocol.UserAgentServer.EventType.RECEIVE_MESSAGE);
   this.dispatchEvent(event);
 };
 
 
 
 /**
- * @param {!jssip.sip.core.UserAgentFeature} delegate The core feature instance
- *     to delegate to.
+ * @param {!jssip.sip.plugin.core.UserAgentFeature} delegate The core feature
+ *     instance to delegate to.
  * @constructor
- * @implements {jssip.sip.feature.UserAgentClient}
- * @implements {jssip.sip.feature.UserAgentServer}
+ * @implements {jssip.sip.protocol.UserAgentClient}
+ * @implements {jssip.sip.protocol.UserAgentServer}
  * @implements {jssip.plugin.FeatureFacade}
  */
-jssip.sip.core.UserAgentFeature.Facade = function(delegate) {
-  /** @private {!jssip.sip.core.UserAgentFeature} */
+jssip.sip.plugin.core.UserAgentFeature.Facade = function(delegate) {
+  /** @private {!jssip.sip.plugin.core.UserAgentFeature} */
   this.delegate_ = delegate;
 };
 
 
 /** @override */
-jssip.sip.core.UserAgentFeature.Facade.prototype.createRequest =
+jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.createRequest =
     function(method, requestUri, opt_toUri) {
   this.delegate_.createRequest(method, requestUri, opt_toUri);
 };
 
 
 /** @override */
-jssip.sip.core.UserAgentFeature.Facade.prototype.sendRequest =
+jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.sendRequest =
     function(messageContext) {
   this.delegate_.sendRequest(messageContext);
 };
 
 
 /** @override */
-jssip.sip.core.UserAgentFeature.Facade.prototype.handleResponse =
+jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.handleResponse =
     function(messageContext) {
   this.delegate_.handleResponse(messageContext);
 };
 
 
 /** @override */
-jssip.sip.core.UserAgentFeature.Facade.prototype.handleRequest =
+jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.handleRequest =
     function(messageContext) {
   this.delegate_.handleRequest(messageContext);
 };
