@@ -36,6 +36,7 @@ jssip.sip.protocol.UserAgentClient.EventType = {
  * @param {!jssip.uri.Uri} requestUri A URI.
  * @param {!jssip.uri.Uri=} opt_toUri A URI to use for TO header, if
  *     none is provided the {@code requestUri} will be used.
+ * @return {!jssip.message.Message}
  */
 jssip.sip.protocol.UserAgentClient.prototype.createRequest =
     function(method, requestUri, opt_toUri) {};

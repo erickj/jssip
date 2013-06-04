@@ -54,12 +54,13 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createEvent_ =
  * @param {!jssip.uri.Uri} requestUri A URI.
  * @param {!jssip.uri.Uri=} opt_toUri A URI to use for TO header, if
  *     none is provided the {@code requestUri} will be used.
+ * @return {!jssip.message.Message}
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
     function(method, requestUri, opt_toUri) {
   var rfc3261 = jssip.sip.protocol.rfc3261;
   var messageBuilder = new jssip.message.Message.Builder();
-  var messageContext = new jssip.message.BuilderMessageContext(
+  var builderMessageContext = new jssip.message.BuilderMessageContext(
       messageBuilder, this.getFeatureContext().getParserRegistry());
   var headerMap = {};
 
@@ -83,8 +84,10 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
     messageBuilder.setHeader(headerName, headerMap[headerName]);
   }
 
-  this.dispatchEvent(this.createEvent_(messageContext,
+  this.dispatchEvent(this.createEvent_(builderMessageContext,
       jssip.sip.protocol.UserAgentClient.EventType.CREATE_MESSAGE));
+
+  return builderMessageContext.getBuilder().build();
 };
 
 
@@ -115,7 +118,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.generateFromHeader_ =
       jssip.sip.UserAgent.ConfigProperty.DISPLAY_NAME) ||
       jssip.sip.protocol.rfc3261.DEFAULT_DISPLAY_NAME;
   // TODO(erick): Need to build this so it has a scheme.
-  return displayName + ' <' + aor + '>;tag=' + this.generateTag_();
+  return displayName + ' <sip:' + aor + '>;tag=' + this.generateTag_();
 };
 
 
@@ -142,7 +145,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.generateTag_ = function() {
  * @private
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.generateCallId_ = function() {
-  return this.generateHexDigest_();
+  return this.generateHexDigest_().substring(0, 31);
 };
 
 
@@ -197,7 +200,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.generateVia_ = function() {
 jssip.sip.plugin.core.UserAgentFeature.prototype.generateBranchId_ =
     function() {
   return jssip.sip.protocol.rfc3261.BRANCH_ID_PREFIX + '-' +
-      this.generateHexDigest_();
+      this.generateHexDigest_().substring(0, 15);
 };
 
 
