@@ -5,6 +5,7 @@ goog.require('jssip.event.EventBus');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureContext');
 goog.require('jssip.plugin.Feature.Event');
+goog.require('jssip.testing.util.featureutil');
 
 describe('jssip.plugin.AbstractFeature', function() {
   var name = 'test.abstractfeature';
@@ -55,16 +56,13 @@ describe('jssip.plugin.AbstractFeature', function() {
       feature = new jssip.plugin.AbstractFeature(name, undefined,
           eventHandlerMap, featureTypes, headerParserMap, uriParserMap);
 
-      parserRegistry = new jssip.parser.ParserRegistry({} /* messageParserFactory */);
-
-      featureContext = new jssip.plugin.FeatureContext();
-      featureContext.getParserRegistry = function() { return parserRegistry; }
-
       eventBus = {
         addEventListener: jasmine.createSpy(),
         getParentEventTarget: function() {}
       }
-      featureContext.getEventBus = function() { return eventBus; };
+      featureContext =
+          jssip.testing.util.featureutil.createFeatureContext(eventBus);
+      parserRegistry = featureContext.getParserRegistry();
     });
 
     it('should not be active until activated', function() {
