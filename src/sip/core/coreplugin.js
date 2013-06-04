@@ -3,9 +3,9 @@ goog.provide('jssip.sip.core.CorePlugin');
 
 goog.require('jssip.plugin.AbstractPlugin');
 goog.require('jssip.plugin.FeatureSet');
-goog.require('jssip.sip.core.UserAgentFeature');
 goog.require('jssip.sip.core.DialogFeature');
 goog.require('jssip.sip.core.TransactionFeature');
+goog.require('jssip.sip.core.UserAgentFeature');
 
 
 

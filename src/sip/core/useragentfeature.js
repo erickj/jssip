@@ -98,6 +98,7 @@ jssip.sip.core.UserAgentFeature.prototype.generateToHeader_ = function(toUri) {
   return toUri.toString();
 };
 
+
 /**
  * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.3}
  * @see {http://tools.ietf.org/html/rfc3261#section-20.20}
@@ -189,7 +190,7 @@ jssip.sip.core.UserAgentFeature.prototype.generateVia_ = function() {
  * @private
  */
 jssip.sip.core.UserAgentFeature.prototype.generateBranchId_ = function() {
-  return jssip.core.feature.rfc3261.BRANCH_ID_PREFIX + "-" +
+  return jssip.core.feature.rfc3261.BRANCH_ID_PREFIX + '-' +
       this.generateHexDigest_();
 };
 
@@ -212,6 +213,7 @@ jssip.sip.core.UserAgentFeature.prototype.generateContact_ = function() {
  * be generated.
  * @param {string=} opt_seed A seed for the digest.
  * @return {string}
+ * @private
  */
 jssip.sip.core.UserAgentFeature.prototype.generateHexDigest_ =
     function(opt_seed) {
@@ -226,7 +228,8 @@ jssip.sip.core.UserAgentFeature.prototype.generateHexDigest_ =
  * Sends a request message.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.sip.core.UserAgentFeature.prototype.sendRequest = function(messageContext) {
+jssip.sip.core.UserAgentFeature.prototype.sendRequest =
+    function(messageContext) {
   // TODO(erick)
 };
 
@@ -235,7 +238,8 @@ jssip.sip.core.UserAgentFeature.prototype.sendRequest = function(messageContext)
  * Receives a response off the wire and dispatches a UAC RECEIVE_MESSAGE event.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.sip.core.UserAgentFeature.prototype.handleResponse = function(messageContext) {
+jssip.sip.core.UserAgentFeature.prototype.handleResponse =
+    function(messageContext) {
   var event = this.createEvent_(
       messageContext,
       jssip.core.feature.UserAgentClient.EventType.RECEIVE_MESSAGE);
@@ -247,7 +251,8 @@ jssip.sip.core.UserAgentFeature.prototype.handleResponse = function(messageConte
  * Receives a request off the wire and dispatches a UAS RECEIVE_MESSAGE event.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.sip.core.UserAgentFeature.prototype.handleRequest = function(messageContext) {
+jssip.sip.core.UserAgentFeature.prototype.handleRequest =
+    function(messageContext) {
   var event = this.createEvent_(
       messageContext,
       jssip.core.feature.UserAgentServer.EventType.RECEIVE_MESSAGE);
@@ -257,8 +262,8 @@ jssip.sip.core.UserAgentFeature.prototype.handleRequest = function(messageContex
 
 
 /**
- * @param {!jssip.sip.core.UserAgentFeature} delegate The core feature instance to
- *     delegate to.
+ * @param {!jssip.sip.core.UserAgentFeature} delegate The core feature instance
+ *     to delegate to.
  * @constructor
  * @implements {jssip.core.feature.UserAgentClient}
  * @implements {jssip.core.feature.UserAgentServer}
