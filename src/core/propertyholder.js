@@ -66,5 +66,4 @@ jssip.core.PropertyHolder.prototype.equals = function(other) {
 /** @override */
 jssip.core.PropertyHolder.prototype.disposeInternal = function() {
   this.propertyMap_.clear();
-  this.propertyMap_ = null;
 };

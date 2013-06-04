@@ -265,7 +265,7 @@ jssip.sip.core.UserAgentFeature.prototype.handleRequest = function(messageContex
  * @implements {jssip.plugin.FeatureFacade}
  */
 jssip.sip.core.UserAgentFeature.Facade = function(delegate) {
-  /** @private {!jssip.core.feature.UserAgentFeature} */
+  /** @private {!jssip.sip.core.UserAgentFeature} */
   this.delegate_ = delegate;
 };
 
