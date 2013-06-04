@@ -61,6 +61,24 @@ namespace :build do
     Utils.build_script(Utils.get_js_script_name(target), target)
   end
 
+  desc 'Compile JS for Rhino'
+  task :rhino => :'build:concat' do
+    # Rhino does not support argument.callee.caller, so need to revise
+    # how goog.base and all calls to it are implemented.
+    path = File.join(BUILD_DIR, Utils.get_js_script_name(DEFAULT_TARGET))
+    rhino_target = "build/endpoint.rhino.js"
+
+    sed_cmd = 'sed -e "s/goog.base(/goog\.base\(arguments.callee, /" %s'%path
+    puts %x{#{sed_cmd} > #{rhino_target}}
+
+    sed_cmd2 = 'sed -i -e "s/goog.base = function(/goog.base = function(caller, /" %s'%rhino_target
+    puts %x{#{sed_cmd2}}
+
+    match = '  var caller = arguments.callee.caller'
+    sed_cmd3 = 'sed -i -e "s/%s/\/\/%s/" %s'%[match, match, rhino_target]
+    puts %x{#{sed_cmd3}}
+  end
+
   desc 'Compile JS in SIMPLE_OPTIMIZATION mode for [target]'
   task :simple, [:target] => [:init, :'build:stupid_jssip_deps'] do |t, args|
     target = args[:target] || DEFAULT_TARGET
