@@ -1,7 +1,7 @@
 goog.provide('jssip.plugin.AbstractFeatureSpec');
 
 goog.require('jssip.parser.ParserRegistry');
-goog.require('jssip.core.EventBus');
+goog.require('jssip.event.EventBus');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureContext');
 goog.require('jssip.plugin.Feature.Event');
@@ -16,7 +16,7 @@ describe('jssip.plugin.AbstractFeature', function() {
 
   describe('inheritance', function() {
     it('should be an event bus', function() {
-      expect(feature instanceof jssip.core.EventBus).toBe(true);
+      expect(feature instanceof jssip.event.EventBus).toBe(true);
     });
   });
 

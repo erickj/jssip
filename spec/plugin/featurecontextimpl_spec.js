@@ -1,8 +1,8 @@
 goog.provide('jssip.plugin.FeatureContextImplSpec');
 
 goog.require('jssip.parser.ParserRegistry');
-goog.require('jssip.core.EventBus');
-goog.require('jssip.core.UserAgent.Config');
+goog.require('jssip.event.EventBus');
+goog.require('jssip.sip.UserAgent.Config');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureContextImpl');
 goog.require('jssip.plugin.FeatureSet');
@@ -24,12 +24,12 @@ describe('jssip.plugin.FeatureContextImpl', function() {
         'feature2', {}, undefined, ['btype']);
     features = [f1, f2];
     featureSet = new jssip.plugin.FeatureSet(features);
-    eventBus = new jssip.core.EventBus();
+    eventBus = new jssip.event.EventBus();
     parserRegistry = new jssip.parser.ParserRegistry();
     requiredFeatureTypes = ['atype'];
     var config = {};
-    config[jssip.core.UserAgent.ConfigProperty.ADDRESS_OF_RECORD] = 'aor';
-    userAgentConfig = new jssip.core.UserAgent.Config(
+    config[jssip.sip.UserAgent.ConfigProperty.ADDRESS_OF_RECORD] = 'aor';
+    userAgentConfig = new jssip.sip.UserAgent.Config(
         [] /* featureNames */, config);
 
     context = new jssip.plugin.FeatureContextImpl(featureSet, eventBus,
@@ -110,13 +110,13 @@ describe('jssip.plugin.FeatureContextImpl', function() {
 
   describe('#getUserAgentConfigProperty', function() {
     it('should get a property value that is set', function() {
-      var prop = jssip.core.UserAgent.ConfigProperty.ADDRESS_OF_RECORD;
+      var prop = jssip.sip.UserAgent.ConfigProperty.ADDRESS_OF_RECORD;
       var value = userAgentConfig.get(prop);
       expect(context.getUserAgentConfigProperty(prop)).toBe(value);
     });
 
     it('should get null for properties that are not set', function() {
-      var prop = jssip.core.UserAgent.ConfigProperty.OUTBOUND_PROXY;
+      var prop = jssip.sip.UserAgent.ConfigProperty.OUTBOUND_PROXY;
       expect(context.getUserAgentConfigProperty(prop)).toBe(null);
     });
   });

@@ -1,7 +1,7 @@
 goog.provide('jssip.Endpoint');
 
-goog.require('jssip.core.EventBus');
-goog.require('jssip.core.UserAgent');
+goog.require('jssip.event.EventBus');
+goog.require('jssip.sip.UserAgent');
 goog.require('jssip.sip.core.CorePlugin');
 
 
@@ -14,21 +14,21 @@ goog.require('jssip.sip.core.CorePlugin');
  *   Event.LOADEND - fired after all user agents are loaded
  *
  * @param {!Array.<!jssip.plugin.Plugin>} plugins The plugins array.
- * @param {!Array.<!jssip.core.UserAgent.Config>} configs Each config
+ * @param {!Array.<!jssip.sip.UserAgent.Config>} configs Each config
  *     generates a user agent for the endpoint.
  * @constructor
  */
 jssip.Endpoint = function(plugins, configs) {
-  /** @private {!jssip.core.EventBus} */
-  this.eventBus_ = new jssip.core.EventBus();
+  /** @private {!jssip.event.EventBus} */
+  this.eventBus_ = new jssip.event.EventBus();
 
-  /** @private {!Array.<!jssip.core.UserAgent>} */
+  /** @private {!Array.<!jssip.sip.UserAgent>} */
   this.userAgents_ = [];
 
   plugins.push(new jssip.sip.core.CorePlugin());
   for (var i = 0; i < configs.length; i++) {
     this.userAgents_.push(
-        new jssip.core.UserAgent(plugins, configs[i], this.eventBus_));
+        new jssip.sip.UserAgent(plugins, configs[i], this.eventBus_));
   }
 };
 

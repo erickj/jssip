@@ -1,14 +1,14 @@
 goog.provide('jssip.message.Header');
 goog.provide('jssip.message.Header.Builder');
 
-goog.require('jssip.core.PropertyHolder');
+goog.require('jssip.util.PropertyHolder');
 
 
 
 /**
  * @param {!jssip.message.Header.Builder} builder
  * @constructor
- * @extends {jssip.core.PropertyHolder}
+ * @extends {jssip.util.PropertyHolder}
  */
 jssip.message.Header = function(builder) {
   goog.base(this, builder.propertyMap_);
@@ -17,7 +17,7 @@ jssip.message.Header = function(builder) {
     throw Error('Missing required property name');
   }
 };
-goog.inherits(jssip.message.Header, jssip.core.PropertyHolder);
+goog.inherits(jssip.message.Header, jssip.util.PropertyHolder);
 
 
 /** @enum {string} */

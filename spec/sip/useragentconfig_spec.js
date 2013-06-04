@@ -1,10 +1,10 @@
-goog.provide('jssip.core.UserAgent.ConfigSpec');
+goog.provide('jssip.sip.UserAgent.ConfigSpec');
 
-goog.require('jssip.core.PropertyHolder');
-goog.require('jssip.core.UserAgent');
-goog.require('jssip.core.UserAgent.Config');
+goog.require('jssip.util.PropertyHolder');
+goog.require('jssip.sip.UserAgent');
+goog.require('jssip.sip.UserAgent.Config');
 
-describe('jssip.core.UserAgent.Config', function() {
+describe('jssip.sip.UserAgent.Config', function() {
   var configProperties;
   var featureNames;
   var config;
@@ -14,13 +14,13 @@ describe('jssip.core.UserAgent.Config', function() {
 
     configProperties = {};
     configProperties[
-        jssip.core.UserAgent.ConfigProperty.ADDRESS_OF_RECORD] =
+        jssip.sip.UserAgent.ConfigProperty.ADDRESS_OF_RECORD] =
             'sip:foo@bar.com';
     configProperties[
-        jssip.core.UserAgent.ConfigProperty.OUTBOUND_PROXY] =
+        jssip.sip.UserAgent.ConfigProperty.OUTBOUND_PROXY] =
             'sip:outbound.proxy.com';
 
-    config = new jssip.core.UserAgent.Config(featureNames, configProperties);
+    config = new jssip.sip.UserAgent.Config(featureNames, configProperties);
   });
 
   describe('#getFeatureNames', function() {
@@ -32,7 +32,7 @@ describe('jssip.core.UserAgent.Config', function() {
   describe('as property holder', function() {
     describe('new', function() {
       it('should be a property holder', function() {
-        expect(config).toEqual(jasmine.any(jssip.core.PropertyHolder));
+        expect(config).toEqual(jasmine.any(jssip.util.PropertyHolder));
       });
     });
 

@@ -1,6 +1,6 @@
 goog.provide('jssip.plugin.AbstractFeature');
 
-goog.require('jssip.core.EventBus');
+goog.require('jssip.event.EventBus');
 goog.require('jssip.plugin.Feature');
 goog.require('jssip.plugin.Feature.Event');
 
@@ -28,7 +28,7 @@ goog.require('jssip.plugin.Feature.Event');
  *     The uri parser factory map.
  * @constructor
  * @implements {jssip.plugin.Feature}
- * @extends {jssip.core.EventBus}
+ * @extends {jssip.event.EventBus}
  */
 jssip.plugin.AbstractFeature = function(name, opt_featureFacade,
     opt_eventHandlerMap, opt_featureTypes, opt_headerParserFactoryMap,
@@ -60,7 +60,7 @@ jssip.plugin.AbstractFeature = function(name, opt_featureFacade,
   /** @private {!Object.<!jssip.uri.UriParserFactory>} */
   this.uriParserFactoryMap_ = opt_uriParserFactoryMap || {};
 };
-goog.inherits(jssip.plugin.AbstractFeature, jssip.core.EventBus);
+goog.inherits(jssip.plugin.AbstractFeature, jssip.event.EventBus);
 
 
 /** @override */

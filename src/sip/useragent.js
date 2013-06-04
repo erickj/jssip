@@ -1,13 +1,10 @@
-goog.provide('jssip.core.UserAgent');
-goog.provide('jssip.core.UserAgent.Config');
+goog.provide('jssip.sip.UserAgent');
+goog.provide('jssip.sip.UserAgent.Config');
 
 goog.require('goog.array');
 goog.require('goog.asserts');
 goog.require('goog.structs.Set');
-goog.require('jssip.core.EventBus');
-goog.require('jssip.core.PropertyHolder');
-goog.require('jssip.core.feature.MessageEvent');
-goog.require('jssip.core.feature.TransportLayer');
+goog.require('jssip.event.EventBus');
 goog.require('jssip.message.MessageContext');
 goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.net.TransportEvent');
@@ -15,6 +12,9 @@ goog.require('jssip.net.TransportManager');
 goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.plugin.FeatureContextImpl');
 goog.require('jssip.plugin.FeatureSet');
+goog.require('jssip.sip.feature.MessageEvent');
+goog.require('jssip.sip.feature.TransportLayer');
+goog.require('jssip.util.PropertyHolder');
 
 
 
@@ -30,12 +30,12 @@ goog.require('jssip.plugin.FeatureSet');
  *   Event.LOADEND - fired once loading end
  *
  * @param {!Array.<!jssip.plugin.Plugin>} plugins The plugins array.
- * @param {!jssip.core.UserAgent.Config} config The config.
- * @param {!jssip.core.EventBus} parentEventBus The parent of the user agents
+ * @param {!jssip.sip.UserAgent.Config} config The config.
+ * @param {!jssip.event.EventBus} parentEventBus The parent of the user agents
  *     event bus.
  * @constructor
  */
-jssip.core.UserAgent = function(plugins, config, parentEventBus) {
+jssip.sip.UserAgent = function(plugins, config, parentEventBus) {
   /** @private {!Array.<!jssip.plugin.Plugin>} */
   this.availablePlugins_ = plugins;
 
@@ -46,20 +46,20 @@ jssip.core.UserAgent = function(plugins, config, parentEventBus) {
   /** @private {!jssip.plugin.FeatureSet} */
   this.availableFeatureSet_ = new jssip.plugin.FeatureSet(set.getValues());
 
-  /** @private {!jssip.core.UserAgent.Config} */
+  /** @private {!jssip.sip.UserAgent.Config} */
   this.config_ = config;
 
-  /** @private {!jssip.core.EventBus} */
-  this.eventBus_ = new jssip.core.EventBus(parentEventBus);
+  /** @private {!jssip.event.EventBus} */
+  this.eventBus_ = new jssip.event.EventBus(parentEventBus);
 
   /** @private {!jssip.parser.ParserRegistry} */
   this.parserRegistry_ = new jssip.parser.ParserRegistry(
       new jssip.message.MessageParserFactory(this.eventBus_), this.eventBus_);
 
   var requiredFeatureTypes = [
-    jssip.core.UserAgent.CoreFeatureType.USERAGENTCLIENT,
-    jssip.core.UserAgent.CoreFeatureType.USERAGENTSERVER,
-    jssip.core.UserAgent.CoreFeatureType.TRANSPORTLAYER
+    jssip.sip.UserAgent.CoreFeatureType.USERAGENTCLIENT,
+    jssip.sip.UserAgent.CoreFeatureType.USERAGENTSERVER,
+    jssip.sip.UserAgent.CoreFeatureType.TRANSPORTLAYER
   ];
 
   /** @private {!jssip.plugin.FeatureContextImpl} */
@@ -70,7 +70,7 @@ jssip.core.UserAgent = function(plugins, config, parentEventBus) {
 
 
 /** @enum {string} */
-jssip.core.UserAgent.CoreFeatureType = {
+jssip.sip.UserAgent.CoreFeatureType = {
   USERAGENTCLIENT: 'useragentclient',
   USERAGENTSERVER: 'useragentserver',
   TRANSPORTLAYER: 'transportlayer'
@@ -78,7 +78,7 @@ jssip.core.UserAgent.CoreFeatureType = {
 
 
 /** @enum {string} */
-jssip.core.UserAgent.Event = {
+jssip.sip.UserAgent.Event = {
   LOADSTART: 'useragentloadstart',
   LOADEND: 'useragentloadend',
   FEATURESACTIVATED: 'useragentfeaturesactivated'
@@ -88,11 +88,11 @@ jssip.core.UserAgent.Event = {
 /**
  * Begins the load process for the user agent.
  */
-jssip.core.UserAgent.prototype.load = function() {
-  this.eventBus_.dispatchEvent(jssip.core.UserAgent.Event.LOADSTART);
+jssip.sip.UserAgent.prototype.load = function() {
+  this.eventBus_.dispatchEvent(jssip.sip.UserAgent.Event.LOADSTART);
   this.activateFeatures_();
   this.setupHandlers_();
-  this.eventBus_.dispatchEvent(jssip.core.UserAgent.Event.LOADEND);
+  this.eventBus_.dispatchEvent(jssip.sip.UserAgent.Event.LOADEND);
 };
 
 
@@ -100,7 +100,7 @@ jssip.core.UserAgent.prototype.load = function() {
  * Activates all features specified in the configuration.
  * @private
  */
-jssip.core.UserAgent.prototype.activateFeatures_ = function() {
+jssip.sip.UserAgent.prototype.activateFeatures_ = function() {
   var names = this.config_.getFeatureNames();
   for (var i = 0; i < names.length; i++) {
     var feature = /** @type {!jssip.plugin.Feature} */ (goog.asserts.assert(
@@ -110,7 +110,7 @@ jssip.core.UserAgent.prototype.activateFeatures_ = function() {
   }
   this.featureContext_.finalize();
   this.parserRegistry_.finalize();
-  this.eventBus_.dispatchEvent(jssip.core.UserAgent.Event.FEATURESACTIVATED);
+  this.eventBus_.dispatchEvent(jssip.sip.UserAgent.Event.FEATURESACTIVATED);
 };
 
 
@@ -118,9 +118,9 @@ jssip.core.UserAgent.prototype.activateFeatures_ = function() {
  * Sets up event handlers and callbacks.
  * @private
  */
-jssip.core.UserAgent.prototype.setupHandlers_ = function() {
+jssip.sip.UserAgent.prototype.setupHandlers_ = function() {
   this.eventBus_.addEventListener(
-      jssip.core.feature.TransportLayer.EventType.RECEIVE_MESSAGE,
+      jssip.sip.feature.TransportLayer.EventType.RECEIVE_MESSAGE,
       goog.bind(this.handleTransportMesssage_, this));
 };
 
@@ -129,28 +129,28 @@ jssip.core.UserAgent.prototype.setupHandlers_ = function() {
 /**
  * Handles raw inbound messages from the transport layer.  Requests are handed
  * to the user agent server and response to the user agent client.
- * @param {!jssip.core.feature.MessageEvent} event
+ * @param {!jssip.sip.feature.MessageEvent} event
  * @suppress {invalidCasts}
  * @private
  */
-jssip.core.UserAgent.prototype.handleTransportMesssage_ = function(event) {
+jssip.sip.UserAgent.prototype.handleTransportMesssage_ = function(event) {
   var messageContext = event.messageContext;
   if (messageContext.getMessage().isRequest()) {
-    var uas = /** @type {!jssip.core.feature.UserAgentServer} */ (
+    var uas = /** @type {!jssip.sip.feature.UserAgentServer} */ (
         this.featureContext_.getFacadeByType(
-            jssip.core.UserAgent.CoreFeatureType.USERAGENTSERVER));
+            jssip.sip.UserAgent.CoreFeatureType.USERAGENTSERVER));
     uas.handleRequest(messageContext);
   } else {
-    var uac = /** @type {!jssip.core.feature.UserAgentClient} */ (
+    var uac = /** @type {!jssip.sip.feature.UserAgentClient} */ (
         this.featureContext_.getFacadeByType(
-            jssip.core.UserAgent.CoreFeatureType.USERAGENTCLIENT));
+            jssip.sip.UserAgent.CoreFeatureType.USERAGENTCLIENT));
     uac.handleResponse(messageContext);
   }
 };
 
 
 /** @enum {string} */
-jssip.core.UserAgent.ConfigProperty = {
+jssip.sip.UserAgent.ConfigProperty = {
   ADDRESS_OF_RECORD: 'aor',
   DISPLAY_NAME: 'displayname',
   OUTBOUND_PROXY: 'outboundproxy',
@@ -162,21 +162,21 @@ jssip.core.UserAgent.ConfigProperty = {
 
 /**
  * @param {!Array.<string>} featureNames The names of features to activate.
- * @param {!Object.<jssip.core.UserAgent.ConfigProperty, string>} properties
+ * @param {!Object.<jssip.sip.UserAgent.ConfigProperty, string>} properties
  *     The configuration property map.
  * @constructor
- * @extends {jssip.core.PropertyHolder}
+ * @extends {jssip.util.PropertyHolder}
  */
-jssip.core.UserAgent.Config = function(featureNames, properties) {
+jssip.sip.UserAgent.Config = function(featureNames, properties) {
   goog.base(this, properties);
 
   /** @private {!Array.<string>} */
   this.featureNames_ = featureNames;
 };
-goog.inherits(jssip.core.UserAgent.Config, jssip.core.PropertyHolder);
+goog.inherits(jssip.sip.UserAgent.Config, jssip.util.PropertyHolder);
 
 
 /** @return {!Array.<string>} The features to activate. */
-jssip.core.UserAgent.Config.prototype.getFeatureNames = function() {
+jssip.sip.UserAgent.Config.prototype.getFeatureNames = function() {
   return this.featureNames_;
 };

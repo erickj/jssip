@@ -1,6 +1,6 @@
 goog.provide('jssip.uri.UriSpec');
 
-goog.require('jssip.core.PropertyHolder');
+goog.require('jssip.util.PropertyHolder');
 goog.require('jssip.uri.Uri');
 goog.require('jssip.uri.Uri.Builder');
 
@@ -49,8 +49,8 @@ describe('jssip.uri.Uri', function() {
       }).toThrow();
     });
 
-    it('should be a jssip.core.PropertyHolder', function() {
-      expect(uri instanceof jssip.core.PropertyHolder).toBe(true);
+    it('should be a jssip.util.PropertyHolder', function() {
+      expect(uri instanceof jssip.util.PropertyHolder).toBe(true);
     });
   });
 

@@ -1,9 +1,9 @@
-goog.provide('jssip.core.PropertyHolderSpec');
+goog.provide('jssip.util.PropertyHolderSpec');
 
 goog.require('goog.Disposable');
-goog.require('jssip.core.PropertyHolder');
+goog.require('jssip.util.PropertyHolder');
 
-describe ('jssip.core.PropertyHolder', function() {
+describe ('jssip.util.PropertyHolder', function() {
   var propertyHolder;
   var propertyMap;
 
@@ -13,7 +13,7 @@ describe ('jssip.core.PropertyHolder', function() {
     propertyMap['bar'] = 'barval';
     propertyMap['disp'] = new goog.Disposable();
 
-    propertyHolder = new jssip.core.PropertyHolder(propertyMap);
+    propertyHolder = new jssip.util.PropertyHolder(propertyMap);
   });
 
   describe('#get', function() {
@@ -36,7 +36,7 @@ describe ('jssip.core.PropertyHolder', function() {
 
     it('should set a key-value pair on a mutable property holder', function() {
       var mutablePropertyHolder =
-          new jssip.core.PropertyHolder({}, false /* opt_isImmutable */);
+          new jssip.util.PropertyHolder({}, false /* opt_isImmutable */);
       mutablePropertyHolder.set('key', 'value');
       expect(mutablePropertyHolder.get('key')).toBe('value');
     });
@@ -47,8 +47,8 @@ describe ('jssip.core.PropertyHolder', function() {
     var unequalPropertyHolder;
 
     beforeEach(function() {
-      equalPropertyHolder = new jssip.core.PropertyHolder(propertyMap);
-      unequalPropertyHolder = new jssip.core.PropertyHolder();
+      equalPropertyHolder = new jssip.util.PropertyHolder(propertyMap);
+      unequalPropertyHolder = new jssip.util.PropertyHolder();
     });
 
     it('should return true for identity comparison', function() {

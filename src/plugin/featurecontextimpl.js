@@ -9,12 +9,12 @@ goog.require('jssip.plugin.FeatureContext');
  * The default implementation of jssip.plugin.FeatureContext.
  * @param {!jssip.plugin.FeatureSet} featureSet The features available in this
  *     context.
- * @param {!jssip.core.EventBus} eventBus The event bus.
+ * @param {!jssip.event.EventBus} eventBus The event bus.
  * @param {!jssip.parser.ParserRegistry} parserRegistry The parser registry.
  * @param {!Array.<string>} requiredFeatureTypes An array of feature types that
  *     will be checked against the set of registered feature types when
  *     {@code finalize} is called.
- * @param {!jssip.core.UserAgent.Config} userAgentConfig The user agent
+ * @param {!jssip.sip.UserAgent.Config} userAgentConfig The user agent
  *     configuration.
  * @constructor
  * @implements {jssip.plugin.FeatureContext}
@@ -24,7 +24,7 @@ jssip.plugin.FeatureContextImpl = function(featureSet, eventBus, parserRegistry,
   /** @private {!jssip.plugin.FeatureSet} */
   this.featureSet_ = featureSet;
 
-  /** @private {!jssip.core.EventBus} */
+  /** @private {!jssip.event.EventBus} */
   this.eventBus_ = eventBus;
 
   /** @private {!jssip.parser.ParserRegistry} */
@@ -36,7 +36,7 @@ jssip.plugin.FeatureContextImpl = function(featureSet, eventBus, parserRegistry,
   /** @private {!Array.<string>} */
   this.requiredFeatureTypes_ = requiredFeatureTypes;
 
-  /** @private {!jssip.core.UserAgent.Config} */
+  /** @private {!jssip.sip.UserAgent.Config} */
   this.userAgentConfig_ = userAgentConfig;
 
   /** @private {boolean} */

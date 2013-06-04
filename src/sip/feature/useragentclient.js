@@ -1,6 +1,6 @@
-goog.provide('jssip.core.feature.UserAgentClient');
+goog.provide('jssip.sip.feature.UserAgentClient');
 
-goog.require('jssip.core.UserAgent');
+goog.require('jssip.sip.UserAgent');
 
 
 
@@ -9,12 +9,12 @@ goog.require('jssip.core.UserAgent');
  * implement this interface.
  * @interface
  */
-jssip.core.feature.UserAgentClient = function() {
+jssip.sip.feature.UserAgentClient = function() {
 };
 
 
 /** @enum {string} */
-jssip.core.feature.UserAgentClient.EventType = {
+jssip.sip.feature.UserAgentClient.EventType = {
   CREATE_MESSAGE: 'uac-create-message',
   RECEIVE_MESSAGE: 'uac-receive-message',
   SEND_MESSAGE: 'uac-send-message'
@@ -37,7 +37,7 @@ jssip.core.feature.UserAgentClient.EventType = {
  * @param {!jssip.uri.Uri=} opt_toUri A URI to use for TO header, if
  *     none is provided the {@code requestUri} will be used.
  */
-jssip.core.feature.UserAgentClient.prototype.createRequest =
+jssip.sip.feature.UserAgentClient.prototype.createRequest =
     function(method, requestUri, opt_toUri) {};
 
 
@@ -45,12 +45,12 @@ jssip.core.feature.UserAgentClient.prototype.createRequest =
  * Sends a request message.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.core.feature.UserAgentClient.prototype.sendRequest =
+jssip.sip.feature.UserAgentClient.prototype.sendRequest =
     function(messageContext) {};
 
 
 /**
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.core.feature.UserAgentClient.prototype.handleResponse =
+jssip.sip.feature.UserAgentClient.prototype.handleResponse =
     function(messageContext) {};

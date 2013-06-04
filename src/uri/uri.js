@@ -1,14 +1,14 @@
 goog.provide('jssip.uri.Uri');
 goog.provide('jssip.uri.Uri.Builder');
 
-goog.require('jssip.core.PropertyHolder');
+goog.require('jssip.util.PropertyHolder');
 
 
 
 /**
  * @param {!jssip.uri.Uri.Builder} builder
  * @constructor
- * @extends {jssip.core.PropertyHolder}
+ * @extends {jssip.util.PropertyHolder}
  */
 jssip.uri.Uri = function(builder) {
   goog.base(this, builder.propertyMap_);
@@ -20,7 +20,7 @@ jssip.uri.Uri = function(builder) {
     throw Error('Unable to set URI without a host');
   }
 };
-goog.inherits(jssip.uri.Uri, jssip.core.PropertyHolder);
+goog.inherits(jssip.uri.Uri, jssip.util.PropertyHolder);
 
 
 /**

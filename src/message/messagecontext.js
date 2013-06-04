@@ -1,6 +1,6 @@
 goog.provide('jssip.message.MessageContext');
 
-goog.require('jssip.core.PropertyHolder');
+goog.require('jssip.util.PropertyHolder');
 
 
 
@@ -13,9 +13,9 @@ goog.require('jssip.core.PropertyHolder');
 jssip.message.MessageContext = function(type, propertyMap, parserRegistry) {
   propertyMap[jssip.message.MessageContext.PropertyName.TYPE] = type;
 
-  /** @private {!jssip.core.PropertyHolder} */
+  /** @private {!jssip.util.PropertyHolder} */
   this.propertyHolder_ =
-      new jssip.core.PropertyHolder(propertyMap, false /* opt_isImmutable */);
+      new jssip.util.PropertyHolder(propertyMap, false /* opt_isImmutable */);
 
   /** @private {!jssip.parser.ParserRegistry} */
   this.parserRegistry_ = parserRegistry;
@@ -46,7 +46,7 @@ jssip.message.MessageContext.prototype.getParserRegistry = function() {
 
 
 /**
- * @return {!jssip.core.PropertyHolder}
+ * @return {!jssip.util.PropertyHolder}
  * @protected
  */
 jssip.message.MessageContext.prototype.getPropertyHolder = function() {

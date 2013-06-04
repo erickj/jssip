@@ -54,7 +54,7 @@ jssip.plugin.FeatureContext.prototype.getFacadeByType = function(type) {};
 
 /**
  * Gets the event bus for the user agent.
- * @return {!jssip.core.EventBus} The event bus.
+ * @return {!jssip.event.EventBus} The event bus.
  */
 jssip.plugin.FeatureContext.prototype.getEventBus = function() {};
 
@@ -68,7 +68,7 @@ jssip.plugin.FeatureContext.prototype.getParserRegistry = function() {};
 
 /**
  * Gets a configuration value from the user agent.
- * @param {jssip.core.UserAgent.ConfigProperty} property
+ * @param {jssip.sip.UserAgent.ConfigProperty} property
  * @return {?string}
  */
 jssip.plugin.FeatureContext.prototype.getUserAgentConfigProperty =

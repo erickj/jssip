@@ -1,4 +1,4 @@
-goog.provide('jssip.core.feature.TransportLayer');
+goog.provide('jssip.sip.feature.TransportLayer');
 
 
 
@@ -7,11 +7,11 @@ goog.provide('jssip.core.feature.TransportLayer');
  *
  * @interface
  */
-jssip.core.feature.TransportLayer = function() {};
+jssip.sip.feature.TransportLayer = function() {};
 
 
 /** @enum {string} */
-jssip.core.feature.TransportLayer.EventType = {
+jssip.sip.feature.TransportLayer.EventType = {
   RECEIVE_MESSAGE: 'transportlayer-receivemessage',
   SENT_MESSAGE: 'transportlayer-sentmessage'
 };
@@ -21,11 +21,11 @@ jssip.core.feature.TransportLayer.EventType = {
  * Write a message to the network.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.core.feature.TransportLayer.prototype.write = function(messageContext) {};
+jssip.sip.feature.TransportLayer.prototype.write = function(messageContext) {};
 
 
 /**
  * Read a message from the network
  * @return {!jssip.message.MessageContext}
  */
-jssip.core.feature.TransportLayer.prototype.read = function() {};
+jssip.sip.feature.TransportLayer.prototype.read = function() {};

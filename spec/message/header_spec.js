@@ -1,6 +1,6 @@
 goog.provide('jssip.message.HeaderSpec');
 
-goog.require('jssip.core.PropertyHolder');
+goog.require('jssip.util.PropertyHolder');
 goog.require('jssip.message.Header');
 goog.require('jssip.message.Header.Builder');
 
@@ -24,8 +24,8 @@ describe('SIP Message Header', function() {
       });
     });
 
-    it('should be a jssip.core.PropertyHolder', function() {
-      expect(header instanceof jssip.core.PropertyHolder).toBe(true);
+    it('should be a jssip.util.PropertyHolder', function() {
+      expect(header instanceof jssip.util.PropertyHolder).toBe(true);
     });
   });
 

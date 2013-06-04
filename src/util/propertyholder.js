@@ -1,4 +1,4 @@
-goog.provide('jssip.core.PropertyHolder');
+goog.provide('jssip.util.PropertyHolder');
 
 goog.require('goog.Disposable');
 goog.require('goog.dispose');
@@ -14,7 +14,7 @@ goog.require('goog.structs.Map');
  * @constructor
  * @extends {goog.Disposable}
  */
-jssip.core.PropertyHolder = function(opt_propertyMap, opt_isImmutable) {
+jssip.util.PropertyHolder = function(opt_propertyMap, opt_isImmutable) {
   /** @private {!goog.structs.Map} */
   this.propertyMap_ = new goog.structs.Map(opt_propertyMap);
 
@@ -22,7 +22,7 @@ jssip.core.PropertyHolder = function(opt_propertyMap, opt_isImmutable) {
   this.isImmutable_ = goog.isDefAndNotNull(opt_isImmutable) ?
       !!opt_isImmutable : true;
 };
-goog.inherits(jssip.core.PropertyHolder, goog.Disposable);
+goog.inherits(jssip.util.PropertyHolder, goog.Disposable);
 
 
 /**
@@ -30,7 +30,7 @@ goog.inherits(jssip.core.PropertyHolder, goog.Disposable);
  * @param {string} key
  * @return {*}
  */
-jssip.core.PropertyHolder.prototype.get = function(key) {
+jssip.util.PropertyHolder.prototype.get = function(key) {
   return this.propertyMap_.get(key);
 };
 
@@ -41,7 +41,7 @@ jssip.core.PropertyHolder.prototype.get = function(key) {
  * @param {*} value
  * @throws {Error} If this property holder is immutable.
  */
-jssip.core.PropertyHolder.prototype.set = function(key, value) {
+jssip.util.PropertyHolder.prototype.set = function(key, value) {
   if (this.isImmutable_) {
     throw Error('Unable to set value on immutable property holder');
   }
@@ -51,10 +51,10 @@ jssip.core.PropertyHolder.prototype.set = function(key, value) {
 
 /**
  * Whether or not this is equal to another property holder.
- * @param {!jssip.core.PropertyHolder} other
+ * @param {!jssip.util.PropertyHolder} other
  * @return {boolean}
  */
-jssip.core.PropertyHolder.prototype.equals = function(other) {
+jssip.util.PropertyHolder.prototype.equals = function(other) {
   if (this === other) {
     return true;
   }
@@ -64,6 +64,6 @@ jssip.core.PropertyHolder.prototype.equals = function(other) {
 
 
 /** @override */
-jssip.core.PropertyHolder.prototype.disposeInternal = function() {
+jssip.util.PropertyHolder.prototype.disposeInternal = function() {
   this.propertyMap_.clear();
 };
