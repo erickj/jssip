@@ -7,8 +7,6 @@ goog.require('goog.structs.Set');
 goog.require('jssip.event.EventBus');
 goog.require('jssip.message.MessageContext');
 goog.require('jssip.message.MessageParserFactory');
-goog.require('jssip.net.TransportEvent');
-goog.require('jssip.net.TransportManager');
 goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.plugin.FeatureContextImpl');
 goog.require('jssip.plugin.FeatureSet');
