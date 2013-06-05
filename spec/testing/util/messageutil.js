@@ -1,6 +1,9 @@
 goog.provide('jssip.testing.util.messageutil');
 
+goog.require('jssip.event.EventBus');
+goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.message.RawMessageContext');
+goog.require('jssip.parser.ParserRegistry');
 
 
 /** @enum {string} */
@@ -80,4 +83,20 @@ jssip.testing.util.messageutil.checkMessageHeaders =
     var expectation = expect(message.getHeaderValue(name));
     expectation[method].call(expectation, value);
   }
+};
+
+
+/**
+ * Creates a raw message context with the given message text.
+ * @param {string} rawMessageText
+ * @return {!jssip.message.RawMessageText}
+ */
+jssip.testing.util.messageutil.createRawMessageContext =
+    function(rawMessageText) {
+  var eventBus = new jssip.event.EventBus();
+  var messageParserFactory =
+      new jssip.message.MessageParserFactory(eventBus);
+  var parserRegistry = new jssip.parser.ParserRegistry(messageParserFactory);
+
+  return new jssip.message.RawMessageContext(rawMessageText, parserRegistry);
 };

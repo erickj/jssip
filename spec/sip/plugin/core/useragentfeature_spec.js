@@ -11,6 +11,7 @@ goog.require('jssip.testing.util.messageutil');
 
 describe('jssip.sip.plugin.core.UserAgentFeature', function() {
   var rfc3261 = jssip.sip.protocol.rfc3261;
+  var exampleMessage = jssip.testing.util.messageutil.ExampleMessage;
 
   var userAgentFeature;
   var userAgentConfig;
@@ -43,6 +44,37 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     userAgentFeature = new jssip.sip.plugin.core.UserAgentFeature(
         featureName);
     userAgentFeature.activate(featureContext);
+  });
+
+  describe('#handleRespose', function() {
+    beforeEach(function() {
+      eventListener = jasmine.createSpy();
+      eventBus.addEventListener(
+          jssip.sip.protocol.UserAgentClient.EventType.RECEIVE_RESPONSE,
+          eventListener);
+    });
+
+    it('should emit RECEIVE_RESPONSE events', function() {
+      var rawMessageContext = jssip.testing.util.messageutil.createRawMessageContext(
+          exampleMessage.INVITE_200_OK);
+
+      userAgentFeature.handleResponse(rawMessageContext);
+      expect(eventListener).toHaveBeenCalledWith(
+          jasmine.any(jssip.sip.event.MessageEvent));
+
+      var event = eventListener.calls[0].args[0];
+      expect(event.messageContext).toBe(rawMessageContext);
+    });
+
+    it('should throw an error if it receives a request', function() {
+      var exampleMessage = jssip.testing.util.messageutil.ExampleMessage;
+
+      expect(function() {
+        userAgentFeature.handleResponse(
+            jssip.testing.util.messageutil.createRawMessageContext(
+                exampleMessage.INVITE));
+      }).toThrow();
+    });
   });
 
   describe('#createRequest', function() {
