@@ -12,7 +12,7 @@ goog.require('jssip.message.MessageContext');
  */
 jssip.message.RawMessageContext = function(rawMessageText, parserRegistry) {
   var propertyMap = {};
-  propertyMap[jssip.message.MessageContext.PropertyName.RAWMESSAGE] =
+  propertyMap[jssip.message.RawMessageContext.PropertyName.RAWMESSAGE] =
       rawMessageText;
   goog.base(
       this, jssip.message.MessageContext.Type.RAW, propertyMap, parserRegistry);
@@ -32,7 +32,7 @@ jssip.message.RawMessageContext.PropertyName = {
  */
 jssip.message.RawMessageContext.prototype.getRawMessageText = function() {
   return /** @type {string} */ (this.getPropertyHolder().get(
-      jssip.message.MessageContext.PropertyName.RAWMESSAGE));
+      jssip.message.RawMessageContext.PropertyName.RAWMESSAGE));
 };
 
 

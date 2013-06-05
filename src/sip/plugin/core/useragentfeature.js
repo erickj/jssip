@@ -5,6 +5,7 @@ goog.require('goog.crypt');
 goog.require('goog.crypt.Sha256');
 goog.require('jssip.message.BuilderMessageContext');
 goog.require('jssip.message.Message.Builder');
+goog.require('jssip.message.RawMessageContext');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureFacade');
 goog.require('jssip.sip.UserAgent');
@@ -49,7 +50,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createEvent_ =
 
 
 /**
- * Fires CREATE_MESSAGE event.  This builder sets headers so that they do NOT
+ * Fires CREATE_RESPONSE event.  This builder sets headers so that they do NOT
  * overwrite existing headers.
  *
  * @see {jssip.sip.protocol.UserAgentClient#createRequest}
@@ -87,7 +88,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
   }
 
   this.dispatchEvent(this.createEvent_(builderMessageContext,
-      jssip.sip.protocol.UserAgentClient.EventType.CREATE_MESSAGE));
+      jssip.sip.protocol.UserAgentClient.EventType.CREATE_REQUEST));
 };
 
 
@@ -234,37 +235,36 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.generateHexDigest_ =
 
 
 /**
- * Sends a request message.
+ * Receives a response off the wire and dispatches a UAC RECEIVE_RESPONSE event.
  * @param {!jssip.message.MessageContext} messageContext
- */
-jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequest =
-    function(messageContext) {
-  // TODO(erick)
-};
-
-
-/**
- * Receives a response off the wire and dispatches a UAC RECEIVE_MESSAGE event.
- * @param {!jssip.message.MessageContext} messageContext
+ * @throws {Error} If the message context is not a response.
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.handleResponse =
     function(messageContext) {
-  var event = this.createEvent_(
-      messageContext,
-      jssip.sip.protocol.UserAgentClient.EventType.RECEIVE_MESSAGE);
+  if (messageContext.getMessage().isRequest()) {
+    throw Error('Message is not a response');
+  }
+
+  var event = this.createEvent_(messageContext,
+      jssip.sip.protocol.UserAgentClient.EventType.RECEIVE_RESPONSE);
   this.dispatchEvent(event);
 };
 
 
 /**
- * Receives a request off the wire and dispatches a UAS RECEIVE_MESSAGE event.
+ * Receives a request off the wire and dispatches a UAS RECEIVE_REQUEST event.
  * @param {!jssip.message.MessageContext} messageContext
+ * @throws {Error} If the message context is not a request.
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.handleRequest =
     function(messageContext) {
+  if (!messageContext.getMessage().isRequest()) {
+    throw Error('Message is not a request');
+  }
+
   var event = this.createEvent_(
       messageContext,
-      jssip.sip.protocol.UserAgentServer.EventType.RECEIVE_MESSAGE);
+      jssip.sip.protocol.UserAgentServer.EventType.RECEIVE_REQUEST);
   this.dispatchEvent(event);
 };
 
@@ -292,21 +292,14 @@ jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.createRequest =
 
 
 /** @override */
-jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.sendRequest =
-    function(messageContext) {
-  this.delegate_.sendRequest(messageContext);
-};
-
-
-/** @override */
 jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.handleResponse =
-    function(messageContext) {
-  this.delegate_.handleResponse(messageContext);
+    function(responseMessageContext) {
+  this.delegate_.handleResponse(responseMessageContext);
 };
 
 
 /** @override */
 jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.handleRequest =
-    function(messageContext) {
-  this.delegate_.handleRequest(messageContext);
+    function(requestMessageContext) {
+  this.delegate_.handleRequest(requestMessageContext);
 };

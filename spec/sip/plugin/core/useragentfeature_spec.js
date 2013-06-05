@@ -51,7 +51,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     beforeEach(function() {
       eventListener = jasmine.createSpy();
       eventBus.addEventListener(
-          jssip.sip.protocol.UserAgentClient.EventType.CREATE_MESSAGE,
+          jssip.sip.protocol.UserAgentClient.EventType.CREATE_REQUEST,
           eventListener);
 
       requestUri = (new jssip.uri.Uri.Builder()).
@@ -59,7 +59,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
           addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'im.lazy').build();
     });
 
-    it('should decorate the message builder provided', function() {
+    it('should add to the message builder provided', function() {
       userAgentFeature.createRequest(messageBuilder, 'FOOSBAR', requestUri);
 
       var message = messageBuilder.build();
@@ -79,7 +79,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
       ), message);
     });
 
-    it('should dispatch a CREATE_MESSAGE event', function() {
+    it('should dispatch a CREATE_RESPONSE event', function() {
       userAgentFeature.createRequest(messageBuilder, 'INVITE', requestUri)
       expect(eventListener).toHaveBeenCalledWith(
           jasmine.any(jssip.sip.event.MessageEvent));
@@ -97,7 +97,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
       };
 
       eventBus.addEventListener(
-          jssip.sip.protocol.UserAgentClient.EventType.CREATE_MESSAGE,
+          jssip.sip.protocol.UserAgentClient.EventType.CREATE_REQUEST,
           eventListener);
       userAgentFeature.createRequest(messageBuilder, 'INVITE', requestUri)
       var message = messageBuilder.build();

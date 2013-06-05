@@ -13,9 +13,8 @@ jssip.sip.protocol.UserAgentServer = function() {
 
 /** @enum {string} */
 jssip.sip.protocol.UserAgentServer.EventType = {
-  CREATE_MESSAGE: 'uas-create-message',
-  RECEIVE_MESSAGE: 'uas-receive-message',
-  SEND_MESSAGE: 'uas-send-message'
+  CREATE_RESPOSNE: 'uas-create-response',
+  RECEIVE_REQUEST: 'uas-receive-request'
 };
 
 

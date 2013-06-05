@@ -15,9 +15,8 @@ jssip.sip.protocol.UserAgentClient = function() {
 
 /** @enum {string} */
 jssip.sip.protocol.UserAgentClient.EventType = {
-  CREATE_MESSAGE: 'uac-create-message',
-  RECEIVE_MESSAGE: 'uac-receive-message',
-  SEND_MESSAGE: 'uac-send-message'
+  CREATE_REQUEST: 'uac-create-request',
+  RECEIVE_RESPONSE: 'uac-receive-response'
 };
 
 
@@ -37,19 +36,11 @@ jssip.sip.protocol.UserAgentClient.EventType = {
  * @param {!jssip.uri.Uri} requestUri A URI.
  */
 jssip.sip.protocol.UserAgentClient.prototype.createRequest =
-    function(messageBuilder, method, requestUri) {};
+    goog.abstractMethod;
 
 
 /**
- * Sends a request message.
- * @param {!jssip.message.MessageContext} messageContext
- */
-jssip.sip.protocol.UserAgentClient.prototype.sendRequest =
-    function(messageContext) {};
-
-
-/**
- * @param {!jssip.message.MessageContext} messageContext
+ * @param {!jssip.message.MessageContext} responseMessageContext
  */
 jssip.sip.protocol.UserAgentClient.prototype.handleResponse =
-    function(messageContext) {};
+    goog.abstractMethod;
