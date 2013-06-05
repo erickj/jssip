@@ -149,7 +149,10 @@ jssip.sip.UserAgent.prototype.handleTransportMesssage_ = function(event) {
 };
 
 
-/** @enum {string} */
+/**
+ * @see http://tools.ietf.org/html/rfc6011#section-3.1
+ * @enum {string}
+ */
 jssip.sip.UserAgent.ConfigProperty = {
   ADDRESS_OF_RECORD: 'aor',
   DISPLAY_NAME: 'displayname',
