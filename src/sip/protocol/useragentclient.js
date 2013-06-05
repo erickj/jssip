@@ -22,8 +22,8 @@ jssip.sip.protocol.UserAgentClient.EventType = {
 
 
 /**
- * Creates a message builder that this UAC will use as a request message.  A new
- * CALL-ID and CSEQ will be generated for this message.
+ * Adds UAC header fields to the given message builder.  Uses the request URI to
+ * generate a To URI for the message.  Returns a new message builder.
  *
  * For general information on UAC request generation:
  * @see {http://tools.ietf.org/html/rfc3261#section-8.1}
@@ -32,14 +32,12 @@ jssip.sip.protocol.UserAgentClient.EventType = {
  * dialog:
  * @see {http://tools.ietf.org/html/rfc3261#section-12.2.1.1}
  *
- * @param {string} method A request method.
+ * @param {!jssip.message.Message.Builder} messageBuilder A message builder.
+ * @param {string} method The SIP request method.
  * @param {!jssip.uri.Uri} requestUri A URI.
- * @param {!jssip.uri.Uri=} opt_toUri A URI to use for TO header, if
- *     none is provided the {@code requestUri} will be used.
- * @return {!jssip.message.Message}
  */
 jssip.sip.protocol.UserAgentClient.prototype.createRequest =
-    function(method, requestUri, opt_toUri) {};
+    function(messageBuilder, method, requestUri) {};
 
 
 /**

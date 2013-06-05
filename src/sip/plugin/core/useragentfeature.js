@@ -49,17 +49,18 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createEvent_ =
 
 
 /**
+ * Fires CREATE_MESSAGE event.  This builder sets headers so that they do NOT
+ * overwrite existing headers.
+ *
  * @see {jssip.sip.protocol.UserAgentClient#createRequest}
- * @param {string} method A request method.
+ * @param {!jssip.message.Message.Builder} messageBuilder A message builder.
+ * @param {string} method The SIP request method.
  * @param {!jssip.uri.Uri} requestUri A URI.
- * @param {!jssip.uri.Uri=} opt_toUri A URI to use for TO header, if
- *     none is provided the {@code requestUri} will be used.
- * @return {!jssip.message.Message}
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
-    function(method, requestUri, opt_toUri) {
+    function(messageBuilder, method, requestUri) {
+
   var rfc3261 = jssip.sip.protocol.rfc3261;
-  var messageBuilder = new jssip.message.Message.Builder();
   var builderMessageContext = new jssip.message.BuilderMessageContext(
       messageBuilder, this.getFeatureContext().getParserRegistry());
   var headerMap = {};
@@ -68,10 +69,9 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
   messageBuilder.setMethod(method);
 
   // TODO(erick): Set the request URI according to 3261#12.2.1.1
-  // TODO(erick): Validate the URI, parsing a string is probably reasonable.
   messageBuilder.setRequestUri(requestUri.toString());
 
-  var toUri = opt_toUri || requestUri;
+  var toUri = requestUri;
   headerMap[rfc3261.HeaderType.TO] = this.generateToHeader_(toUri);
   headerMap[rfc3261.HeaderType.FROM] = this.generateFromHeader_();
   headerMap[rfc3261.HeaderType.CALL_ID] = this.generateCallId_();
@@ -80,14 +80,14 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
   headerMap[rfc3261.HeaderType.VIA] = this.generateVia_();
   headerMap[rfc3261.HeaderType.CONTACT] = this.generateContact_();
 
+  // Set headers so that they do NOT overwrite existing headers.
   for (var headerName in headerMap) {
-    messageBuilder.setHeader(headerName, headerMap[headerName]);
+    messageBuilder.setHeader(
+        headerName, headerMap[headerName], false /* opt_overwrite */);
   }
 
   this.dispatchEvent(this.createEvent_(builderMessageContext,
       jssip.sip.protocol.UserAgentClient.EventType.CREATE_MESSAGE));
-
-  return builderMessageContext.getBuilder().build();
 };
 
 
@@ -286,8 +286,8 @@ jssip.sip.plugin.core.UserAgentFeature.Facade = function(delegate) {
 
 /** @override */
 jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.createRequest =
-    function(method, requestUri, opt_toUri) {
-  this.delegate_.createRequest(method, requestUri, opt_toUri);
+    function(messageBuilder, method, requestUri) {
+  this.delegate_.createRequest(messageBuilder, method, requestUri);
 };
 
 

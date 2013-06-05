@@ -2,6 +2,7 @@ goog.provide('jssip.sip.plugin.core.UserAgentFeatureSpec');
 
 goog.require('goog.object');
 goog.require('jssip.event.EventBus');
+goog.require('jssip.message.Message.Builder');
 goog.require('jssip.sip.UserAgent.Config');
 goog.require('jssip.sip.plugin.core.UserAgentFeature');
 goog.require('jssip.sip.protocol.rfc3261');
@@ -17,6 +18,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
   var featureName = 'useragentfeature';
   var featureContext;
   var eventListener;
+  var messageBuilder;
 
   beforeEach(function() {
     var propertyMap = {};
@@ -34,6 +36,8 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     eventBus = new jssip.event.EventBus();
     featureContext = jssip.testing.util.featureutil.createFeatureContext(
       eventBus, propertyMap);
+
+    messageBuilder = new jssip.message.Message.Builder();
 
     userAgentConfig = new jssip.sip.UserAgent.Config([featureName])
     userAgentFeature = new jssip.sip.plugin.core.UserAgentFeature(
@@ -55,9 +59,10 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
           addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'im.lazy').build();
     });
 
-    it('should return a message', function() {
-      var message = userAgentFeature.createRequest('FOOSBAR', requestUri)
-      expect(message).toEqual(jasmine.any(jssip.message.Message));
+    it('should decorate the message builder provided', function() {
+      userAgentFeature.createRequest(messageBuilder, 'FOOSBAR', requestUri);
+
+      var message = messageBuilder.build();
       expect(message.isRequest()).toBe(true);
       expect(message.getMethod()).toBe('FOOSBAR');
       expect(message.getRequestUri()).toBe(requestUri.toString());
@@ -75,7 +80,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     });
 
     it('should dispatch a CREATE_MESSAGE event', function() {
-      userAgentFeature.createRequest('INVITE', requestUri)
+      userAgentFeature.createRequest(messageBuilder, 'INVITE', requestUri)
       expect(eventListener).toHaveBeenCalledWith(
           jasmine.any(jssip.sip.event.MessageEvent));
 
@@ -85,7 +90,6 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     });
 
     it('should be possible to add and override message headers', function() {
-         userAgentFeature.createRequest('INVITE', requestUri)
       eventListener = function(evt) {
         var builder = evt.messageContext.getBuilder();
         builder.setHeader('X-Foobar', 'xfoo');
@@ -95,7 +99,8 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
       eventBus.addEventListener(
           jssip.sip.protocol.UserAgentClient.EventType.CREATE_MESSAGE,
           eventListener);
-      var message = userAgentFeature.createRequest('INVITE', requestUri);
+      userAgentFeature.createRequest(messageBuilder, 'INVITE', requestUri)
+      var message = messageBuilder.build();
       var headerType = rfc3261.HeaderType;
       jssip.testing.util.messageutil.checkMessageHeaders(goog.object.create(
         'X-Foobar', 'xfoo',
