@@ -18,14 +18,7 @@ jssip.sip.protocol.TransportLayer.EventType = {
 
 
 /**
- * Write a message to the network.
+ * Sends a message to the network.
  * @param {!jssip.message.MessageContext} messageContext
  */
-jssip.sip.protocol.TransportLayer.prototype.write = function(messageContext) {};
-
-
-/**
- * Read a message from the network
- * @return {!jssip.message.MessageContext}
- */
-jssip.sip.protocol.TransportLayer.prototype.read = function() {};
+jssip.sip.protocol.TransportLayer.prototype.send = goog.abstractMethod;
