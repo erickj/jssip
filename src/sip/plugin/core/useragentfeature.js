@@ -274,6 +274,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.handleRequest =
  * @param {!jssip.sip.plugin.core.UserAgentFeature} delegate The core feature
  *     instance to delegate to.
  * @constructor
+ * @private
  * @implements {jssip.sip.protocol.UserAgentClient}
  * @implements {jssip.sip.protocol.UserAgentServer}
  * @implements {jssip.plugin.FeatureFacade}

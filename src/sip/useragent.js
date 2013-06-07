@@ -57,7 +57,9 @@ jssip.sip.UserAgent = function(plugins, config, parentEventBus) {
   var requiredFeatureTypes = [
     jssip.sip.UserAgent.CoreFeatureType.USERAGENTCLIENT,
     jssip.sip.UserAgent.CoreFeatureType.USERAGENTSERVER,
-    jssip.sip.UserAgent.CoreFeatureType.TRANSPORTLAYER
+    jssip.sip.UserAgent.CoreFeatureType.TRANSPORTLAYER,
+    jssip.sip.UserAgent.CoreFeatureType.TRANSACTIONLAYER,
+    jssip.sip.UserAgent.CoreFeatureType.DIALOGLAYER
   ];
 
   /** @private {!jssip.plugin.FeatureContextImpl} */
@@ -71,7 +73,9 @@ jssip.sip.UserAgent = function(plugins, config, parentEventBus) {
 jssip.sip.UserAgent.CoreFeatureType = {
   USERAGENTCLIENT: 'useragentclient',
   USERAGENTSERVER: 'useragentserver',
-  TRANSPORTLAYER: 'transportlayer'
+  TRANSPORTLAYER: 'transportlayer',
+  TRANSACTIONLAYER: 'transactionlayer',
+  DIALOGLAYER: 'dialoglayer'
 };
 
 
