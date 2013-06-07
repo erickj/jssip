@@ -333,7 +333,7 @@ EOS
   # returns Array
   def self.find_spec_targets(ns='')
     dir = File.join('spec',ns)
-    specs = %x{find #{dir} -name "[a-z0-9]*js" | xargs -I{} grep -e "goog.provide(\'.*Spec\')" {} | cut -d: -f2 | cut -d\\\' -f2}
+    specs = %x{find #{dir} -name "*_spec.js" | xargs -I{} grep -e "goog.provide(\'.*Spec\')" {} | cut -d: -f2 | cut -d\\\' -f2}
     specs.split
   end
 
