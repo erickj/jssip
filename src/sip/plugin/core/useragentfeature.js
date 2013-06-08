@@ -56,11 +56,10 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createEvent_ =
  * @see {jssip.sip.protocol.UserAgentClient#createRequest}
  * @param {!jssip.message.Message.Builder} messageBuilder A message builder.
  * @param {string} method The SIP request method.
- * @param {!jssip.uri.Uri} requestUri A URI.
+ * @param {!jssip.uri.Uri} toUri A to URI.
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
-    function(messageBuilder, method, requestUri) {
-
+    function(messageBuilder, method, toUri) {
   var rfc3261 = jssip.sip.protocol.rfc3261;
   var builderMessageContext = new jssip.message.BuilderMessageContext(
       messageBuilder, this.getFeatureContext().getParserRegistry());
@@ -70,9 +69,8 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
   messageBuilder.setMethod(method);
 
   // TODO(erick): Set the request URI according to 3261#12.2.1.1
-  messageBuilder.setRequestUri(requestUri.toString());
+  messageBuilder.setRequestUri(toUri.toString());
 
-  var toUri = requestUri;
   headerMap[rfc3261.HeaderType.TO] = this.generateToHeader_(toUri);
   headerMap[rfc3261.HeaderType.FROM] = this.generateFromHeader_();
   headerMap[rfc3261.HeaderType.CALL_ID] = this.generateCallId_();
@@ -287,8 +285,8 @@ jssip.sip.plugin.core.UserAgentFeature.Facade = function(delegate) {
 
 /** @override */
 jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.createRequest =
-    function(messageBuilder, method, requestUri) {
-  this.delegate_.createRequest(messageBuilder, method, requestUri);
+    function(messageBuilder, method, toUri) {
+  this.delegate_.createRequest(messageBuilder, method, toUri);
 };
 
 

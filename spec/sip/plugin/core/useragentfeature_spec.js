@@ -78,7 +78,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
   });
 
   describe('#createRequest', function() {
-    var requestUri;
+    var toUri;
 
     beforeEach(function() {
       eventListener = jasmine.createSpy();
@@ -86,23 +86,23 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
           jssip.sip.protocol.UserAgentClient.EventType.CREATE_REQUEST,
           eventListener);
 
-      requestUri = (new jssip.uri.Uri.Builder()).
+      toUri = (new jssip.uri.Uri.Builder()).
           addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
           addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'im.lazy').build();
     });
 
     it('should add to the message builder provided', function() {
-      userAgentFeature.createRequest(messageBuilder, 'FOOSBAR', requestUri);
+      userAgentFeature.createRequest(messageBuilder, 'FOOSBAR', toUri);
 
       var message = messageBuilder.build();
       expect(message.isRequest()).toBe(true);
       expect(message.getMethod()).toBe('FOOSBAR');
-      expect(message.getRequestUri()).toBe(requestUri.toString());
+      expect(message.getRequestUri()).toBe(toUri.toString());
 
       // TODO(erick): This is really shitty, I'm just copying code'
       var headerType = rfc3261.HeaderType;
       jssip.testing.util.messageutil.checkMessageHeaders(goog.object.create(
-        headerType.TO, requestUri.toString(),
+        headerType.TO, toUri.toString(),
         headerType.FROM, /EJ <sip:erick@bar.com>;tag=[a-f0-9]+/,
         headerType.CALL_ID, /[a-f0-9]+/,
         headerType.CSEQ, /[0-9]+ FOOSBAR/,
@@ -112,7 +112,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     });
 
     it('should dispatch a CREATE_RESPONSE event', function() {
-      userAgentFeature.createRequest(messageBuilder, 'INVITE', requestUri)
+      userAgentFeature.createRequest(messageBuilder, 'INVITE', toUri)
       expect(eventListener).toHaveBeenCalledWith(
           jasmine.any(jssip.sip.event.MessageEvent));
 
@@ -131,7 +131,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
       eventBus.addEventListener(
           jssip.sip.protocol.UserAgentClient.EventType.CREATE_REQUEST,
           eventListener);
-      userAgentFeature.createRequest(messageBuilder, 'INVITE', requestUri)
+      userAgentFeature.createRequest(messageBuilder, 'INVITE', toUri)
       var message = messageBuilder.build();
       var headerType = rfc3261.HeaderType;
       jssip.testing.util.messageutil.checkMessageHeaders(goog.object.create(

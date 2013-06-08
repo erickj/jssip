@@ -33,7 +33,7 @@ jssip.sip.protocol.UserAgentClient.EventType = {
  *
  * @param {!jssip.message.Message.Builder} messageBuilder A message builder.
  * @param {string} method The SIP request method.
- * @param {!jssip.uri.Uri} requestUri A URI.
+ * @param {!jssip.uri.Uri} toUri The logical destination for this request.
  */
 jssip.sip.protocol.UserAgentClient.prototype.createRequest =
     goog.abstractMethod;
