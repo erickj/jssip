@@ -43,10 +43,10 @@ UTF8_CONT       = [\x80-\xBF]
 LHEX            = DIGIT / [\x61-\x66]
 
 token           = (alphanum / "-" / "." / "!" / "%" / "*"
-                  / "_" / "+" / "`" / "'" / "~" )+
+                  / "_" / "+" / "`" / "'" / "~" )+ { return input.substring(pos, offset); }
 
 token_nodot     = ( alphanum / "-"  / "!" / "%" / "*"
-                  / "_" / "+" / "`" / "'" / "~" )+
+                  / "_" / "+" / "`" / "'" / "~" )+ { return input.substring(pos, offset); }
 
 separators      = "(" / ")" / "<" / ">" / "@" / "," / ";" / ":" / "\\"
                   / DQUOTE / "/" / "[" / "]" / "?" / "=" / "{" / "}"
@@ -57,7 +57,7 @@ word            = (alphanum / "-" / "." / "!" / "%" / "*" /
                   "(" / ")" / "<" / ">" /
                   ":" / "\\" / DQUOTE /
                   "/" / "[" / "]" / "?" /
-                  "{" / "}" )+
+                  "{" / "}" )+ { return input.substring(pos, offset); }
 
 STAR        = SWS "*" SWS   {return "*"; }
 SLASH       = SWS "/" SWS   {return "/"; }
@@ -76,9 +76,9 @@ comment     = LPAREN (ctext / quoted_pair / comment)* RPAREN
 
 ctext       = [\x21-\x27] / [\x2A-\x5B] / [\x5D-\x7E] / UTF8_NONASCII / LWS
 
-quoted_string = SWS DQUOTE ( qdtext / quoted_pair )* DQUOTE
+quoted_string = SWS DQUOTE ( qdtext / quoted_pair )* DQUOTE { return input.substring(pos, offset); }
 
-quoted_string_clean = SWS DQUOTE ( qdtext / quoted_pair )* DQUOTE
+quoted_string_clean = SWS DQUOTE ( qdtext / quoted_pair )* DQUOTE { return input.substring(pos, offset); }
 
 qdtext  = LWS / "\x21" / [\x23-\x5B] / [\x5D-\x7E] / UTF8_NONASCII
 
