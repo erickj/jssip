@@ -73,7 +73,7 @@ namespace :build do
     Dir.glob(File.join(GRAMMAR_DIR, '*.pegjs')).each do |f|
       basename = File.basename(f, '.pegjs')
       provided_ns = '%s.%s'%[ns, basename]
-      output = GRAMMAR_DIR + '/%s.js'%basename
+      output = GRAMMAR_DIR + '/%s.autogen.js'%basename
       cmd = '%s -e %s %s %s'%[PEGJS, provided_ns, f, output]
       puts cmd
       %x{#{cmd}}

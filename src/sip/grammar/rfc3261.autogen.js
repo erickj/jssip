@@ -2899,9 +2899,10 @@ jssip.sip.grammar.rfc3261 = (function(){
       
       function parse_SIP_URI_noparams() {
         var result0, result1, result2, result3;
-        var pos0;
+        var pos0, pos1;
         
         pos0 = pos;
+        pos1 = pos;
         result0 = parse_uri_scheme();
         if (result0 !== null) {
           if (input.charCodeAt(pos) === 58) {
@@ -2922,18 +2923,24 @@ jssip.sip.grammar.rfc3261 = (function(){
                 result0 = [result0, result1, result2, result3];
               } else {
                 result0 = null;
-                pos = pos0;
+                pos = pos1;
               }
             } else {
               result0 = null;
-              pos = pos0;
+              pos = pos1;
             }
           } else {
             result0 = null;
-            pos = pos0;
+            pos = pos1;
           }
         } else {
           result0 = null;
+          pos = pos1;
+        }
+        if (result0 !== null) {
+          result0 = (function(offset) { return input.substring(pos, offset); })(pos0);
+        }
+        if (result0 === null) {
           pos = pos0;
         }
         return result0;
@@ -2941,9 +2948,10 @@ jssip.sip.grammar.rfc3261 = (function(){
       
       function parse_SIP_URI() {
         var result0, result1, result2, result3, result4, result5;
-        var pos0;
+        var pos0, pos1;
         
         pos0 = pos;
+        pos1 = pos;
         result0 = parse_uri_scheme();
         if (result0 !== null) {
           if (input.charCodeAt(pos) === 58) {
@@ -2969,26 +2977,32 @@ jssip.sip.grammar.rfc3261 = (function(){
                     result0 = [result0, result1, result2, result3, result4, result5];
                   } else {
                     result0 = null;
-                    pos = pos0;
+                    pos = pos1;
                   }
                 } else {
                   result0 = null;
-                  pos = pos0;
+                  pos = pos1;
                 }
               } else {
                 result0 = null;
-                pos = pos0;
+                pos = pos1;
               }
             } else {
               result0 = null;
-              pos = pos0;
+              pos = pos1;
             }
           } else {
             result0 = null;
-            pos = pos0;
+            pos = pos1;
           }
         } else {
           result0 = null;
+          pos = pos1;
+        }
+        if (result0 !== null) {
+          result0 = (function(offset) { return input.substring(pos, offset); })(pos0);
+        }
+        if (result0 === null) {
           pos = pos0;
         }
         return result0;
@@ -3068,7 +3082,9 @@ jssip.sip.grammar.rfc3261 = (function(){
       
       function parse_user() {
         var result0, result1;
+        var pos0;
         
+        pos0 = pos;
         result1 = parse_unreserved();
         if (result1 === null) {
           result1 = parse_escaped();
@@ -3090,6 +3106,12 @@ jssip.sip.grammar.rfc3261 = (function(){
           }
         } else {
           result0 = null;
+        }
+        if (result0 !== null) {
+          result0 = (function(offset) { return input.substring(pos, offset); })(pos0);
+        }
+        if (result0 === null) {
+          pos = pos0;
         }
         return result0;
       }
@@ -3188,7 +3210,9 @@ jssip.sip.grammar.rfc3261 = (function(){
       
       function parse_password() {
         var result0, result1;
+        var pos0;
         
+        pos0 = pos;
         result0 = [];
         result1 = parse_unreserved();
         if (result1 === null) {
@@ -3311,6 +3335,12 @@ jssip.sip.grammar.rfc3261 = (function(){
             }
           }
         }
+        if (result0 !== null) {
+          result0 = (function(offset) { return input.substring(pos, offset); })(pos0);
+        }
+        if (result0 === null) {
+          pos = pos0;
+        }
         return result0;
       }
       
@@ -3359,13 +3389,21 @@ jssip.sip.grammar.rfc3261 = (function(){
       
       function parse_host() {
         var result0;
+        var pos0;
         
+        pos0 = pos;
         result0 = parse_hostname();
         if (result0 === null) {
           result0 = parse_IPv4address();
           if (result0 === null) {
             result0 = parse_IPv6reference();
           }
+        }
+        if (result0 !== null) {
+          result0 = (function(offset) { return input.substring(pos, offset); })(pos0);
+        }
+        if (result0 === null) {
+          pos = pos0;
         }
         return result0;
       }
@@ -8013,12 +8051,13 @@ jssip.sip.grammar.rfc3261 = (function(){
       
       function parse_generic_param() {
         var result0, result1, result2;
-        var pos0, pos1;
+        var pos0, pos1, pos2;
         
         pos0 = pos;
+        pos1 = pos;
         result0 = parse_token();
         if (result0 !== null) {
-          pos1 = pos;
+          pos2 = pos;
           result1 = parse_EQUAL();
           if (result1 !== null) {
             result2 = parse_gen_value();
@@ -8026,21 +8065,28 @@ jssip.sip.grammar.rfc3261 = (function(){
               result1 = [result1, result2];
             } else {
               result1 = null;
-              pos = pos1;
+              pos = pos2;
             }
           } else {
             result1 = null;
-            pos = pos1;
+            pos = pos2;
           }
           result1 = result1 !== null ? result1 : "";
           if (result1 !== null) {
             result0 = [result0, result1];
           } else {
             result0 = null;
-            pos = pos0;
+            pos = pos1;
           }
         } else {
           result0 = null;
+          pos = pos1;
+        }
+        if (result0 !== null) {
+          result0 = (function(offset, param, value) {
+          return (value instanceof Array) ? [param, value[0], value[1]] : [param]; })(pos0, result0[0], result0[1]);
+        }
+        if (result0 === null) {
           pos = pos0;
         }
         return result0;

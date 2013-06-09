@@ -89,23 +89,24 @@ quoted_pair = "\\" ( [\x00-\x09] / [\x0B-\x0C] / [\x0E-\x7F] )
 // SIP URI
 //=======================
 
-SIP_URI_noparams  = uri_scheme ":"  userinfo ? hostport
+SIP_URI_noparams  = uri_scheme ":"  userinfo ? hostport { return input.substring(pos, offset); }
 
-SIP_URI         = uri_scheme ":"  userinfo ? hostport uri_parameters headers ?
+SIP_URI         = uri_scheme ":"  userinfo ? hostport uri_parameters headers ? { return input.substring(pos, offset); }
 
 uri_scheme      = uri_scheme:  "sip"i
 
 userinfo        = user (":" password)? "@"
 
-user            = ( unreserved / escaped / user_unreserved )+
+user            = ( unreserved / escaped / user_unreserved )+ { return input.substring(pos, offset); }
+
 
 user_unreserved = "&" / "=" / "+" / "$" / "," / ";" / "?" / "/"
 
-password        = ( unreserved / escaped / "&" / "=" / "+" / "$" / "," )*
+password        = ( unreserved / escaped / "&" / "=" / "+" / "$" / "," )* { return input.substring(pos, offset); }
 
 hostport        = host ( ":" port )?
 
-host            = ( hostname / IPv4address / IPv6reference )
+host            = ( hostname / IPv4address / IPv6reference ) { return input.substring(pos, offset); }
 
 hostname        = ( domainlabel "." )* toplabel  "." ?
 
@@ -317,7 +318,8 @@ delta_seconds       = delta_seconds: DIGIT+
 
 qvalue              = "0" ( "." DIGIT? DIGIT? DIGIT? )?
 
-generic_param       = param: token  value: ( EQUAL gen_value )?
+generic_param       = param: token  value: ( EQUAL gen_value )? {
+  return (value instanceof Array) ? [param, value[0], value[1]] : [param]; }
 
 gen_value           = token / host / quoted_string
 
