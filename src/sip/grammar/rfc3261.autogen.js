@@ -168,11 +168,13 @@ jssip.sip.grammar.rfc3261 = (function(){
         "Status_Code": parse_Status_Code,
         "extension_code": parse_extension_code,
         "Reason_Phrase": parse_Reason_Phrase,
+        "Allow": parse_Allow,
         "Allow_Events": parse_Allow_Events,
         "Call_ID": parse_Call_ID,
         "Contact": parse_Contact,
         "contact_param": parse_contact_param,
         "name_addr": parse_name_addr,
+        "addr_spec": parse_addr_spec,
         "display_name": parse_display_name,
         "contact_params": parse_contact_params,
         "c_p_q": parse_c_p_q,
@@ -187,6 +189,7 @@ jssip.sip.grammar.rfc3261 = (function(){
         "handling_param": parse_handling_param,
         "Content_Encoding": parse_Content_Encoding,
         "Content_Length": parse_Content_Length,
+        "Content_Type": parse_Content_Type,
         "media_type": parse_media_type,
         "m_type": parse_m_type,
         "discrete_type": parse_discrete_type,
@@ -229,6 +232,9 @@ jssip.sip.grammar.rfc3261 = (function(){
         "Require": parse_Require,
         "Route": parse_Route,
         "route_param": parse_route_param,
+        "Server": parse_Server,
+        "server_val": parse_server_val,
+        "product": parse_product,
         "Subscription_State": parse_Subscription_State,
         "substate_value": parse_substate_value,
         "subexp_params": parse_subexp_params,
@@ -237,6 +243,7 @@ jssip.sip.grammar.rfc3261 = (function(){
         "Supported": parse_Supported,
         "To": parse_To,
         "to_param": parse_to_param,
+        "User_Agent": parse_User_Agent,
         "Via": parse_Via,
         "via_parm": parse_via_parm,
         "via_params": parse_via_params,
@@ -7610,6 +7617,58 @@ jssip.sip.grammar.rfc3261 = (function(){
         return result0;
       }
       
+      function parse_Allow() {
+        var result0, result1, result2, result3;
+        var pos0, pos1;
+        
+        pos0 = pos;
+        result0 = parse_Method();
+        if (result0 !== null) {
+          result1 = [];
+          pos1 = pos;
+          result2 = parse_COMMA();
+          if (result2 !== null) {
+            result3 = parse_Method();
+            if (result3 !== null) {
+              result2 = [result2, result3];
+            } else {
+              result2 = null;
+              pos = pos1;
+            }
+          } else {
+            result2 = null;
+            pos = pos1;
+          }
+          while (result2 !== null) {
+            result1.push(result2);
+            pos1 = pos;
+            result2 = parse_COMMA();
+            if (result2 !== null) {
+              result3 = parse_Method();
+              if (result3 !== null) {
+                result2 = [result2, result3];
+              } else {
+                result2 = null;
+                pos = pos1;
+              }
+            } else {
+              result2 = null;
+              pos = pos1;
+            }
+          }
+          if (result1 !== null) {
+            result0 = [result0, result1];
+          } else {
+            result0 = null;
+            pos = pos0;
+          }
+        } else {
+          result0 = null;
+          pos = pos0;
+        }
+        return result0;
+      }
+      
       function parse_Allow_Events() {
         var result0, result1, result2, result3;
         var pos0, pos1;
@@ -7765,7 +7824,7 @@ jssip.sip.grammar.rfc3261 = (function(){
         var pos0, pos1;
         
         pos0 = pos;
-        result0 = parse_SIP_URI_noparams();
+        result0 = parse_addr_spec();
         if (result0 === null) {
           result0 = parse_name_addr();
         }
@@ -7846,6 +7905,13 @@ jssip.sip.grammar.rfc3261 = (function(){
           result0 = null;
           pos = pos0;
         }
+        return result0;
+      }
+      
+      function parse_addr_spec() {
+        var result0;
+        
+        result0 = parse_SIP_URI_noparams();
         return result0;
       }
       
@@ -8363,6 +8429,13 @@ jssip.sip.grammar.rfc3261 = (function(){
         return result0;
       }
       
+      function parse_Content_Type() {
+        var result0;
+        
+        result0 = parse_media_type();
+        return result0;
+      }
+      
       function parse_media_type() {
         var result0, result1, result2, result3, result4, result5;
         var pos0, pos1;
@@ -8789,7 +8862,7 @@ jssip.sip.grammar.rfc3261 = (function(){
         var pos0, pos1;
         
         pos0 = pos;
-        result0 = parse_SIP_URI_noparams();
+        result0 = parse_addr_spec();
         if (result0 === null) {
           result0 = parse_name_addr();
         }
@@ -9976,6 +10049,103 @@ jssip.sip.grammar.rfc3261 = (function(){
         return result0;
       }
       
+      function parse_Server() {
+        var result0, result1, result2, result3;
+        var pos0, pos1;
+        
+        pos0 = pos;
+        result0 = parse_server_val();
+        if (result0 !== null) {
+          result1 = [];
+          pos1 = pos;
+          result2 = parse_LWS();
+          if (result2 !== null) {
+            result3 = parse_server_val();
+            if (result3 !== null) {
+              result2 = [result2, result3];
+            } else {
+              result2 = null;
+              pos = pos1;
+            }
+          } else {
+            result2 = null;
+            pos = pos1;
+          }
+          while (result2 !== null) {
+            result1.push(result2);
+            pos1 = pos;
+            result2 = parse_LWS();
+            if (result2 !== null) {
+              result3 = parse_server_val();
+              if (result3 !== null) {
+                result2 = [result2, result3];
+              } else {
+                result2 = null;
+                pos = pos1;
+              }
+            } else {
+              result2 = null;
+              pos = pos1;
+            }
+          }
+          if (result1 !== null) {
+            result0 = [result0, result1];
+          } else {
+            result0 = null;
+            pos = pos0;
+          }
+        } else {
+          result0 = null;
+          pos = pos0;
+        }
+        return result0;
+      }
+      
+      function parse_server_val() {
+        var result0;
+        
+        result0 = parse_product();
+        if (result0 === null) {
+          result0 = parse_comment();
+        }
+        return result0;
+      }
+      
+      function parse_product() {
+        var result0, result1, result2;
+        var pos0, pos1;
+        
+        pos0 = pos;
+        result0 = parse_token();
+        if (result0 !== null) {
+          pos1 = pos;
+          result1 = parse_SLASH();
+          if (result1 !== null) {
+            result2 = parse_token();
+            if (result2 !== null) {
+              result1 = [result1, result2];
+            } else {
+              result1 = null;
+              pos = pos1;
+            }
+          } else {
+            result1 = null;
+            pos = pos1;
+          }
+          result1 = result1 !== null ? result1 : "";
+          if (result1 !== null) {
+            result0 = [result0, result1];
+          } else {
+            result0 = null;
+            pos = pos0;
+          }
+        } else {
+          result0 = null;
+          pos = pos0;
+        }
+        return result0;
+      }
+      
       function parse_Subscription_State() {
         var result0, result1, result2, result3;
         var pos0, pos1;
@@ -10316,7 +10486,7 @@ jssip.sip.grammar.rfc3261 = (function(){
         var pos0, pos1;
         
         pos0 = pos;
-        result0 = parse_SIP_URI_noparams();
+        result0 = parse_addr_spec();
         if (result0 === null) {
           result0 = parse_name_addr();
         }
@@ -10372,6 +10542,58 @@ jssip.sip.grammar.rfc3261 = (function(){
         result0 = parse_tag_param();
         if (result0 === null) {
           result0 = parse_generic_param();
+        }
+        return result0;
+      }
+      
+      function parse_User_Agent() {
+        var result0, result1, result2, result3;
+        var pos0, pos1;
+        
+        pos0 = pos;
+        result0 = parse_server_val();
+        if (result0 !== null) {
+          result1 = [];
+          pos1 = pos;
+          result2 = parse_LWS();
+          if (result2 !== null) {
+            result3 = parse_server_val();
+            if (result3 !== null) {
+              result2 = [result2, result3];
+            } else {
+              result2 = null;
+              pos = pos1;
+            }
+          } else {
+            result2 = null;
+            pos = pos1;
+          }
+          while (result2 !== null) {
+            result1.push(result2);
+            pos1 = pos;
+            result2 = parse_LWS();
+            if (result2 !== null) {
+              result3 = parse_server_val();
+              if (result3 !== null) {
+                result2 = [result2, result3];
+              } else {
+                result2 = null;
+                pos = pos1;
+              }
+            } else {
+              result2 = null;
+              pos = pos1;
+            }
+          }
+          if (result1 !== null) {
+            result0 = [result0, result1];
+          } else {
+            result0 = null;
+            pos = pos0;
+          }
+        } else {
+          result0 = null;
+          pos = pos0;
         }
         return result0;
       }

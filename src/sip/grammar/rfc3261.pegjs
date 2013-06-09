@@ -1,6 +1,19 @@
 /**
  * Thanks to https://github.com/versatica/JsSIP
+ *
+ * For Parser documentation and syntax:
+ * @see http://pegjs.majda.cz/documentation#grammar-syntax-and-semantics-parsing-expression-types
  * @see https://github.com/dmajda/pegjs
+ *
+ * Note: Rules which only consist of a single expression will be optimized away
+ * by when the pegjs parser is built.  For instance:
+ *
+ * A_Rule = non_terminal
+ *
+ * A_Rule won't exist in the final parser, a quick hack is to add a label to the
+ *  rule:
+ *
+ * A_Rule = a_rule: non_terminal
  */
 // ABNF BASIC
 
@@ -285,6 +298,10 @@ Reason_Phrase   = (reserved / unreserved / escaped
 // HEADERS
 //=======================
 
+// Allow
+
+Allow  =  Method (COMMA Method)*
+
 // Allow-Events
 
 Allow_Events = event_type (COMMA event_type)*
@@ -302,7 +319,7 @@ contact_param       = (addr_spec / name_addr) (SEMI contact_params)*
 
 name_addr           = ( display_name )? LAQUOT SIP_URI RAQUOT
 
-addr_spec           = SIP_URI_noparams
+addr_spec           = addr_spec: SIP_URI_noparams
 
 display_name        = display_name: (token ( LWS token )* / quoted_string)
 
@@ -351,8 +368,10 @@ content_coding      = token
 Content_Length      = length: (DIGIT +)
 
 // CONTENT-TYPE
+// adds the "content_type:"" label so that the PEG parser rules don't optimize
+// away Content_Type
 
-Content_Type        = media_type
+Content_Type        = content_type: media_type
 
 media_type          = m_type SLASH m_subtype (SEMI m_parameter)*
 
@@ -496,6 +515,15 @@ Route        = route_param (COMMA route_param)*
 
 route_param  = name_addr ( SEMI rr_param )*
 
+// SERVER
+
+Server           =  server_val ( LWS server_val )*
+
+server_val       =  product / comment
+
+product          =  token ( SLASH product_version )?
+
+product_version  =  token
 
 // SUBSCRIPTION-STATE
 
@@ -538,6 +566,10 @@ Supported  = ( option_tag (COMMA option_tag)* )?
 To         = ( addr_spec / name_addr ) ( SEMI to_param )*
 
 to_param   = tag_param / generic_param
+
+// USER-AGENT
+
+User_Agent  =  server_val ( LWS server_val )*
 
 // VIA
 

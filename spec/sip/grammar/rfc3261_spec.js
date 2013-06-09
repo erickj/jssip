@@ -3,15 +3,29 @@
 goog.provide('jssip.sip.grammar.Rfc3261Spec');
 
 goog.require('goog.array');
+goog.require('goog.object');
 goog.require('jssip.sip.grammar.rfc3261');
+goog.require('jssip.sip.protocol.rfc3261');
+goog.require('jssip.testing.util.messageutil');
 
 describe('jssip.sip.grammar.rfc3261', function() {
+  var rawExampleMessageMap = jssip.testing.util.messageutil.ExampleMessage;
+  var exampleMessages;
   var aAddrSpec = 'sip:erick@foo.com';
   var aNameAddr = '"Erick" <sip:erick@foo.com>';
   var parser = jssip.sip.grammar.rfc3261;
   var startRule;
 
+  var allTestedHeaders =
+      goog.object.getValues(jssip.sip.protocol.rfc3261.HeaderType);
+
   beforeEach(function() {
+    exampleMessages = [];
+    for (var messageType in rawExampleMessageMap) {
+      exampleMessages.push(jssip.testing.util.messageutil.parseMessage(
+          rawExampleMessageMap[messageType]));
+    };
+
     this.addMatchers(/** @lends {jasmine.Matcher.prototype } */ ({
       /**
        * @param {string} name
@@ -82,13 +96,12 @@ describe('jssip.sip.grammar.rfc3261', function() {
       ],
       'addr_spec': [
         'sip:erick@foo.com'
+      ],
+      'IPv4address': [
+        '1.2.3.4',
+        '255.255.255.255',
+        '0.0.0.0'
       ]
-    };
-
-    // The pegjs defines addr_spec as SIP_URI_noparams, this gets optimized away
-    // so that there is no addr_spec start rule after building the grammar.
-    var startRuleMapping = {
-      'addr_spec': 'SIP_URI_noparams'
     };
 
     for (var startRule in startRuleToValueMap) {
@@ -101,8 +114,7 @@ describe('jssip.sip.grammar.rfc3261', function() {
               var value = values[i];
               var parsedValue;
               expect(function() {
-                var actualStartRule = startRuleMapping[startRule] || startRule
-                parsedValue = parser.parse(value, actualStartRule);
+                parsedValue = parser.parse(value, startRule);
               }).not.toThrow();
             };
           });
@@ -168,4 +180,28 @@ describe('jssip.sip.grammar.rfc3261', function() {
       });
     };
   }); // end To/From shared specs
+
+  describe('All header specs', function() {
+    for (var i = 0; i < allTestedHeaders.length; i++) {
+      var header = allTestedHeaders[i];
+      var suiteName = '%s header'.replace('%s', header);
+      describe(suiteName, function() {
+        it('should be parseable from example messages', function(header) {
+          return function() {
+            for (var j = 0; j < exampleMessages.length; j++) {
+              var values = exampleMessages[j].getHeaderValue(header);
+              if (goog.isNull(values)) {
+                continue;
+              }
+              for (var k = 0; k < values.length; k++) {
+                expect(function() {
+                  parser.parse(values[k], header.replace('-', '_'));
+                }).not.toThrow();
+              }
+            }
+          };
+        }(header));
+      });
+    }
+  });
 });
