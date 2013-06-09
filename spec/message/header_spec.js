@@ -13,6 +13,7 @@ describe('SIP Message Header', function() {
     headerBuilder.
         addPropertyPair(jssip.message.Header.PropertyName.NAME, 'foo').
         addPropertyPair(jssip.message.Header.PropertyName.RAW_VALUE, 'a value').
+        addPropertyPair(jssip.message.Header.PropertyName.PARSED_VALUE, ['a value']).
         addPropertyPair('randomproperty', 'randomvalue');
     header = headerBuilder.build();
   });
@@ -20,7 +21,28 @@ describe('SIP Message Header', function() {
   describe('new', function() {
     it('should throw an error if NAME is not set', function() {
       expect(function() {
-        (new jssip.message.Header.Builder()).build();
+        (new jssip.message.Header.Builder()).
+          addPropertyPair(jssip.message.Header.PropertyName.RAW_VALUE, 'a value').
+          addPropertyPair(jssip.message.Header.PropertyName.PARSED_VALUE, ['a value']).
+          build();
+      });
+    });
+
+    it('should throw an error if RAW_VALUE is not set', function() {
+      expect(function() {
+        (new jssip.message.Header.Builder()).
+          addPropertyPair(jssip.message.Header.PropertyName.NAME, 'foo').
+          addPropertyPair(jssip.message.Header.PropertyName.PARSED_VALUE, ['a value']).
+          build();
+      });
+    });
+
+    it('should throw an error if PARSED_VALUE is not set', function() {
+      expect(function() {
+        (new jssip.message.Header.Builder()).
+          addPropertyPair(jssip.message.Header.PropertyName.NAME, 'foo').
+          addPropertyPair(jssip.message.Header.PropertyName.RAW_VALUE, 'a value').
+          build();
       });
     });
 

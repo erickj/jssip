@@ -14,7 +14,13 @@ jssip.message.Header = function(builder) {
   goog.base(this, builder.propertyMap_);
 
   if (!this.get(jssip.message.Header.PropertyName.NAME)) {
-    throw Error('Missing required property name');
+    throw Error('Missing required property NAME');
+  }
+  if (!this.get(jssip.message.Header.PropertyName.RAW_VALUE)) {
+    throw Error('Missing required property RAW_VALUE');
+  }
+  if (!this.get(jssip.message.Header.PropertyName.PARSED_VALUE)) {
+    throw Error('Missing required property PARSED_VALUE');
   }
 };
 goog.inherits(jssip.message.Header, jssip.util.PropertyHolder);
@@ -22,8 +28,9 @@ goog.inherits(jssip.message.Header, jssip.util.PropertyHolder);
 
 /** @enum {string} */
 jssip.message.Header.PropertyName = {
-  NAME: 'name',
-  RAW_VALUE: 'raw_value'
+  NAME: 'hdr-name',
+  RAW_VALUE: 'hdr-rawvalue',
+  PARSED_VALUE: 'hdr-parsedvalue'
 };
 
 
