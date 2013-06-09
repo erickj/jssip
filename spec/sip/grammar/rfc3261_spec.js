@@ -62,58 +62,60 @@ describe('jssip.sip.grammar.rfc3261', function() {
   });
 
   // Apply all of the following specs to both To and From headers
-  var headers = ['To', 'From'];
-  for (var i = 0; i < headers.length; i++) {
-    var header = headers[i];
-    var msg = '%s header'.replace('%s', header);
-    var msgShouldParseA = 'should parse a ' + header + ' header';
+  describe('From and To headers', function() {
+    var headers = ['To', 'From'];
+    for (var i = 0; i < headers.length; i++) {
+      var header = headers[i];
+      var msg = '%s header'.replace('%s', header);
+      var msgShouldParseA = 'should parse a ' + header + ' header';
 
-    describe(msg, function() {
-      beforeEach(function() {
-        startRule = header;
-      });
-
-      it(msgShouldParseA + ' with an addr-spec', function() {
-        var result = parser.parse(aAddrSpec, startRule);
-        expect(result.length).toBe(2);
-        expect(result[0]).toBeAddrSpec('sip:erick@foo.com');
-      });
-
-      it(msgShouldParseA + ' with a name-addr', function() {
-        var result = parser.parse(aNameAddr, startRule);
-        expect(result.length).toBe(2);
-        expect(result[0]).toBeNameAddr('"Erick"', 'sip:erick@foo.com');
-      });
-
-      // For each header type, also test parameter parsing with both
-      // addr-spec and name-addr forms.
-      var formats = { 'addr-spec': aAddrSpec, 'name-addr': aNameAddr };
-      for (var f in formats) {
-        var msgShouldParseTagParam = msgShouldParseA +
-            ' with format %s with a tag_param'.replace('%s', f);
-        it(msgShouldParseTagParam, function() {
-          var headerValue = formats[f] + ';tag=yoohoo';
-          var result = parser.parse(headerValue, startRule);
-          expect(result[1]).toEqual(jasmine.any(Array));
-          expect(result[1].length).toBe(1);
-          expect(result[1][0]).toBeParam('tag', 'yoohoo');
+      describe(msg, function() {
+        beforeEach(function() {
+          startRule = header;
         });
 
-        var msgShouldParseGenericParams = msgShouldParseA +
-            ' with format %s with generic params'.replace('%s', f);
-        it(msgShouldParseGenericParams, function() {
-          var headerValue = formats[f] + ';avar=xyz;bvar';
-          var result = parser.parse(headerValue, startRule);
-          expect(result[1]).toEqual(jasmine.any(Array));
-          expect(result[1].length).toBe(2);
-
-          // avar=xyz
-          expect(result[1][0]).toBeParam('avar', 'xyz');
-
-          // bvar
-          expect(result[1][1]).toBeParam('bvar');
+        it(msgShouldParseA + ' with an addr-spec', function() {
+          var result = parser.parse(aAddrSpec, startRule);
+          expect(result.length).toBe(2);
+          expect(result[0]).toBeAddrSpec('sip:erick@foo.com');
         });
-      };
-    });
-  }; // end To/From shared specs
+
+        it(msgShouldParseA + ' with a name-addr', function() {
+          var result = parser.parse(aNameAddr, startRule);
+          expect(result.length).toBe(2);
+          expect(result[0]).toBeNameAddr('"Erick"', 'sip:erick@foo.com');
+        });
+
+        // For each header type, also test parameter parsing with both
+        // addr-spec and name-addr forms.
+        var formats = { 'addr-spec': aAddrSpec, 'name-addr': aNameAddr };
+        for (var f in formats) {
+          var msgShouldParseTagParam = msgShouldParseA +
+              ' with format %s with a tag_param'.replace('%s', f);
+          it(msgShouldParseTagParam, function() {
+            var headerValue = formats[f] + ';tag=yoohoo';
+            var result = parser.parse(headerValue, startRule);
+            expect(result[1]).toEqual(jasmine.any(Array));
+            expect(result[1].length).toBe(1);
+            expect(result[1][0]).toBeParam('tag', 'yoohoo');
+          });
+
+          var msgShouldParseGenericParams = msgShouldParseA +
+              ' with format %s with generic params'.replace('%s', f);
+          it(msgShouldParseGenericParams, function() {
+            var headerValue = formats[f] + ';avar=xyz;bvar';
+            var result = parser.parse(headerValue, startRule);
+            expect(result[1]).toEqual(jasmine.any(Array));
+            expect(result[1].length).toBe(2);
+
+            // avar=xyz
+            expect(result[1][0]).toBeParam('avar', 'xyz');
+
+            // bvar
+            expect(result[1][1]).toBeParam('bvar');
+          });
+        };
+      });
+    };
+  }); // end To/From shared specs
 });
