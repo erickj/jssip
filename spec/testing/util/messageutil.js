@@ -2,6 +2,7 @@ goog.provide('jssip.testing.util.messageutil');
 
 goog.require('jssip.event.EventBus');
 goog.require('jssip.message.MessageParserFactory');
+goog.require('jssip.message.MessageParser');
 goog.require('jssip.message.RawMessageContext');
 goog.require('jssip.parser.ParserRegistry');
 
@@ -89,7 +90,7 @@ jssip.testing.util.messageutil.checkMessageHeaders =
 /**
  * Creates a raw message context with the given message text.
  * @param {string} rawMessageText
- * @return {!jssip.message.RawMessageText}
+ * @return {!jssip.message.RawMessageContext}
  */
 jssip.testing.util.messageutil.createRawMessageContext =
     function(rawMessageText) {
@@ -99,4 +100,15 @@ jssip.testing.util.messageutil.createRawMessageContext =
   var parserRegistry = new jssip.parser.ParserRegistry(messageParserFactory);
 
   return new jssip.message.RawMessageContext(rawMessageText, parserRegistry);
+};
+
+
+/**
+ * Parses raw messsage text into a {@code jssip.message.Message}
+ * @param {string} rawMessageText
+ * @return {!jssip.message.Message}
+ */
+jssip.testing.util.messageutil.parseMessage = function(rawMessageText) {
+  var parser = new jssip.message.MessageParser(rawMessageText);
+  return parser.parse();
 };
