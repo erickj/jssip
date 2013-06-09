@@ -2,7 +2,6 @@ goog.provide('jssip.plugin.AbstractFeature');
 
 goog.require('jssip.event.EventBus');
 goog.require('jssip.plugin.Feature');
-goog.require('jssip.plugin.Feature.Event');
 
 
 

@@ -1,7 +1,5 @@
 goog.provide('jssip.net.SocketFactoryRegistry');
 
-goog.require('jssip.net.Socket');
-
 
 
 /**
@@ -21,7 +19,8 @@ jssip.net.SocketFactoryRegistry = function(socketFactoryMap) {
  * @return {!jssip.net.Socket}
  * @throws {Error} If the socket type is not registered.
  */
-jssip.net.SocketFactoryRegistry.prototype = function(type, eventBus) {
+jssip.net.SocketFactoryRegistry.prototype.createSocket =
+    function(type, eventBus) {
   if (!this.socketFactoryMap_[type]) {
     throw Error('Unregistered socket type: ' + type);
   }

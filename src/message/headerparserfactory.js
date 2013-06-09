@@ -1,7 +1,5 @@
 goog.provide('jssip.message.HeaderParserFactory');
 
-goog.require('jssip.message.HeaderParser');
-
 
 
 /**

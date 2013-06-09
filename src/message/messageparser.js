@@ -2,11 +2,12 @@ goog.provide('jssip.message.MessageParser');
 goog.provide('jssip.message.MessageParserFactory');
 
 goog.require('goog.string');
-goog.require('jssip.message.Message.Builder');
+goog.require('jssip.message.Message');
 goog.require('jssip.parser.AbstractParser');
 goog.require('jssip.parser.AbstractParserFactory');
 goog.require('jssip.parser.ParseError');
-goog.require('jssip.util.TokenMatcher');
+goog.require('jssip.util.AnyTokenMatcher');
+goog.require('jssip.util.RegexpTokenMatcher');
 
 
 

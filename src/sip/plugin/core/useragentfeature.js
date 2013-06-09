@@ -5,8 +5,6 @@ goog.require('goog.crypt');
 goog.require('goog.crypt.Sha256');
 goog.require('goog.object');
 goog.require('jssip.message.BuilderMessageContext');
-goog.require('jssip.message.Message.Builder');
-goog.require('jssip.message.RawMessageContext');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureFacade');
 goog.require('jssip.sip.UserAgent');
@@ -15,7 +13,6 @@ goog.require('jssip.sip.plugin.core.HeaderParserFactoryImpl');
 goog.require('jssip.sip.protocol.UserAgentClient');
 goog.require('jssip.sip.protocol.UserAgentServer');
 goog.require('jssip.sip.protocol.rfc3261');
-goog.require('jssip.uri.Uri');
 
 
 
@@ -31,7 +28,10 @@ jssip.sip.plugin.core.UserAgentFeature = function(name) {
   /** @private {jssip.sip.plugin.core.HeaderParserFactoryImpl} */
   this.headerParserFactory_ = null;
 
-  /** @private {!Object} */
+  /**
+   * @private {!Object}
+   * @suppress {missingRequire}
+   */
   this.headerSet_ = goog.object.transpose(
       jssip.sip.protocol.rfc3261.HeaderType);
 

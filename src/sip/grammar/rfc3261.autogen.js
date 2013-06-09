@@ -4,7 +4,7 @@
 //
 /**
  * @fileoverview
- * TODO(erick): fix the compiler warning: SyntaxError defined before its owner. Need to add a new closure compiler diagnostic group for DiagnosticType CheckGlobalNames.NAME_DEFINED_LATE_WARNING:
+ * TODO(erick): suppress the compiler warning: SyntaxError defined before its owner. Need to add a new closure compiler diagnostic group for DiagnosticType CheckGlobalNames.NAME_DEFINED_LATE_WARNING:
  * @see http://code.google.com/p/closure-compiler/wiki/Warnings
  * @see http://code.google.com/p/closure-compiler/source/browse/src/com/google/javascript/jscomp/DiagnosticGroups.java
  * @see https://code.google.com/p/closure-compiler/source/browse/src/com/google/javascript/jscomp/CheckGlobalNames.java#48

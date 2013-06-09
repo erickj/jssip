@@ -3,12 +3,12 @@ goog.provide('jssip.sip.plugin.core.HeaderParserFactoryImpl');
 
 goog.require('goog.asserts');
 goog.require('jssip.message.Header');
-goog.require('jssip.message.Header.Builder');
 goog.require('jssip.message.HeaderParser');
 goog.require('jssip.message.HeaderParserFactory');
 goog.require('jssip.parser.AbstractParserFactory');
 goog.require('jssip.parser.ParseError');
 goog.require('jssip.sip.grammar.rfc3261');
+goog.require('jssip.sip.grammar.rfc3261.SyntaxError');
 
 
 
@@ -71,7 +71,7 @@ jssip.sip.plugin.core.HeaderParser.prototype.initializeHeaderName =
 jssip.sip.plugin.core.HeaderParser.prototype.parse = function() {
   try {
     var result =
-      jssip.sip.grammar.rfc3261.parse(this.headerValue_, this.headerName_);
+        jssip.sip.grammar.rfc3261.parse(this.headerValue_, this.headerName_);
   } catch (e) {
     if (e instanceof jssip.sip.grammar.rfc3261.SyntaxError) {
       throw new jssip.parser.ParseError(e.message);
@@ -79,9 +79,9 @@ jssip.sip.plugin.core.HeaderParser.prototype.parse = function() {
     throw e;
   }
   return this.builder_.addPropertyPair(
-        jssip.message.Header.PropertyName.NAME, this.headerName_).
-    addPropertyPair(
-        jssip.message.Header.PropertyName.RAW_VALUE, this.headerValue_).
-    addPropertyPair(
-        jssip.message.Header.PropertyName.PARSED_VALUE, result).build();
+      jssip.message.Header.PropertyName.NAME, this.headerName_).
+      addPropertyPair(
+      jssip.message.Header.PropertyName.RAW_VALUE, this.headerValue_).
+      addPropertyPair(
+      jssip.message.Header.PropertyName.PARSED_VALUE, result).build();
 };

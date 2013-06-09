@@ -2,6 +2,8 @@ goog.provide('jssip.parser.ParserRegistry');
 
 goog.require('goog.dispose');
 goog.require('jssip.parser.ParseError');
+goog.require('jssip.parser.ParseEvent');
+goog.require('jssip.parser.Parser');
 
 
 
