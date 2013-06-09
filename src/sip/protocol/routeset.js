@@ -13,8 +13,10 @@ jssip.sip.protocol.RouteSet = function(routes) {
 
 
 /**
+ * @param {!jssip.message.MessageContext} messageContext
  * @return {!jssip.sip.protocol.RouteSet}
  */
-jssip.sip.protocol.RouteSet.createFromMessageContext = function(messageContext) {
+jssip.sip.protocol.RouteSet.createFromMessageContext =
+    function(messageContext) {
   return new jssip.sip.protocol.RouteSet([]);
 };

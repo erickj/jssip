@@ -5,7 +5,6 @@ goog.require('jssip.parser.AbstractParser');
 goog.require('jssip.parser.AbstractParserFactory');
 goog.require('jssip.parser.ParseError');
 goog.require('jssip.uri.Uri');
-goog.require('jssip.uri.Uri.Builder');
 goog.require('jssip.uri.UriParser');
 goog.require('jssip.uri.UriParserFactory');
 

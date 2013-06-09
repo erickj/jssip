@@ -5,12 +5,10 @@ goog.require('goog.array');
 goog.require('goog.asserts');
 goog.require('goog.structs.Set');
 goog.require('jssip.event.EventBus');
-goog.require('jssip.message.MessageContext');
 goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.plugin.FeatureContextImpl');
 goog.require('jssip.plugin.FeatureSet');
-goog.require('jssip.sip.event.MessageEvent');
 goog.require('jssip.sip.protocol.TransportLayer');
 goog.require('jssip.util.PropertyHolder');
 

@@ -27,6 +27,7 @@ jssip.sip.protocol.rfc3261.BRANCH_ID_PREFIX = 'z9hG4bK';
 
 
 /**
+ * @suppress {missingProvide}
  * @see {http://tools.ietf.org/html/rfc3261#section-27.4}
  * @enum {string}
  */
@@ -42,6 +43,7 @@ jssip.sip.protocol.rfc3261.MethodType = {
 
 
 /**
+ * @suppress {missingProvide}
  * @see {http://tools.ietf.org/html/rfc3261#section-20}
  * @enum {string}
  */
@@ -93,7 +95,10 @@ jssip.sip.protocol.rfc3261.HeaderType = {
 };
 
 
-/** @enum {string} */
+/**
+ * @suppress {missingProvide}
+ * @enum {string}
+ */
 jssip.sip.protocol.rfc3261.CompactHeaderType = {
   CALL_ID: 'i',
   CONTACT: 'm',
@@ -109,6 +114,7 @@ jssip.sip.protocol.rfc3261.CompactHeaderType = {
 
 
 /**
+ * @suppress {missingProvide}
  * @see http://tools.ietf.org/html/rfc3261#section-21
  * @enum {string}
  */
@@ -123,6 +129,7 @@ jssip.sip.protocol.rfc3261.ResponseClass = {
 
 
 /**
+ * @suppress {missingProvide}
  * @see http://tools.ietf.org/html/rfc3261#section-25
  * @enum {string}
  */

@@ -1,7 +1,5 @@
 goog.provide('jssip.sip.protocol.UserAgentClient');
 
-goog.require('jssip.sip.UserAgent');
-
 
 
 /**
