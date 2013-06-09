@@ -22,17 +22,16 @@ goog.require('jssip.plugin.Feature.Event');
  *     activation.
  * @param {!Array.<string>=} opt_featureTypes An optional array of feature types
  *     that this feature will register for when activated.
- * @param {!Object.<!jssip.message.HeaderParserFactory>=}
- *     opt_headerParserFactoryMap The header parser factory map.
- * @param {!Object.<!jssip.uri.UriParserFactory>=} opt_uriParserFactoryMap
- *     The uri parser factory map.
+ * @param {!Array.<string>=} opt_headers The headers this feature will provide a
+ *     header parser factory for.
+ * @param {!Array.<string>=} opt_schemes The URI schemes this feature will
+ *     provide a parser factory for.
  * @constructor
  * @implements {jssip.plugin.Feature}
  * @extends {jssip.event.EventBus}
  */
 jssip.plugin.AbstractFeature = function(name, opt_featureFacade,
-    opt_eventHandlerMap, opt_featureTypes, opt_headerParserFactoryMap,
-    opt_uriParserFactoryMap) {
+    opt_eventHandlerMap, opt_featureTypes, opt_headers, opt_uriSchemes) {
   goog.base(this);
 
   /** @private {string} */
@@ -54,11 +53,11 @@ jssip.plugin.AbstractFeature = function(name, opt_featureFacade,
   /** @private {!Array.<string>} */
   this.featureTypes_ = opt_featureTypes || [];
 
-  /** @private {!Object.<!jssip.message.HeaderParserFactory>} */
-  this.headerParserFactoryMap_ = opt_headerParserFactoryMap || {};
+  /** @private {!Array.<string>} */
+  this.headers_ = opt_headers || [];
 
-  /** @private {!Object.<!jssip.uri.UriParserFactory>} */
-  this.uriParserFactoryMap_ = opt_uriParserFactoryMap || {};
+  /** @private {!Array.<string>} */
+  this.uriSchemes_ = opt_uriSchemes || [];
 };
 goog.inherits(jssip.plugin.AbstractFeature, jssip.event.EventBus);
 
@@ -116,22 +115,50 @@ jssip.plugin.AbstractFeature.prototype.activate = function(featureContext) {
 
 
 /**
+ * This protected getter is used during activation to register the header parser
+ * factory that this feature provides.  It should not be called until activation
+ * so that implementors have a handle on the feature context, and thus the event
+ * bus.
+ * @param {string} headerName
+ * @return {!jssip.message.HeaderParser}
+ * @protected
+ */
+jssip.plugin.AbstractFeature.prototype.getHeaderParserFactory =
+    goog.abstractMethod;
+
+
+/**
+ * This protected getter is used during activation to register the uri scheme
+ * parser factory that this feature provides.  It should not be called until
+ * activation so that implementors have a handle on the feature context, and
+ * thus the event bus.
+ * @param {string} uriScheme
+ * @return {!jssip.uri.UriParser}
+ * @protected
+ */
+jssip.plugin.AbstractFeature.prototype.getUriParserFactory =
+    goog.abstractMethod;
+
+
+/**
  * @param {!jssip.parser.ParserRegistry} parserRegistry
  * @private
  */
 jssip.plugin.AbstractFeature.prototype.registerParsers_ =
     function(parserRegistry) {
-  for (var header in this.headerParserFactoryMap_) {
+  for (var i = 0; i < this.headers_.length; i++) {
+    var header = this.headers_[i];
     if (!parserRegistry.registerHeaderParserFactory(
-        header, this.headerParserFactoryMap_[header])) {
+        header, this.getHeaderParserFactory(header))) {
       throw new Error('Unable to register header parser factory ' + header +
           ' for feature ' + this.getName());
     }
   }
 
-  for (var scheme in this.uriParserFactoryMap_) {
+  for (i = 0; i < this.uriSchemes_.length; i++) {
+    var scheme = this.uriSchemes_[i];
     if (!parserRegistry.registerUriParserFactory(
-        scheme, this.uriParserFactoryMap_[scheme])) {
+        scheme, this.getUriParserFactory(scheme))) {
       throw new Error('Unable to register URI parser factory ' + scheme +
           ' for feature ' + this.getName());
     }

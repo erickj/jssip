@@ -43,8 +43,8 @@ describe('jssip.plugin.AbstractFeature', function() {
   describe('#activate', function() {
     var eventHandlerMap = {};
     var featureTypes = ['amazing', 'spectacular'];
-    var headerParserMap = { h: 'hdrparser' };
-    var uriParserMap = { u: 'uriparser' }
+    var headers = ['h1', 'h2'];
+    var uriSchemes = ['u1', 'u2'];
     var parserRegistry;
     var featureContext;
     var eventBus;
@@ -54,7 +54,9 @@ describe('jssip.plugin.AbstractFeature', function() {
       eventHandlerMap['listen.test2'] = {};
 
       feature = new jssip.plugin.AbstractFeature(name, undefined,
-          eventHandlerMap, featureTypes, headerParserMap, uriParserMap);
+          eventHandlerMap, featureTypes, headers, uriSchemes);
+      feature.getHeaderParserFactory = jasmine.createSpy();
+      feature.getUriParserFactory = jasmine.createSpy();
 
       eventBus = {
         addEventListener: jasmine.createSpy(),
@@ -108,14 +110,32 @@ describe('jssip.plugin.AbstractFeature', function() {
     });
 
     it('should register parser factories', function() {
+      var hdrParser = {};
+      var uriParser = {};
+
+      feature.getHeaderParserFactory.andReturn(hdrParser);
+      feature.getUriParserFactory.andReturn(uriParser);
+
       spyOn(parserRegistry, 'registerHeaderParserFactory').andReturn(true);
       spyOn(parserRegistry, 'registerUriParserFactory').andReturn(true);
 
       feature.activate(featureContext);
-      expect(parserRegistry.registerHeaderParserFactory).
-          toHaveBeenCalledWith('h', 'hdrparser');
-      expect(parserRegistry.registerUriParserFactory).
-          toHaveBeenCalledWith('u', 'uriparser');
+
+      for (var i = 0; i < headers.length; i++) {
+        var header = headers[i];
+        expect(feature.getHeaderParserFactory).
+            toHaveBeenCalledWith(header);
+        expect(parserRegistry.registerHeaderParserFactory).
+            toHaveBeenCalledWith(header, hdrParser);
+      }
+
+      for (i = 0; i < uriSchemes.length; i++) {
+        var scheme = uriSchemes[i];
+        expect(feature.getUriParserFactory).
+            toHaveBeenCalledWith(scheme);
+        expect(parserRegistry.registerUriParserFactory).
+            toHaveBeenCalledWith(scheme, uriParser);
+      }
     });
   });
 });
