@@ -1,5 +1,5 @@
 goog.provide('jssip.sip.plugin.core.UserAgentFeature');
-goog.provide('jssip.sip.plugin.core.UserAgentFeature.Facade');
+goog.provide('jssip.sip.plugin.core.UserAgentFeature.Facade_');
 
 goog.require('goog.crypt');
 goog.require('goog.crypt.Sha256');
@@ -22,8 +22,8 @@ goog.require('jssip.sip.protocol.rfc3261');
  * @extends {jssip.plugin.AbstractFeature}
  */
 jssip.sip.plugin.core.UserAgentFeature = function(name) {
-  /** @private {!jssip.sip.plugin.core.UserAgentFeature.Facade} */
-  this.facade_ = new jssip.sip.plugin.core.UserAgentFeature.Facade(this);
+  /** @private {!jssip.sip.plugin.core.UserAgentFeature.Facade_} */
+  this.facade_ = new jssip.sip.plugin.core.UserAgentFeature.Facade_(this);
 
   /** @private {jssip.sip.plugin.core.HeaderParserFactoryImpl} */
   this.headerParserFactory_ = null;
@@ -302,28 +302,28 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.handleRequest =
  * @implements {jssip.sip.protocol.UserAgentServer}
  * @implements {jssip.plugin.FeatureFacade}
  */
-jssip.sip.plugin.core.UserAgentFeature.Facade = function(delegate) {
+jssip.sip.plugin.core.UserAgentFeature.Facade_ = function(delegate) {
   /** @private {!jssip.sip.plugin.core.UserAgentFeature} */
   this.delegate_ = delegate;
 };
 
 
 /** @override */
-jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.createRequest =
+jssip.sip.plugin.core.UserAgentFeature.Facade_.prototype.createRequest =
     function(messageBuilder, method, toUri) {
   this.delegate_.createRequest(messageBuilder, method, toUri);
 };
 
 
 /** @override */
-jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.handleResponse =
+jssip.sip.plugin.core.UserAgentFeature.Facade_.prototype.handleResponse =
     function(responseMessageContext) {
   this.delegate_.handleResponse(responseMessageContext);
 };
 
 
 /** @override */
-jssip.sip.plugin.core.UserAgentFeature.Facade.prototype.handleRequest =
+jssip.sip.plugin.core.UserAgentFeature.Facade_.prototype.handleRequest =
     function(requestMessageContext) {
   this.delegate_.handleRequest(requestMessageContext);
 };
