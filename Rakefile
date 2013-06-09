@@ -91,8 +91,14 @@ namespace :build do
     end
   end
 
+  task :common_deps do
+    Rake::Task[:init].invoke
+    Rake::Task[:'build:grammar'].invoke
+    Rake::Task[:'build:stupid_jssip_deps'].invoke
+  end
+
   desc 'Compile JS in WHITESPACE_ONLY mode for [target]'
-  task :concat, [:target] => [:init] do |t, args|
+  task :concat, [:target] => [:'build:common_deps'] do |t, args|
     target = args[:target] || DEFAULT_TARGET
     Utils.build_script(Utils.get_js_script_name(target), target)
   end
@@ -116,13 +122,13 @@ namespace :build do
   end
 
   desc 'Compile JS in SIMPLE_OPTIMIZATION mode for [target]'
-  task :simple, [:target] => [:init, :'build:stupid_jssip_deps'] do |t, args|
+  task :simple, [:target] => [:'build:common_deps'] do |t, args|
     target = args[:target] || DEFAULT_TARGET
     Utils.build_compiled(Utils.get_js_script_name(target, 'min'), target)
   end
 
   desc 'Compile JS in ADVANCED_OPTIMIZAION mode for [target]'
-  task :compile, [:target] => [:init, :'build:stupid_jssip_deps'] do |t, args|
+  task :compile, [:target] => [:'build:common_deps'] do |t, args|
     target = args[:target] || DEFAULT_TARGET
     Utils.build_compiled(Utils.get_js_script_name(target, 'opt'), target, true)
   end
