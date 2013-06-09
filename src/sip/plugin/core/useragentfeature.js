@@ -3,6 +3,7 @@ goog.provide('jssip.sip.plugin.core.UserAgentFeature.Facade');
 
 goog.require('goog.crypt');
 goog.require('goog.crypt.Sha256');
+goog.require('goog.object');
 goog.require('jssip.message.BuilderMessageContext');
 goog.require('jssip.message.Message.Builder');
 goog.require('jssip.message.RawMessageContext');
@@ -10,6 +11,7 @@ goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureFacade');
 goog.require('jssip.sip.UserAgent');
 goog.require('jssip.sip.event.MessageEvent');
+goog.require('jssip.sip.plugin.core.HeaderParserFactoryImpl');
 goog.require('jssip.sip.protocol.UserAgentClient');
 goog.require('jssip.sip.protocol.UserAgentServer');
 goog.require('jssip.sip.protocol.rfc3261');
@@ -26,15 +28,38 @@ jssip.sip.plugin.core.UserAgentFeature = function(name) {
   /** @private {!jssip.sip.plugin.core.UserAgentFeature.Facade} */
   this.facade_ = new jssip.sip.plugin.core.UserAgentFeature.Facade(this);
 
+  /** @private {jssip.sip.plugin.core.HeaderParserFactoryImpl} */
+  this.headerParserFactory_ = null;
+
+  /** @private {!Object} */
+  this.headerSet_ = goog.object.transpose(
+      jssip.sip.protocol.rfc3261.HeaderType);
+
   var featureTypes = [
     jssip.sip.UserAgent.CoreFeatureType.USERAGENTCLIENT,
     jssip.sip.UserAgent.CoreFeatureType.USERAGENTSERVER
   ];
+
   goog.base(this, name, this.facade_, undefined /* opt_eventHandlerMap */,
-      featureTypes);
+      featureTypes, goog.object.getKeys(this.headerSet_));
 };
 goog.inherits(
     jssip.sip.plugin.core.UserAgentFeature, jssip.plugin.AbstractFeature);
+
+
+/** @override */
+jssip.sip.plugin.core.UserAgentFeature.prototype.getHeaderParserFactory =
+    function(name) {
+  var eventBus = this.getFeatureContext().getEventBus();
+  if (!this.headerSet_[name]) {
+    throw Error('Unsupported header: ' + name);
+  }
+  if (!this.headerParserFactory_) {
+    this.headerParserFactory_ =
+        new jssip.sip.plugin.core.HeaderParserFactoryImpl(eventBus);
+  }
+  return this.headerParserFactory_;
+};
 
 
 /**

@@ -46,6 +46,32 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     userAgentFeature.activate(featureContext);
   });
 
+  describe('#getHeaderParserFactory', function() {
+    it('should throw if the feature is not yet activated', function() {
+      userAgentFeature = new jssip.sip.plugin.core.UserAgentFeature(
+          'unactivated-feature');
+      expect(function() {
+        userAgentFeature.getHeaderParserFactory('From');
+      }).toThrow();
+    });
+
+    it('should throw if the header type is not one declared in 3261',
+       function() {
+         expect(function() {
+           userAgentFeature.getHeaderParserFactory('Foobars');
+         }).toThrow();
+       });
+
+    it('should return a header parser for each feature in 3261', function() {
+      for (var headerKey in jssip.sip.protocol.rfc3261.HeaderType) {
+        var parser = userAgentFeature.getHeaderParserFactory(
+            jssip.sip.protocol.rfc3261.HeaderType[headerKey]);
+        expect(parser).toEqual(
+            jasmine.any(jssip.sip.plugin.core.HeaderParserFactoryImpl));
+      }
+    });
+  });
+
   describe('#handleRespose', function() {
     beforeEach(function() {
       eventListener = jasmine.createSpy();

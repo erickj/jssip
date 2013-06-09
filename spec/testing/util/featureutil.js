@@ -20,7 +20,7 @@ jssip.testing.util.featureutil.createFeatureContext =
   var messageParserFactory =
       new jssip.message.MessageParserFactory(opt_eventBus);
   var parserRegistry = new jssip.parser.ParserRegistry(messageParserFactory);
-  var featureContext = new jssip.plugin.FeatureContext;
+  var featureContext = new jssip.plugin.FeatureContext();
   goog.mixin(featureContext, {
     getParserRegistry: function() { return parserRegistry; },
     getEventBus: function() { return opt_eventBus; },
