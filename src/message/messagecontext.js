@@ -1,5 +1,6 @@
 goog.provide('jssip.message.MessageContext');
 
+goog.require('jssip.sip.protocol.RouteSet');
 goog.require('jssip.util.PropertyHolder');
 
 
@@ -31,8 +32,11 @@ jssip.message.MessageContext.Type = {
 
 /** @enum {string} */
 jssip.message.MessageContext.PropertyName = {
-  MESSAGE: 'message',
-  TYPE: 'type'
+  DIALOG: 'mc-dialog',
+  MESSAGE: 'mc-message',
+  ROUTESET: 'mc-routset',
+  TRANSACTION: 'mc-transaction',
+  TYPE: 'mc-type'
 };
 
 
@@ -54,8 +58,28 @@ jssip.message.MessageContext.prototype.getPropertyHolder = function() {
 };
 
 
+// TODO(erick): Dialog work
 /**
- * Returns the message.
+ * Returns the dialog associated with this message.
+ * @return {!jssip.sip.protocol.Dialog} The dialog.
+ */
+jssip.message.MessageContext.prototype.getDialog = function() {
+  throw Error('Not implemented yet');
+};
+
+
+/**
+ * Returns the transaction associated with this message.
+ * @return {!jssip.sip.protocol.Transaction} The transaction.
+ */
+jssip.message.MessageContext.prototype.getTransaction = function() {
+  throw Error('Not implemented yet');
+};
+
+
+/**
+ * Returns the message.  Lazily requests the message from
+ * {@code getMessageInternal} on first access only.
  * @return {!jssip.message.Message} The message object.
  */
 jssip.message.MessageContext.prototype.getMessage = function() {
@@ -67,6 +91,22 @@ jssip.message.MessageContext.prototype.getMessage = function() {
         jssip.message.MessageContext.PropertyName.MESSAGE, message);
   }
   return /** @type {!jssip.message.Message} */ (message);
+};
+
+
+/**
+ * Returns the route set for this message, or builds one if it does not exist.
+ * @return {!jssip.sip.protocol.RouteSet} The route set.
+ */
+jssip.message.MessageContext.prototype.getRouteSet = function() {
+  var routeSet = this.propertyHolder_.get(
+      jssip.message.MessageContext.PropertyName.ROUTESET);
+  if (!routeSet) {
+    routeSet = jssip.sip.protocol.RouteSet.createFromMessageContext(this);
+    this.propertyHolder_.set(
+        jssip.message.MessageContext.PropertyName.ROUTESET, routeSet);
+  }
+  return /** @type {!jssip.sip.protocol.RouteSet} */ (routeSet);
 };
 
 
