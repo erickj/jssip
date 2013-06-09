@@ -24,7 +24,7 @@ goog.require('jssip.plugin.Feature.Event');
  *     that this feature will register for when activated.
  * @param {!Array.<string>=} opt_headers The headers this feature will provide a
  *     header parser factory for.
- * @param {!Array.<string>=} opt_schemes The URI schemes this feature will
+ * @param {!Array.<string>=} opt_uriSchemes The URI schemes this feature will
  *     provide a parser factory for.
  * @constructor
  * @implements {jssip.plugin.Feature}
@@ -120,7 +120,7 @@ jssip.plugin.AbstractFeature.prototype.activate = function(featureContext) {
  * so that implementors have a handle on the feature context, and thus the event
  * bus.
  * @param {string} headerName
- * @return {!jssip.message.HeaderParser}
+ * @return {!jssip.message.HeaderParserFactory}
  * @protected
  */
 jssip.plugin.AbstractFeature.prototype.getHeaderParserFactory =
@@ -133,7 +133,7 @@ jssip.plugin.AbstractFeature.prototype.getHeaderParserFactory =
  * activation so that implementors have a handle on the feature context, and
  * thus the event bus.
  * @param {string} uriScheme
- * @return {!jssip.uri.UriParser}
+ * @return {!jssip.uri.UriParserFactory}
  * @protected
  */
 jssip.plugin.AbstractFeature.prototype.getUriParserFactory =

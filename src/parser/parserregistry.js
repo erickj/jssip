@@ -54,8 +54,10 @@ jssip.parser.ParserRegistry.prototype.parseHeader = function(name, value) {
   if (!parserFactory) {
     throw Error('Unable to locate Header parser for header ' + name);
   }
+  var headerParser = parserFactory.createParser(value);
+  headerParser.initializeHeaderName(name);
   return /** @type {!jssip.message.Header} */ (
-      this.invokeParser_(parserFactory.createParser(name, value)));
+      this.invokeParser_(headerParser));
 };
 
 

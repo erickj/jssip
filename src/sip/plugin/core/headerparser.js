@@ -1,6 +1,7 @@
 goog.provide('jssip.sip.plugin.core.HeaderParser');
 goog.provide('jssip.sip.plugin.core.HeaderParserFactoryImpl');
 
+goog.require('goog.asserts');
 goog.require('jssip.message.Header');
 goog.require('jssip.message.Header.Builder');
 goog.require('jssip.message.HeaderParser');
@@ -26,11 +27,12 @@ goog.inherits(jssip.sip.plugin.core.HeaderParserFactoryImpl,
 
 /**
  * @override
+ * @param {string} headerValue
  * @return {!jssip.message.HeaderParser}
  */
 jssip.sip.plugin.core.HeaderParserFactoryImpl.prototype.createParser =
-    function(headerName, headerValue) {
-  var parser = new jssip.sip.plugin.core.HeaderParser(headerName, headerValue);
+    function(headerValue) {
+  var parser = new jssip.sip.plugin.core.HeaderParser(headerValue);
   this.setupParser(parser);
   return parser;
 };
@@ -38,21 +40,27 @@ jssip.sip.plugin.core.HeaderParserFactoryImpl.prototype.createParser =
 
 
 /**
- * @param {string} headerName
  * @param {string} headerValue
  * @constructor
  * @implements {jssip.message.HeaderParser}
  * @extends {jssip.parser.AbstractParser}
  */
-jssip.sip.plugin.core.HeaderParser = function(headerName, headerValue) {
+jssip.sip.plugin.core.HeaderParser = function(headerValue) {
   /** @private {string} */
-  this.headerName_ = headerName;
+  this.headerName_ = '';
 
   /** @private {string} */
   this.headerValue_ = headerValue;
 
   /** @private {!jssip.message.Header.Builder} */
   this.builder_ = new jssip.message.Header.Builder();
+};
+
+
+/** @override */
+jssip.sip.plugin.core.HeaderParser.prototype.initializeHeaderName =
+    function(headerName) {
+  this.headerName_ = headerName;
 };
 
 

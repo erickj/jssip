@@ -11,7 +11,8 @@ describe('jssip.sip.plugin.core.HeaderParser', function() {
 
   beforeEach(function() {
     fromHeaderParser = new jssip.sip.plugin.core.HeaderParser(
-        fromHeaderName, fromHeaderValue);
+        fromHeaderValue);
+    fromHeaderParser.initializeHeaderName(fromHeaderName);
   });
 
   it('should create a new header', function() {

@@ -12,7 +12,7 @@ describe('jssip.parser.ParserRegistry', function() {
 
   beforeEach(function() {
     eventTarget = new goog.events.EventTarget();
-    parser = jasmine.createSpyObj('messageParser', ['parse']);
+    parser = jasmine.createSpyObj('messageParser', ['parse', 'initializeHeaderName']);
     parser.parse.andReturn({});
     parserFactory = {
       createParser: jasmine.createSpy().andReturn(parser)
@@ -36,7 +36,8 @@ describe('jssip.parser.ParserRegistry', function() {
         var value = 'val';
         registry.registerHeaderParserFactory(name, parserFactory);
         registry.parseHeader(name, value);
-        expect(parserFactory.createParser).toHaveBeenCalledWith(name, value);
+        expect(parserFactory.createParser).toHaveBeenCalledWith(value);
+        expect(parser.initializeHeaderName).toHaveBeenCalledWith(name);
         expect(parser.parse).toHaveBeenCalled();
       });
 

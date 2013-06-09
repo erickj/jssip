@@ -28,6 +28,6 @@ jssip.parser.AbstractParserFactory.prototype.setupParser = function(parser) {
 /**
  * Create the parser.
  * @param {string} text The text to parse.
- * @return {!jssip.parser.AbstractParser}
+ * @return {!jssip.parser.Parser}
  */
 jssip.parser.AbstractParserFactory.prototype.createParser = goog.abstractMethod;
