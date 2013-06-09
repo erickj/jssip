@@ -11532,6 +11532,7 @@ jssip.sip.grammar.rfc3261 = (function(){
     },
     
     /* Returns the parser source code. */
+_source: '', // Fixup for closure-compiler
     toSource: function() { return this._source; }
   };
   

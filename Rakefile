@@ -73,21 +73,32 @@ namespace :build do
     Dir.glob(File.join(GRAMMAR_DIR, '*.pegjs')).each do |f|
       basename = File.basename(f, '.pegjs')
       provided_ns = '%s.%s'%[ns, basename]
-      output = GRAMMAR_DIR + '/%s.autogen.js'%basename
-      cmd = '%s -e %s %s %s'%[PEGJS, provided_ns, f, output]
+      output_file = GRAMMAR_DIR + '/%s.autogen.js'%basename
+      cmd = '%s -e %s %s %s'%[PEGJS, provided_ns, f, output_file]
       puts cmd
       %x{#{cmd}}
 
       # Prepends one line to a file
       sed_cmd = 'sed -i -e "1s/^/%s/" %s'
-      %x{#{sed_cmd%[goog_type_annotation, output]}}
+      %x{#{sed_cmd%[goog_type_annotation, output_file]}}
 
+      # Add goog.provide header
       tmp_banner = goog_provide_banner%provided_ns
-      %x{#{sed_cmd%[tmp_banner, output]}}
+      %x{#{sed_cmd%[tmp_banner, output_file]}}
 
+      # Adds autogen statement
       banners.reverse_each do |banner|
-        %x{#{sed_cmd%[banner, output]}}
+        %x{#{sed_cmd%[banner, output_file]}}
       end
+
+      # Fixup closure compiler error with pegjs parsers, the #toSource method is
+      # added and returns {@code this._source}, but _source is never defined.
+      # The compiler complains about this.
+      sed_match = '\(\\/\\* Returns the parser source code. \\*\\/\)'
+      sed_replace = '\1\\n_source: \'\', \\/\\/ Fixup for closure-compiler'
+      sed_exp = "s/%s/%s/g"%[sed_match, sed_replace]
+      sed_cmd = 'sed -i -e "%s" %s'%[sed_exp, output_file]
+      %x{#{sed_cmd}}
     end
   end
 
