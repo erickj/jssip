@@ -61,6 +61,56 @@ describe('jssip.sip.grammar.rfc3261', function() {
     }))
   });
 
+  describe('Grammar Primitives', function() {
+    var startRuleToValueMap = {
+      'SIP_URI': [
+        'sip:alice@atlanta.com',
+        'sip:alice:secretword@atlanta.com;transport=tcp',
+        'sips:alice@atlanta.com?subject=project%20x&priority=urgent',
+        'sip:+1-212-555-1212:1234@gateway.com;user=phone',
+        'sips:1212@gateway.com',
+        'sip:alice@192.0.2.4',
+        'sip:atlanta.com;method=REGISTER?to=alice%40atlanta.com',
+        'sip:alice;day=tuesday@atlanta.com'
+      ],
+      'name_addr': [
+        '"Erick" <sip:erick@foo.com>',
+        '"Erick" <sip:erick@foo.com;x=y>',
+        '<sip:erick@foo.com>',
+        '"Erick" <sip:erick@foo.com;x=y?h1=v1>',
+        'Erick <sip:erick@foo.com>'
+      ],
+      'addr_spec': [
+        'sip:erick@foo.com'
+      ]
+    };
+
+    // The pegjs defines addr_spec as SIP_URI_noparams, this gets optimized away
+    // so that there is no addr_spec start rule after building the grammar.
+    var startRuleMapping = {
+      'addr_spec': 'SIP_URI_noparams'
+    };
+
+    for (var startRule in startRuleToValueMap) {
+      var suiteName = "%s specs".replace('%s', startRule);
+      describe(suiteName, function(startRule) {
+        return function() {
+          it('should parse valid values', function() {
+            var values = startRuleToValueMap[startRule];
+            for (var i = 0; i < values.length; i++) {
+              var value = values[i];
+              var parsedValue;
+              expect(function() {
+                var actualStartRule = startRuleMapping[startRule] || startRule
+                parsedValue = parser.parse(value, actualStartRule);
+              }).not.toThrow();
+            };
+          });
+        };
+      }(startRule));
+    };
+  });
+
   // Apply all of the following specs to both To and From headers
   describe('From and To headers', function() {
     var headers = ['To', 'From'];

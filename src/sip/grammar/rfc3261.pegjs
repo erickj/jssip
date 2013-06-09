@@ -93,7 +93,7 @@ SIP_URI_noparams  = uri_scheme ":"  userinfo ? hostport { return input.substring
 
 SIP_URI         = uri_scheme ":"  userinfo ? hostport uri_parameters headers ? { return input.substring(pos, offset); }
 
-uri_scheme      = uri_scheme:  "sip"i
+uri_scheme      = ( "sips"i / "sip"i )
 
 userinfo        = user (":" password)? "@"
 
