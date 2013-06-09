@@ -160,14 +160,25 @@ task :lint, [:dir] do |t, args|
   dir = JS_DIR
   dir += "/#{args[:dir]}" if args[:dir]
   excludes = File.read(GJSLINT_EXCLUDES).split("\n").map do |f|
-    f.match(/^\s*#/) ? nil : File.join(JS_DIR, f)
+    f.match(/^\s*#/) ? nil : File.join(BASE_DIR, f)
   end.compact.join(',') rescue ''
-  puts %x{#{GJSLINT} --strict --exclude_files=#{excludes} -r #{dir}}
+  cmd_opts = [
+              "--closurized_namespaces=#{NAMESPACE}",
+              "--strict",
+              "--exclude_files=#{excludes}",
+              "--unix_mode",
+              "--time",
+              "-r #{dir}"
+             ]
+  cmd = "#{GJSLINT} " + cmd_opts.join(' ')
+  puts "Running gjslint with:"
+  puts cmd
+  puts %x{#{cmd}}
 end
 
 
 desc 'Run tests and build'
-task :test => [:init, :lint, :'test:rhino', :'test:genspecs', :'test:specs']
+task :test => [:clean, :init, :'test:rhino', :'test:genspecs', :'test:specs']
 
 namespace :test do
   desc 'Load endpoint.js into Rhino to check for warnings and fatal errors'
