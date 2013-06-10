@@ -2,4 +2,5 @@
 # This file is used by rake task 'lint', to populate the --exclude_files option.
 # Full file names must be used until I do some work to use the
 # --exclude_directories option.
+src/sip/grammar/pegutil.js
 src/sip/grammar/rfc3261.autogen.js
