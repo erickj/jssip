@@ -3,12 +3,18 @@ goog.provide('jssip.sip.protocol.RouteSet');
 
 
 /**
- * @param {!Array.<string>} routes
+ * @param {!Array.<!jssip.sip.protocol.NameAddr>} routes
  * @constructor
  */
 jssip.sip.protocol.RouteSet = function(routes) {
-  /** @private {!Array.<string>} */
+  /** @private {!Array.<!jssip.sip.protocol.NameAddr>} */
   this.routes_ = routes;
+};
+
+
+/** @return {boolean} */
+jssip.sip.protocol.RouteSet.prototype.isEmpty = function() {
+  return this.routes_.length == 0;
 };
 
 
