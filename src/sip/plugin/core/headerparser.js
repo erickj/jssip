@@ -8,7 +8,7 @@ goog.require('jssip.message.HeaderParserFactory');
 goog.require('jssip.parser.AbstractParserFactory');
 goog.require('jssip.parser.ParseError');
 goog.require('jssip.sip.grammar.rfc3261');
-goog.require('jssip.sip.grammar.rfc3261.SyntaxError');
+goog.require('jssip.sip.grammar.pegutil.SyntaxError');
 
 
 
@@ -73,7 +73,7 @@ jssip.sip.plugin.core.HeaderParser.prototype.parse = function() {
     var result =
         jssip.sip.grammar.rfc3261.parse(this.headerValue_, this.headerName_);
   } catch (e) {
-    if (e instanceof jssip.sip.grammar.rfc3261.SyntaxError) {
+    if (e instanceof jssip.sip.grammar.pegutil.SyntaxError) {
       throw new jssip.parser.ParseError(e.message);
     }
     throw e;
