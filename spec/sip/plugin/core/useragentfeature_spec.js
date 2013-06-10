@@ -8,6 +8,9 @@ goog.require('jssip.sip.plugin.core.UserAgentFeature');
 goog.require('jssip.sip.protocol.rfc3261');
 goog.require('jssip.testing.util.featureutil');
 goog.require('jssip.testing.util.messageutil');
+goog.require('jssip.uri.Uri');
+goog.require('jssip.uri.Uri.Builder');
+
 
 describe('jssip.sip.plugin.core.UserAgentFeature', function() {
   var rfc3261 = jssip.sip.protocol.rfc3261;
