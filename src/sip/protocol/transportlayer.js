@@ -18,7 +18,11 @@ jssip.sip.protocol.TransportLayer.EventType = {
 
 
 /**
- * Sends a message to the network.
- * @param {!jssip.message.MessageContext} messageContext
+ * Sends a message to the network. Returns a deferred that represents the
+ * eventual acknowledgement the request was sent or an error occurred in
+ * transmission.  This does NOT indicate the response at the application (SIP)
+ * level.
+ * @param {!jssip.message.BuilderMessageContext} messageContext
+ * @return {!goog.async.Deferred}
  */
 jssip.sip.protocol.TransportLayer.prototype.send = goog.abstractMethod;
