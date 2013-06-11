@@ -23,8 +23,37 @@ describe('jssip.uri.Uri', function() {
       expect(uri.get(jssip.uri.Uri.PropertyName.HOST)).toEqual('foo.com');
     });
 
-    it('should return null for unset properties', function() {
-      expect(uri.get(jssip.uri.Uri.PropertyName.USER)).toBe(null);
+    it('should return \'\' for unset properties', function() {
+      expect(uri.get(jssip.uri.Uri.PropertyName.USER)).toBe('');
+    });
+  });
+
+  describe('syntax sugar', function() {
+    it('#getHost should get the host', function() {
+      expect(uri.getHost()).toEqual('foo.com');
+    });
+
+    it('#getScheme should get the scheme', function() {
+      expect(uri.getScheme()).toEqual('xyz');
+    });
+
+    it('#isSecure should return true for SIPS URIs', function() {
+      expect(uri.isSecure()).toBe(false);
+
+      var secureUri = new jssip.uri.Uri.Builder().
+        addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sips').
+        addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'foo.com').build();
+      expect(secureUri.isSecure()).toBe(true);
+    });
+
+    it('#getPort should get the port', function() {
+      expect(isNaN(uri.getPort())).toBe(true);
+
+      var portUri = new jssip.uri.Uri.Builder().
+        addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sips').
+        addPropertyPair(jssip.uri.Uri.PropertyName.PORT, 9999).
+        addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'foo.com').build();
+      expect(portUri.getPort()).toBe(9999);
     });
   });
 

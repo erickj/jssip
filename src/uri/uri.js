@@ -1,6 +1,7 @@
 goog.provide('jssip.uri.Uri');
 goog.provide('jssip.uri.Uri.Builder');
 
+goog.require('goog.string');
 goog.require('jssip.util.PropertyHolder');
 
 
@@ -25,11 +26,11 @@ goog.inherits(jssip.uri.Uri, jssip.util.PropertyHolder);
 
 /**
  * @override
- * @return {?string}
+ * @return {string}
  */
 jssip.uri.Uri.prototype.get = function(propertyName) {
   var val = goog.base(this, 'get', propertyName);
-  return goog.isDefAndNotNull(val) ? /** @type {string} */ (val) : null;
+  return goog.isDefAndNotNull(val) ? /** @type {string} */ (val) : '';
 };
 
 
@@ -51,6 +52,30 @@ jssip.uri.Uri.Scheme = {
   SIP: 'sip',
   SIPS: 'sips',
   TEL: 'tel'
+};
+
+
+/** @return {string} */
+jssip.uri.Uri.prototype.getHost = function() {
+  return this.get(jssip.uri.Uri.PropertyName.HOST);
+};
+
+
+/** @return {string} */
+jssip.uri.Uri.prototype.getScheme = function() {
+  return this.get(jssip.uri.Uri.PropertyName.SCHEME);
+};
+
+
+/** @return {boolean} */
+jssip.uri.Uri.prototype.isSecure = function() {
+  return this.getScheme() == jssip.uri.Uri.Scheme.SIPS;
+};
+
+
+/** @return {number} */
+jssip.uri.Uri.prototype.getPort = function() {
+  return goog.string.parseInt(this.get(jssip.uri.Uri.PropertyName.PORT));
 };
 
 
