@@ -112,6 +112,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
 
   this.dispatchEvent(this.createEvent_(builderMessageContext,
       jssip.sip.protocol.UserAgentClient.EventType.CREATE_REQUEST));
+  return builderMessageContext;
 };
 
 
@@ -311,7 +312,7 @@ jssip.sip.plugin.core.UserAgentFeature.Facade_ = function(delegate) {
 /** @override */
 jssip.sip.plugin.core.UserAgentFeature.Facade_.prototype.createRequest =
     function(messageBuilder, method, toUri) {
-  this.delegate_.createRequest(messageBuilder, method, toUri);
+  return this.delegate_.createRequest(messageBuilder, method, toUri);
 };
 
 
