@@ -1,22 +1,22 @@
-goog.provide('jssip.uri.SipUriParserSpec');
+goog.provide('jssip.sip.plugin.core.SipUriParserSpec');
 
 goog.require('jssip.uri.Uri');
 goog.require('jssip.uri.Uri.Builder');
-goog.require('jssip.uri.SipUriParser');
-goog.require('jssip.uri.SipUriParserFactory');
+goog.require('jssip.sip.plugin.core.SipUriParser');
+goog.require('jssip.sip.plugin.core.SipUriParserFactory');
 
-describe('jssip.uri.SipUriParser', function() {
+describe('jssip.sip.plugin.core.SipUriParser', function() {
   var sipUriParser;
   var sipUriParserFactory;
 
   beforeEach(function() {
-    sipUriParserFactory = new jssip.uri.SipUriParserFactory();
+    sipUriParserFactory = new jssip.sip.plugin.core.SipUriParserFactory();
   });
 
-  describe('jssip.uri.SipUriParserFactory#create', function() {
+  describe('jssip.sip.plugin.core.SipUriParserFactory#create', function() {
     it('should create a SipUriParser', function() {
       var parser = sipUriParserFactory.createParser('');
-      expect(parser instanceof jssip.uri.SipUriParser).toBe(true);
+      expect(parser instanceof jssip.sip.plugin.core.SipUriParser).toBe(true);
     });
   });
 

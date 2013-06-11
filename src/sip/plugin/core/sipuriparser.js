@@ -1,5 +1,5 @@
-goog.provide('jssip.uri.SipUriParser');
-goog.provide('jssip.uri.SipUriParserFactory');
+goog.provide('jssip.sip.plugin.core.SipUriParser');
+goog.provide('jssip.sip.plugin.core.SipUriParserFactory');
 
 goog.require('jssip.parser.AbstractParser');
 goog.require('jssip.parser.AbstractParserFactory');
@@ -12,25 +12,25 @@ goog.require('jssip.uri.UriParserFactory');
 
 /**
  * Factory for building URI parsers.
- * @param {!goog.events.EventTarget} eventTarget The event target to use as the
- *     parent event target for created parsers.
+ * @param {!jssip.event.EventBus} eventBus
  * @constructor
  * @implements {jssip.uri.UriParserFactory}
  * @extends {jssip.parser.AbstractParserFactory}
  */
-jssip.uri.SipUriParserFactory = function(eventTarget) {
-  goog.base(this, eventTarget);
+jssip.sip.plugin.core.SipUriParserFactory = function(eventBus) {
+  goog.base(this, eventBus);
 };
-goog.inherits(
-    jssip.uri.SipUriParserFactory, jssip.parser.AbstractParserFactory);
+goog.inherits(jssip.sip.plugin.core.SipUriParserFactory,
+    jssip.parser.AbstractParserFactory);
 
 
 /**
  * @override
  * @return {!jssip.uri.SipParser} The SIP URI parser.
  */
-jssip.uri.SipUriParserFactory.prototype.createParser = function(uri) {
-  var parser = new jssip.uri.SipUriParser(uri);
+jssip.sip.plugin.core.SipUriParserFactory.prototype.createParser =
+    function(uri) {
+  var parser = new jssip.sip.plugin.core.SipUriParser(uri);
   this.setupParser(parser);
   return parser;
 };
@@ -48,13 +48,13 @@ jssip.uri.SipUriParserFactory.prototype.createParser = function(uri) {
  * @implements {jssip.uri.UriParser}
  * @extends {jssip.parser.AbstractParser}
  */
-jssip.uri.SipUriParser = function(rawUri) {
+jssip.sip.plugin.core.SipUriParser = function(rawUri) {
   goog.base(this, rawUri);
 
   /** @private {!jssip.uri.Uri.Builder} */
   this.builder_ = new jssip.uri.Uri.Builder();
 };
-goog.inherits(jssip.uri.SipUriParser, jssip.parser.AbstractParser);
+goog.inherits(jssip.sip.plugin.core.SipUriParser, jssip.parser.AbstractParser);
 
 
 /**
@@ -70,7 +70,7 @@ goog.inherits(jssip.uri.SipUriParser, jssip.parser.AbstractParser);
  * @const
  * @private {!RegExp}
  */
-jssip.uri.SipUriParser.regEx_ = new RegExp(
+jssip.sip.plugin.core.SipUriParser.regEx_ = new RegExp(
     '^(sip[s]?)[:]' +                   // scheme
     '(?:([^:@]*)(?:[:]([^@]*))?[@])?' + // user/password
     '([^:;?]+)' +                       // host
@@ -81,7 +81,7 @@ jssip.uri.SipUriParser.regEx_ = new RegExp(
 
 
 /** @private {!Array.<jssip.uri.Uri.PropertyName} */
-jssip.uri.SipUriParser.propertyNamePositionList_ = [
+jssip.sip.plugin.core.SipUriParser.propertyNamePositionList_ = [
   undefined,
   jssip.uri.Uri.PropertyName.SCHEME,
   jssip.uri.Uri.PropertyName.USER,
@@ -98,14 +98,15 @@ jssip.uri.SipUriParser.propertyNamePositionList_ = [
  * @return {!jssip.uri.Uri} The parsed URI.
  * @throws {jssip.parser.ParseError}
  */
-jssip.uri.SipUriParser.prototype.parse = function() {
+jssip.sip.plugin.core.SipUriParser.prototype.parse = function() {
   var rawSipUri = this.getRawText();
-  var parts = rawSipUri.match(jssip.uri.SipUriParser.regEx_);
+  var parts = rawSipUri.match(jssip.sip.plugin.core.SipUriParser.regEx_);
   if (!parts) {
     throw new jssip.parser.ParseError('Unable to parse SIP URI ' + rawSipUri);
   }
 
-  var propertyPositionList = jssip.uri.SipUriParser.propertyNamePositionList_;
+  var propertyPositionList =
+      jssip.sip.plugin.core.SipUriParser.propertyNamePositionList_;
   for (var i = 1; i < propertyPositionList.length; i++) {
     if (parts[i]) {
       this.builder_.addPropertyPair(propertyPositionList[i], parts[i]);
