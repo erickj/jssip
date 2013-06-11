@@ -225,6 +225,8 @@ task :lint, [:dir] do |t, args|
 end
 
 
+# Note: test:specs calls an explicit exit, any tests added after test:specs
+# won't run
 desc 'Run tests and build'
 task :test => [:clean, :init, :'test:rhino', :'test:genspecs', :'test:specs']
 
@@ -246,7 +248,12 @@ namespace :test do
   task :spec, :target do |t, args|
     target = args[:target]
     target = Utils.specize_target_name(Utils.normalize_target_name(target))
-    Utils.run_spec(target)
+    exitstatus = Utils.run_spec(target)
+    if exitstatus > 0
+      puts
+      puts '!!! Spec failed: %s'%target
+    end
+    exit exitstatus
   end
 
   desc 'Run all specs for [namespace] or jssip'
@@ -255,12 +262,26 @@ namespace :test do
     specs_dir = TEST_BUILD_DIR
     puts specs_dir
 
+    failed_test_targets = []
     puts "Running specs for namespace [#{ns}]"
     puts
     Dir.glob(File.join(specs_dir, ns + "*.html")) do |file|
       target = file.split('/').last.gsub('.html','')
-      Utils.run_spec(target)
+      if Utils.run_spec(target) > 0
+        failed_test_targets << target
+      end
     end
+
+    unless failed_test_targets.empty?
+      puts
+      puts '!!! Specs failed: %s'%[failed_test_targets.join("\n")]
+    else
+      puts
+      puts 'Horray! \0/ All specs passed!'
+    end
+    # TODO: this will break things if other tests include this as a dependency
+    # (I think it's ok for the default test case since this runs last)
+    exit failed_test_targets.length
   end
 
   desc 'Generate spec runner for [target]'
@@ -454,7 +475,9 @@ EOS
   def self.run_spec(target)
     spec_url = TEST_PROTOCOL + File.join(TEST_BUILD_DIR, "#{target}.html")
     puts "Running Spec for #{target}"
+    puts "#{PHANTOMJS_RUNNER} #{spec_url}"
     puts %x{#{PHANTOMJS_RUNNER} #{spec_url}}
+    $?.exitstatus
   end
 
   def self.write_deps(path, build_args)
