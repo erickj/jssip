@@ -10,9 +10,11 @@ goog.require('jssip.plugin.FeatureFacade');
 goog.require('jssip.sip.UserAgent');
 goog.require('jssip.sip.event.MessageEvent');
 goog.require('jssip.sip.plugin.core.HeaderParserFactoryImpl');
+goog.require('jssip.sip.plugin.core.SipUriParserFactory');
 goog.require('jssip.sip.protocol.UserAgentClient');
 goog.require('jssip.sip.protocol.UserAgentServer');
 goog.require('jssip.sip.protocol.rfc3261');
+goog.require('jssip.uri.Uri');
 
 
 
@@ -32,8 +34,13 @@ jssip.sip.plugin.core.UserAgentFeature = function(name) {
    * @private {!Object}
    * @suppress {missingRequire}
    */
-  this.headerSet_ = goog.object.transpose(
+  this.headerParserSet_ = goog.object.transpose(
       jssip.sip.protocol.rfc3261.HeaderType);
+
+  /** @private {!Object} */
+  this.uriParserSet_ = {};
+  this.uriParserSet_[jssip.uri.Uri.Scheme.SIP] = true;
+  this.uriParserSet_[jssip.uri.Uri.Scheme.SIPS] = true;
 
   var featureTypes = [
     jssip.sip.UserAgent.CoreFeatureType.USERAGENTCLIENT,
@@ -41,7 +48,8 @@ jssip.sip.plugin.core.UserAgentFeature = function(name) {
   ];
 
   goog.base(this, name, this.facade_, undefined /* opt_eventHandlerMap */,
-      featureTypes, goog.object.getKeys(this.headerSet_));
+      featureTypes, goog.object.getKeys(this.headerParserSet_),
+      goog.object.getKeys(this.uriParserSet_));
 };
 goog.inherits(
     jssip.sip.plugin.core.UserAgentFeature, jssip.plugin.AbstractFeature);
@@ -51,7 +59,7 @@ goog.inherits(
 jssip.sip.plugin.core.UserAgentFeature.prototype.getHeaderParserFactory =
     function(name) {
   var eventBus = this.getFeatureContext().getEventBus();
-  if (!this.headerSet_[name]) {
+  if (!this.headerParserSet_[name]) {
     throw Error('Unsupported header: ' + name);
   }
   if (!this.headerParserFactory_) {
@@ -59,6 +67,17 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.getHeaderParserFactory =
         new jssip.sip.plugin.core.HeaderParserFactoryImpl(eventBus);
   }
   return this.headerParserFactory_;
+};
+
+
+/** @override */
+jssip.sip.plugin.core.UserAgentFeature.prototype.getUriParserFactory =
+    function(scheme) {
+  var eventBus = this.getFeatureContext().getEventBus();
+  if (!this.uriParserSet_[scheme]) {
+    throw Error('Unsupported URI scheme: ' + scheme);
+  }
+  return new jssip.sip.plugin.core.SipUriParserFactory(eventBus);
 };
 
 

@@ -27,7 +27,7 @@ goog.inherits(jssip.sip.plugin.core.SipUriParserFactory,
 
 /**
  * @override
- * @return {!jssip.uri.SipParser} The SIP URI parser.
+ * @return {!jssip.uri.UriParser}
  */
 jssip.sip.plugin.core.SipUriParserFactory.prototype.createParser =
     function(uri) {
@@ -81,7 +81,7 @@ jssip.sip.plugin.core.SipUriParser.regEx_ = new RegExp(
     );
 
 
-/** @private {!Array.<jssip.uri.Uri.PropertyName} */
+/** @private {!Array.<jssip.uri.Uri.PropertyName>} */
 jssip.sip.plugin.core.SipUriParser.propertyNamePositionList_ = [
   undefined,
   jssip.uri.Uri.PropertyName.SCHEME,

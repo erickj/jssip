@@ -14,7 +14,7 @@ goog.require('jssip.util.PropertyHolder');
 jssip.uri.Uri = function(builder) {
   goog.base(this, builder.propertyMap_);
 
-  /** @private {!jssip.uri.UriParser} */
+  /** @private {jssip.uri.UriParser} */
   this.uriParser_ = builder.uriParser_;
 
   /** @private {Object.<(string|boolean)>} */
