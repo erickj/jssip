@@ -249,10 +249,13 @@ namespace :test do
     target = args[:target]
     target = Utils.specize_target_name(Utils.normalize_target_name(target))
     exitstatus = Utils.run_spec(target)
+    puts
     if exitstatus > 0
-      puts
       puts '!!! Spec failed: %s'%target
+    else
+      puts '=== Horray! \o/ All specs passed ==='
     end
+    puts
     exit exitstatus
   end
 
@@ -272,13 +275,13 @@ namespace :test do
       end
     end
 
+    puts
     unless failed_test_targets.empty?
-      puts
       puts '!!! Specs failed: %s'%[failed_test_targets.join("\n")]
     else
-      puts
-      puts 'Horray! \0/ All specs passed!'
+      puts '=== Horray! \o/ All specs passed ==='
     end
+    puts
     # TODO: this will break things if other tests include this as a dependency
     # (I think it's ok for the default test case since this runs last)
     exit failed_test_targets.length
