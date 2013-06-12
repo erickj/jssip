@@ -75,6 +75,21 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     });
   });
 
+  describe('#getUriParserFactory', function() {
+    it('should throw if the scheme is not SIP or SIPS', function() {
+      expect(function() {
+        userAgentFeature.getUriParserFactory('foo');
+      }).toThrow();
+    });
+
+    it('should return a SipUriParserFactory for SIP and SIPS schemes', function() {
+      expect(userAgentFeature.getUriParserFactory(jssip.uri.Uri.Scheme.SIP)).
+          toEqual(jasmine.any(jssip.sip.plugin.core.SipUriParserFactory));
+      expect(userAgentFeature.getUriParserFactory(jssip.uri.Uri.Scheme.SIPS)).
+          toEqual(jasmine.any(jssip.sip.plugin.core.SipUriParserFactory));
+    });
+  });
+
   describe('#handleRespose', function() {
     beforeEach(function() {
       eventListener = jasmine.createSpy();
