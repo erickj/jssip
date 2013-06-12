@@ -20,6 +20,28 @@ describe('jssip.sip.plugin.core.SipUriParser', function() {
     });
   });
 
+  describe('#parseParameters', function() {
+    var parameterString = 'abc=def;transport=udp;truthy';
+    var parser;
+
+    beforeEach(function() {
+      parser = sipUriParserFactory.createParser('');
+    });
+
+    it('should parse parameters without leading semicolon', function() {
+      var result = parser.parseParameters(parameterString);
+      expect(result['x']).toBe('y');
+      expect(result['abc']).toBe('def');
+      expect(result['transport']).toBe('udp');
+      expect(result['truthy']).toBe(true);
+    });
+
+    it('should parse parameters with a leading semicolon', function() {
+      var result = parser.parseParameters('x=y');
+      expect(result['x']).toBe('y');
+    });
+  });
+
   describe('#parse', function() {
     var makeUriBuilder = function() {
       return new jssip.uri.Uri.Builder();

@@ -57,6 +57,77 @@ describe('jssip.uri.Uri', function() {
     });
   });
 
+  describe('parameters', function() {
+    var paramString;
+    var parsedParameters;
+    var uriParser;
+    var uriWithParamParser;
+
+    beforeEach(function() {
+      parsedParameters = {falsy: false, truthy: true, str: 'a string'};
+
+      uriParser = /** @type {!jssip.uri.UriParser} */ ({});
+      goog.mixin(uriParser, {
+        parseParameters: jasmine.createSpy()
+      });
+      uriParser.parseParameters.andReturn(parsedParameters);
+
+      paramString = 'xyz';
+      uriWithParamParser =  new jssip.uri.Uri.Builder().
+        addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sips').
+        addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'foo.com').
+        addPropertyPair(jssip.uri.Uri.PropertyName.PARAMETERS, paramString).
+        addUriParser(uriParser).build();
+    });
+
+    describe('#getParameters', function() {
+      it('should throw an error if there is no parser', function() {
+        expect(function() {
+          uri.getParameters();
+        }).toThrow();
+      });
+
+      it('should return the parsed parameters in a URI if set', function() {
+        var result = uriWithParamParser.getParameters();
+        expect(uriParser.parseParameters).toHaveBeenCalledWith(paramString);
+        expect(result).toBe(parsedParameters);
+      });
+
+      it('should return an empty object if there are no parameters', function() {
+        var uriWithoutParams =  new jssip.uri.Uri.Builder().
+            addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sips').
+            addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'foo.com').
+            addUriParser(uriParser).build();
+        expect(uriWithoutParams.getParameters()).toEqual({});
+        expect(uriParser.parseParameters).not.toHaveBeenCalled();
+      });
+
+      it('should only call in to UriParser#parseParameters once', function() {
+        var result = uriWithParamParser.getParameters();
+        expect(uriWithParamParser.getParameters()).toBe(result);
+        expect(uriParser.parseParameters.calls.length).toBe(1);
+      });
+    });
+
+    describe('#getParameter', function() {
+      it('it should get the value of a parameter', function() {
+        expect(uriWithParamParser.getParameter('falsy')).toBe(false);
+        expect(uriWithParamParser.getParameter('truthy')).toBe(true);
+        expect(uriWithParamParser.getParameter('str')).toBe('a string');
+        expect(uriWithParamParser.getParameter('undef')).toBe(undefined);
+      });
+    });
+
+    describe('##hasParameter', function() {
+      it('should show a uri has a parameter', function() {
+        expect(uriWithParamParser.hasParameter('falsy')).toBe(true);
+        expect(uriWithParamParser.hasParameter('truthy')).toBe(true);
+        expect(uriWithParamParser.hasParameter('str')).toBe(true);
+        expect(uriWithParamParser.hasParameter('undef')).toBe(false);
+      });
+    });
+  });
+
   describe('new', function(){
     it('should throw an error if scheme is not set', function() {
       var badBuilder = new jssip.uri.Uri.Builder();
@@ -71,7 +142,7 @@ describe('jssip.uri.Uri', function() {
     it('should throw an error if host is not set', function() {
       var badBuilder = new jssip.uri.Uri.Builder();
       badBuilder.
-          addPropertyPair(jssip.uri.Uri.PropertyName.SCHEM, 'sip');
+          addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip');
 
       expect(function() {
         badBuilder.build()

@@ -25,3 +25,10 @@ jssip.uri.UriParserFactory.prototype.createParser = function(uri) {};
  * @extends {jssip.parser.Parser}
  */
 jssip.uri.UriParser = function() {};
+
+
+/**
+ * @param {string} uriParameters
+ * @return {!Object.<(string|boolean)>} The parsed parameters
+ */
+jssip.uri.UriParser.prototype.parseParameters = goog.abstractMethod;

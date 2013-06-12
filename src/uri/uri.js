@@ -14,6 +14,12 @@ goog.require('jssip.util.PropertyHolder');
 jssip.uri.Uri = function(builder) {
   goog.base(this, builder.propertyMap_);
 
+  /** @private {!jssip.uri.UriParser} */
+  this.uriParser_ = builder.uriParser_;
+
+  /** @private {Object.<(string|boolean)>} */
+  this.parsedParameters_ = null;
+
   if (!this.get(jssip.uri.Uri.PropertyName.SCHEME)) {
     throw Error('Unable to set URI without a scheme');
   }
@@ -67,6 +73,9 @@ jssip.uri.Uri.prototype.getScheme = function() {
 };
 
 
+// TODO(erick): Maybe use the uriParser_ to provide what the secure scheme is
+// for this uri... and other values.  For instance an HTTP parser would indicate
+// HTTPS as the secure protocol.
 /** @return {boolean} */
 jssip.uri.Uri.prototype.isSecure = function() {
   return this.getScheme() == jssip.uri.Uri.Scheme.SIPS;
@@ -79,9 +88,43 @@ jssip.uri.Uri.prototype.getPort = function() {
 };
 
 
-// TODO(erick): Should create a UriSerialier superclass and subclass with
-// serializers for each known scheme.  Then instead of using uri.toString call
-// Serializer#serialize(uri), and dispatch based on URI scheme.
+/** @return {!Object.<(string|boolean)>} */
+jssip.uri.Uri.prototype.getParameters = function() {
+  if (!this.parsedParameters_) {
+    if (!this.uriParser_) {
+      throw Error('Unable to parse parameters without URI parser');
+    }
+    var params = this.get(jssip.uri.Uri.PropertyName.PARAMETERS);
+    this.parsedParameters_ = params ?
+        this.uriParser_.parseParameters(params) : {};
+  }
+  return this.parsedParameters_;
+};
+
+
+/**
+ * Returns a parameters value or undefined.
+ * @param {string} parameterName
+ * @return {(string|boolean|undefined)}
+ */
+jssip.uri.Uri.prototype.getParameter = function(parameterName) {
+  return this.getParameters()[parameterName];
+};
+
+
+/**
+ * Returns true if the parameter name exists in this URI's parameter list,
+ * regardless of value.
+ * @param {string} parameterName
+ * @return {boolean}
+ */
+jssip.uri.Uri.prototype.hasParameter = function(parameterName) {
+  return goog.isDef(this.getParameter(parameterName));
+};
+
+
+// TODO(erick): Can reuse uriParser probably to reassemble this URI into a
+// string.
 /**
  * Turns a URI into a string.
  * @return {string} The serialized URI.
@@ -126,6 +169,9 @@ jssip.uri.Uri.prototype.toString = function() {
 jssip.uri.Uri.Builder = function() {
   /** @private {!Object.<jssip.uri.Uri.PropertyName, string>} */
   this.propertyMap_ = {};
+
+  /** @private {jssip.uri.UriParser} */
+  this.uriParser_ = null;
 };
 
 
@@ -138,6 +184,18 @@ jssip.uri.Uri.Builder = function() {
 jssip.uri.Uri.Builder.prototype.addPropertyPair =
     function(propertyName, value) {
   this.propertyMap_[propertyName] = value;
+  return this;
+};
+
+
+/**
+ * Adds the parser for this uri.
+ * @param {!jssip.uri.UriParser} uriParser The parser to use for field specific
+ *     parsing.
+ * @return {!jssip.uri.Uri.Builder}
+ */
+jssip.uri.Uri.Builder.prototype.addUriParser = function(uriParser) {
+  this.uriParser_ = uriParser;
   return this;
 };
 

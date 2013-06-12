@@ -4,6 +4,7 @@ goog.provide('jssip.sip.plugin.core.SipUriParserFactory');
 goog.require('jssip.parser.AbstractParser');
 goog.require('jssip.parser.AbstractParserFactory');
 goog.require('jssip.parser.ParseError');
+goog.require('jssip.sip.grammar.rfc3261');
 goog.require('jssip.uri.Uri');
 goog.require('jssip.uri.UriParser');
 goog.require('jssip.uri.UriParserFactory');
@@ -114,4 +115,26 @@ jssip.sip.plugin.core.SipUriParser.prototype.parse = function() {
   }
 
   return this.builder_.build();
+};
+
+
+/** @override */
+jssip.sip.plugin.core.SipUriParser.prototype.parseParameters =
+    function(parameters) {
+  var splitParameters = parameters.split(';');
+  var result = {};
+  for (var i = 0; i < splitParameters.length; i++) {
+    var nameValuePair = splitParameters[i].split('=');
+    if (nameValuePair.length == 0) {
+      continue;
+    } else if (nameValuePair.length == 2) {
+      result[nameValuePair[0]] = nameValuePair[1];
+    } else if (nameValuePair.length == 1) {
+      result[nameValuePair[0]] = true;
+    } else {
+      throw new jssip.parser.ParseError(
+          'Unknown parameter value: ' + nameValuePair.toString());
+    }
+  }
+  return result;
 };
