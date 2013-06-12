@@ -11,6 +11,6 @@ jssip.net.Resolver = function() {};
 /**
  * @param {string} domain
  * @param {jssip.net.ResourceRecord.RecordType} rrtype
- * @return {!goog.async.Deferred}
+ * @return {!jssip.async.Promise.<!jssip.net.ResourceRecord>}
  */
 jssip.net.Resolver.prototype.lookup = goog.abstractMethod;

@@ -3,19 +3,20 @@ goog.provide('jssip.net.SocketFactoryRegistry');
 
 
 /**
- * @param {!Object.<!jssip.net.SocketFactory>} socketFactoryMap
+ * @param {!Object.<jssip.net.Socket.Type, !jssip.net.SocketFactory>}
+ *     socketFactoryMap
  * @constructor
  */
 jssip.net.SocketFactoryRegistry = function(socketFactoryMap) {
-  /** @private {!Object.<!jssip.net.SocketFactory>} */
+  /** @private {!Object.<jssip.net.Socket.Type, !jssip.net.SocketFactory>} */
   this.socketFactoryMap_ = socketFactoryMap;
 };
 
 
 /**
  * Creates a new socket of the specified type.
- * @param {string} type
- * @param {!goog.events.EventBus} eventBus
+ * @param {jssip.net.Socket.Type} type
+ * @param {!jssip.event.EventBus} eventBus
  * @return {!jssip.net.Socket}
  * @throws {Error} If the socket type is not registered.
  */
