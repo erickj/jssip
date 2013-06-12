@@ -125,7 +125,7 @@ jssip.sip.plugin.core.SipUriParser.prototype.parseParameters =
   var result = {};
   for (var i = 0; i < splitParameters.length; i++) {
     var nameValuePair = splitParameters[i].split('=');
-    if (nameValuePair.length == 0) {
+    if (nameValuePair.length == 0 || nameValuePair[0] == '') {
       continue;
     } else if (nameValuePair.length == 2) {
       result[nameValuePair[0]] = nameValuePair[1];

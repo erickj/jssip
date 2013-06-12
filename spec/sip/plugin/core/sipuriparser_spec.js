@@ -30,15 +30,16 @@ describe('jssip.sip.plugin.core.SipUriParser', function() {
 
     it('should parse parameters without leading semicolon', function() {
       var result = parser.parseParameters(parameterString);
-      expect(result['x']).toBe('y');
-      expect(result['abc']).toBe('def');
-      expect(result['transport']).toBe('udp');
-      expect(result['truthy']).toBe(true);
+      expect(result).toEqual({
+        abc: 'def',
+        transport: 'udp',
+        truthy: true
+      });
     });
 
     it('should parse parameters with a leading semicolon', function() {
-      var result = parser.parseParameters('x=y');
-      expect(result['x']).toBe('y');
+      var result = parser.parseParameters(';x=y');
+      expect(result).toEqual({x:'y'});
     });
   });
 
