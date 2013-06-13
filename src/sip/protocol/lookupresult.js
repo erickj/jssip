@@ -7,9 +7,10 @@ goog.provide('jssip.sip.protocol.LookupResult');
  * client with an IPAddress, port, and transport type.  Instances of thsi class
  * are immutable objects representing this result.
  * @see http://tools.ietf.org/html/rfc3263#section-4
- * @param {!Array.goog.net.IpAddress} ipAddress
+ * @param {!goog.net.IpAddress} ipAddress
  * @param {number} port
  * @param {jssip.net.Socket.Type} socketType
+ * @constructor
  */
 jssip.sip.protocol.LookupResult =
     function(ipAddress, port, socketType) {

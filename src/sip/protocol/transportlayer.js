@@ -23,6 +23,6 @@ jssip.sip.protocol.TransportLayer.EventType = {
  * transmission.  This does NOT indicate the response at the application (SIP)
  * level.
  * @param {!jssip.message.BuilderMessageContext} messageContext
- * @return {!goog.async.Deferred}
+ * @return {!jssip.async.Promise.<boolean>}
  */
 jssip.sip.protocol.TransportLayer.prototype.send = goog.abstractMethod;
