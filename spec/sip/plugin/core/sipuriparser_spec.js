@@ -115,5 +115,12 @@ describe('jssip.sip.plugin.core.SipUriParser', function() {
         expect(uri.equals(expectedUriMap[rawUri])).toBe(true, rawUri);
       }
     });
+
+    it('should add a URI parser so the URI can parse parameters', function() {
+      var rawUri = 'sip:alice@barcom;foo=bar';
+      sipUriParser = sipUriParserFactory.createParser(rawUri);
+      var uri = sipUriParser.parse();
+      expect(uri.getParameter('foo')).toBe('bar');
+    });
   });
 });

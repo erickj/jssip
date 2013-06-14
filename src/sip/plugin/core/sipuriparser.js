@@ -113,6 +113,7 @@ jssip.sip.plugin.core.SipUriParser.prototype.parse = function() {
       this.builder_.addPropertyPair(propertyPositionList[i], parts[i]);
     }
   }
+  this.builder_.addUriParser(this);
 
   return this.builder_.build();
 };
