@@ -129,7 +129,7 @@ jssip.sip.plugin.core.HeaderParser.prototype.parse = function() {
     }
     throw e;
   }
-
+  goog.asserts.assert(goog.isArray(result));
   return new jssip.message.HeaderImpl(
       this.getNormalHeaderName_(), this.headerValue_, result);
 };
