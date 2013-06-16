@@ -15,6 +15,10 @@ goog.require('jssip.sip.grammar.rfc3261');
 
 
 /**
+ * Creates core plugin header parsers. Creates a normalized header name map to
+ * handle header names that may be in different case or headers in their short
+ * name form.  This header map is given to created header parsers so that they
+ * may lookup header names without needing to handle name normalization.
  * @param {!jssip.event.EventBus} eventBus
  * @constructor
  * @implements {jssip.message.HeaderParserFactory}
@@ -23,6 +27,8 @@ goog.require('jssip.sip.grammar.rfc3261');
 jssip.sip.plugin.core.HeaderParserFactoryImpl = function(eventBus) {
   goog.base(this, eventBus);
 
+  // Create the normalized header name map to handle variable case and short
+  // header name lookups
   var headerNameMap = {};
   for (var headerKey in jssip.sip.protocol.rfc3261.HeaderType) {
     var header = jssip.sip.protocol.rfc3261.HeaderType[headerKey];
@@ -58,7 +64,8 @@ jssip.sip.plugin.core.HeaderParserFactoryImpl.prototype.createParser =
 
 /**
  * @param {string} headerValue
- * @param {!Object} normalizedHeaderNameMap
+ * @param {!Object} normalizedHeaderNameMap The normalized header name map,
+ *     provided by the header parser factory.
  * @constructor
  * @implements {jssip.message.HeaderParser}
  * @extends {jssip.parser.AbstractParser}
@@ -122,7 +129,7 @@ jssip.sip.plugin.core.HeaderParser.prototype.parse = function() {
     }
     throw e;
   }
-  goog.asserts.assert(result instanceof Array);
+
   return new jssip.message.HeaderImpl(
       this.getNormalHeaderName_(), this.headerValue_, result);
 };
