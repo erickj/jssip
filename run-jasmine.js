@@ -60,8 +60,8 @@ page.onConsoleMessage = function(msg) {
 
 page.open(system.args[1], function(status){
   if (status !== "success") {
-    console.log("Unable to access network");
-    phantom.exit();
+    console.log("Unable to run Specs, exit status:", status);
+    phantom.exit(1);
   } else {
     waitFor(function(){
       return page.evaluate(function(){
