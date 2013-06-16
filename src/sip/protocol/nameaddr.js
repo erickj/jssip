@@ -1,5 +1,7 @@
 goog.provide('jssip.sip.protocol.NameAddr');
 
+goog.require('jssip.sip.protocol.ParsedParams');
+
 
 
 /**
@@ -8,7 +10,7 @@ goog.provide('jssip.sip.protocol.NameAddr');
  * the protocol.
  * @param {!jssip.uri.Uri} uri
  * @param {string=} opt_displayName
- * @param {!Array.<!Array.<string>>=} opt_contextParams
+ * @param {!jssip.sip.protocol.ParsedParams=} opt_contextParams
  * @constructor
  */
 jssip.sip.protocol.NameAddr =
@@ -19,6 +21,25 @@ jssip.sip.protocol.NameAddr =
   /** @private {string} */
   this.displayName_ = opt_displayName || '';
 
-  /** @private {!Object} */
-  this.contextParams_ = opt_contextParams || [];
+  /** @private {!jssip.sip.protocol.ParsedParams} */
+  this.contextParams_ = opt_contextParams ||
+      new jssip.sip.protocol.ParsedParams([]);
+};
+
+
+/** @return {!jssip.uri.Uri} */
+jssip.sip.protocol.NameAddr.prototype.getUri = function() {
+  return this.uri_;
+};
+
+
+/** @return {string} */
+jssip.sip.protocol.NameAddr.prototype.getDisplayName = function() {
+  return this.displayName_;
+};
+
+
+/** @return {!jssip.sip.protocol.ParsedParams} */
+jssip.sip.protocol.NameAddr.prototype.getContextParams = function() {
+  return this.contextParams_;
 };
