@@ -52,6 +52,14 @@ describe('jssip.sip.plugin.core.SipUriParser', function() {
     // share test data.
     // Example SIP URIs, {@see http://tools.ietf.org/html/rfc3261#section-19.1.3}
     var expectedUriMap = {
+      'sip:erick@10.0.1.12:5060;transport=udp': makeUriBuilder().
+          addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
+          addPropertyPair(jssip.uri.Uri.PropertyName.USER, 'erick').
+          addPropertyPair(jssip.uri.Uri.PropertyName.HOST, '10.0.1.12').
+          addPropertyPair(jssip.uri.Uri.PropertyName.PORT, '5060').
+          addPropertyPair(
+              jssip.uri.Uri.PropertyName.PARAMETERS, 'transport=udp').
+          build(),
       'sip:alice@atlanta.com': makeUriBuilder().
           addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
           addPropertyPair(jssip.uri.Uri.PropertyName.USER, 'alice').

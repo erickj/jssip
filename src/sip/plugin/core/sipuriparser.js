@@ -75,7 +75,7 @@ jssip.sip.plugin.core.SipUriParser.regEx_ = new RegExp(
     '^(sip[s]?)[:]' +                   // scheme
     '(?:([^:@]*)(?:[:]([^@]*))?[@])?' + // user/password
     '([^:;?]+)' +                       // host
-    '(?:[:]([\d]+))?' +                 // port
+    '(?:[:]([\\d]+))?' +                // port - need to double escape the \d
     '(?:[;]([^?]+))?' +                 // uri-parameters
     '(?:[?](.*))?$'                     // headers
     );
@@ -103,7 +103,8 @@ jssip.sip.plugin.core.SipUriParser.prototype.parse = function() {
   var rawSipUri = this.getRawText();
   var parts = rawSipUri.match(jssip.sip.plugin.core.SipUriParser.regEx_);
   if (!parts) {
-    throw new jssip.parser.ParseError('Unable to parse SIP URI ' + rawSipUri);
+    throw new jssip.parser.ParseError(
+        'Unable to parse SIP URI \'' + rawSipUri + '\'');
   }
 
   var propertyPositionList =
