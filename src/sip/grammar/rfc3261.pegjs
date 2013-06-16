@@ -353,16 +353,8 @@ lhex4             =  lhex2 lhex2
 
 lhex2             =  LHEX LHEX
 
-auth_param        =  auth_param_name EQUAL
-                     ( token / quoted_string )
-
-auth_param_name   =  token
-
 other_response    =  auth_scheme LWS auth_param
                      (COMMA auth_param)*
-
-auth_scheme       =  token
-
 
 // CALL-ID
 

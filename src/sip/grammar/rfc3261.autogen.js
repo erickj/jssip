@@ -180,7 +180,6 @@ jssip.sip.grammar.rfc3261 = (function(){
         "lhex8": parse_lhex8,
         "lhex4": parse_lhex4,
         "lhex2": parse_lhex2,
-        "auth_param": parse_auth_param,
         "other_response": parse_other_response,
         "Call_ID": parse_Call_ID,
         "Contact": parse_Contact,
@@ -8210,36 +8209,6 @@ jssip.sip.grammar.rfc3261 = (function(){
           result1 = parse_LHEX();
           if (result1 !== null) {
             result0 = [result0, result1];
-          } else {
-            result0 = null;
-            pos = pos0;
-          }
-        } else {
-          result0 = null;
-          pos = pos0;
-        }
-        return result0;
-      }
-      
-      function parse_auth_param() {
-        var result0, result1, result2;
-        var pos0;
-        
-        pos0 = pos;
-        result0 = parse_token();
-        if (result0 !== null) {
-          result1 = parse_EQUAL();
-          if (result1 !== null) {
-            result2 = parse_token();
-            if (result2 === null) {
-              result2 = parse_quoted_string();
-            }
-            if (result2 !== null) {
-              result0 = [result0, result1, result2];
-            } else {
-              result0 = null;
-              pos = pos0;
-            }
           } else {
             result0 = null;
             pos = pos0;
