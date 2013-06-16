@@ -77,6 +77,18 @@ EOS
       basename = File.basename(f, '.pegjs')
       provided_ns = '%s.%s'%[ns, basename]
       output_file = GRAMMAR_DIR + '/%s.autogen.js'%basename
+
+      # Make sure this PEG grammar is older than than the output_file
+      begin
+        if File.mtime(output_file) > File.mtime(f)
+          puts "Output File is newer than PEG grammar"
+          puts "Skipping build for: %s"%[f]
+          next
+        end
+      rescue Errno::ENOENT
+        # just continue, output_file doesn't exist
+      end
+
       cmd = '%s -e %s %s %s'%[PEGJS, provided_ns, f, output_file]
       puts cmd
       %x{#{cmd}}
