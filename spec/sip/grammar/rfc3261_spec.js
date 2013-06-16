@@ -42,7 +42,6 @@ describe('jssip.sip.grammar.rfc3261', function() {
       },
 
       /**
-       * @param {boolean} noParams
        * @param {string} sipUri
        */
       toBeSipUri: function(sipUri) {
@@ -70,6 +69,46 @@ describe('jssip.sip.grammar.rfc3261', function() {
         expect(this.actual[1]).toBe('<');
         expect(this.actual[2]).toBeSipUri(sipUri);
         expect(this.actual[3]).toBe('>');
+        return true;
+      },
+
+      /**
+       * @param {!Array} sipUriContactParamsPair
+       */
+      toBeContactArray: function(sipUriContactParamsPair) {
+        expect(this.actual).toEqual(jasmine.any(Array));
+        expect(this.actual.length).toBe(2);
+        expect(this.actual[0]).toBeContact(sipUriContactParamsPair[0]);
+        return true;
+      },
+
+      /**
+       * @param {!Array} sipUriContactParamsPair
+       */
+      toBeContact: function(sipUriContactParamsPair) {
+        var expectedDisplaySipUri = sipUriContactParamsPair[0];
+        var expectedContactParams = sipUriContactParamsPair[1];
+
+        expect(this.actual).toEqual(jasmine.any(Array));
+        expect(this.actual.length).toBe(2);
+
+        // AddrSpec or NameAddr
+        var nameAddrOrAddrSpec = this.actual[0];
+        if (goog.isArray(expectedDisplaySipUri)) {
+          expect(nameAddrOrAddrSpec).
+              toBeNameAddr(expectedDisplaySipUri[0], expectedDisplaySipUri[1]);
+        } else {
+          expect(nameAddrOrAddrSpec).toBeAddrSpec(expectedDisplaySipUri);
+        }
+
+        // Contact Params
+        var params = this.actual[1];
+        expect(params.length).toBe(expectedContactParams.length);
+        for (var i = 0; i < params.length; i++) {
+          var expectedParamName = expectedContactParams[i][0];
+          var expectedParamValue = expectedContactParams[i][1];
+          expect(params[i]).toBeParam(expectedParamName, expectedParamValue);
+        }
         return true;
       }
     }))
@@ -121,6 +160,32 @@ describe('jssip.sip.grammar.rfc3261', function() {
         };
       }(startRule));
     };
+  });
+
+  describe('Contact header', function() {
+    var nameAddrContactValue =
+        '"Erick" <sip:erick@10.0.1.12:5060;transport=udp>;expires=600';
+    var addrSpecContactValue = 'sip:erick@10.0.1.12:5060;expires=600';
+
+    it('should parse a header matching a name-addr and parameters',
+       function() {
+         var rawSipUri = 'sip:erick@10.0.1.12:5060;transport=udp';
+         var displayName = '"Erick"';
+         var nameAddrPair = [displayName, rawSipUri];
+         var contactParams = [['expires', '600']];
+
+         expect(parser.parse(nameAddrContactValue, 'Contact')).
+             toBeContactArray([[nameAddrPair, contactParams]]);
+       });
+
+    it('should parse a header matching an addr-spec and parameters',
+       function() {
+         var rawSipUri = 'sip:erick@10.0.1.12:5060';
+         var contactParams = [['expires', '600']];
+
+         expect(parser.parse(addrSpecContactValue, 'Contact')).
+             toBeContactArray([[rawSipUri, contactParams]]);
+       });
   });
 
   // Apply all of the following specs to both To and From headers

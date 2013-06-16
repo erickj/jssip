@@ -306,6 +306,63 @@ Allow  =  Method (COMMA Method)*
 
 Allow_Events = event_type (COMMA event_type)*
 
+// Authorization
+
+Authorization     =  authorization: credentials
+
+credentials       =  ("Digest"i LWS digest_response) / other_response
+
+digest_response   =  dig_resp (COMMA dig_resp)*
+
+dig_resp          =  username / realm / nonce / digest_uri
+                      / dresponse / algorithm / cnonce
+                      / opaque / message_qop
+                      / nonce_count / auth_param
+
+username          =  "username"i EQUAL username_value
+
+username_value    =  quoted_string
+
+digest_uri        =  "uri"i EQUAL LDQUOT digest_uri_value RDQUOT
+
+digest_uri_value  =  rquest_uri // Equal to request_uri as specified by HTTP/1.1
+
+rquest_uri        =  SIP_URI_noparams
+
+message_qop       =  "qop"i EQUAL qop_value
+
+cnonce            =  "cnonce"i EQUAL cnonce_value
+
+cnonce_value      =  nonce_value
+
+nonce_count       =  "nc"i EQUAL nc_value
+
+nc_value          =  lhex8
+
+dresponse         =  "response"i EQUAL request_digest
+
+request_digest    =  LDQUOT lhex32 RDQUOT
+
+lhex32            =  lhex16 lhex16
+
+lhex16            =  lhex8 lhex8
+
+lhex8             =  lhex4 lhex4
+
+lhex4             =  lhex2 lhex2
+
+lhex2             =  LHEX LHEX
+
+auth_param        =  auth_param_name EQUAL
+                     ( token / quoted_string )
+
+auth_param_name   =  token
+
+other_response    =  auth_scheme LWS auth_param
+                     (COMMA auth_param)*
+
+auth_scheme       =  token
+
 
 // CALL-ID
 
@@ -331,9 +388,9 @@ c_p_expires         = "expires"i EQUAL expires: delta_seconds
 
 contact_extension   = generic_param
 
-delta_seconds       = delta_seconds: DIGIT+
+delta_seconds       = delta_seconds: DIGIT+ { return input.substring(pos, offset); }
 
-qvalue              = "0" ( "." DIGIT? DIGIT? DIGIT? )?
+qvalue              = "0" ( "." DIGIT? DIGIT? DIGIT? )? { return input.substring(pos, offset); }
 
 generic_param       = param: token  value: ( EQUAL gen_value )? {
   return (value instanceof Array) ? [param, value[0], value[1]] : [param]; }
