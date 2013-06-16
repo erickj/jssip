@@ -1,7 +1,6 @@
 goog.provide('jssip.sip.protocol.header.NameAddrHeaderSpec');
 
 goog.require('jssip.message.HeaderImpl');
-goog.require('jssip.sip.protocol.NameAddr');
 goog.require('jssip.sip.protocol.header.NameAddrHeader');
 goog.require('jssip.testing.shared.SharedHeaderDecoratorSpec');
 
