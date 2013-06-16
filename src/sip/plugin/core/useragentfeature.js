@@ -11,6 +11,7 @@ goog.require('jssip.sip.UserAgent');
 goog.require('jssip.sip.event.MessageEvent');
 goog.require('jssip.sip.plugin.core.HeaderParserFactoryImpl');
 goog.require('jssip.sip.plugin.core.SipUriParserFactory');
+goog.require('jssip.sip.plugin.core.header.ContactHeaderParserFactory');
 goog.require('jssip.sip.protocol.UserAgentClient');
 goog.require('jssip.sip.protocol.UserAgentServer');
 goog.require('jssip.sip.protocol.rfc3261');
@@ -66,7 +67,15 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.getHeaderParserFactory =
     this.headerParserFactory_ =
         new jssip.sip.plugin.core.HeaderParserFactoryImpl(eventBus);
   }
-  return this.headerParserFactory_;
+
+  var headerParserFactory = this.headerParserFactory_;
+  switch (name) {
+    case jssip.sip.protocol.rfc3261.HeaderType.CONTACT:
+      return new jssip.sip.plugin.core.header.ContactHeaderParserFactory(
+          headerParserFactory, this.getFeatureContext().getParserRegistry());
+    default:
+      return headerParserFactory;
+  }
 };
 
 
