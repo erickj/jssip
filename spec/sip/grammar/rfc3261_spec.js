@@ -164,15 +164,15 @@ describe('jssip.sip.grammar.rfc3261', function() {
 
   describe('Contact header', function() {
     var nameAddrContactValue =
-        '"Erick" <sip:erick@10.0.1.12:5060;transport=udp>;expires=600';
-    var addrSpecContactValue = 'sip:erick@10.0.1.12:5060;expires=600';
+        '"Erick" <sip:erick@10.0.1.12:5060;transport=udp>;expires=600;foo';
+    var addrSpecContactValue = 'sip:erick@10.0.1.12:5060;expires=600;foo';
 
     it('should parse a header matching a name-addr and parameters',
        function() {
          var rawSipUri = 'sip:erick@10.0.1.12:5060;transport=udp';
          var displayName = '"Erick"';
          var nameAddrPair = [displayName, rawSipUri];
-         var contactParams = [['expires', '600']];
+         var contactParams = [['expires', '600'], ['foo']];
 
          expect(parser.parse(nameAddrContactValue, 'Contact')).
              toBeContactArray([[nameAddrPair, contactParams]]);
@@ -181,7 +181,7 @@ describe('jssip.sip.grammar.rfc3261', function() {
     it('should parse a header matching an addr-spec and parameters',
        function() {
          var rawSipUri = 'sip:erick@10.0.1.12:5060';
-         var contactParams = [['expires', '600']];
+         var contactParams = [['expires', '600'], ['foo']];
 
          expect(parser.parse(addrSpecContactValue, 'Contact')).
              toBeContactArray([[rawSipUri, contactParams]]);
