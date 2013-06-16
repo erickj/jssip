@@ -19,3 +19,10 @@ jssip.message.HeaderParser = function() {};
  * @param {string} headerName
  */
 jssip.message.HeaderParser.prototype.initializeHeaderName = goog.abstractMethod;
+
+
+/**
+ * @override
+ * @return {!jssip.message.Header}
+ */
+jssip.message.HeaderParser.prototype.parse = goog.abstractMethod;
