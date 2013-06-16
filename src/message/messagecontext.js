@@ -19,6 +19,9 @@ jssip.message.MessageContext = function(type, propertyMap, parserRegistry) {
   this.propertyHolder_ =
       new jssip.util.PropertyHolder(propertyMap, false /* opt_isImmutable */);
 
+  /** @private {jssip.message.Message} */
+  this.cachedMessage_ = null;
+
   /** @private {!Object} */
   this.parsedHeaderCache_ = {};
 
@@ -37,7 +40,6 @@ jssip.message.MessageContext.Type = {
 /** @enum {string} */
 jssip.message.MessageContext.PropertyName = {
   DIALOG: 'mc-dialog',
-  MESSAGE: 'mc-message',
   TRANSACTION: 'mc-transaction',
   TYPE: 'mc-type'
 };
@@ -75,14 +77,10 @@ jssip.message.MessageContext.prototype.getMessageInternal = goog.abstractMethod;
  * @return {!jssip.message.Message} The message object.
  */
 jssip.message.MessageContext.prototype.getMessage = function() {
-  var message = this.propertyHolder_.get(
-      jssip.message.MessageContext.PropertyName.MESSAGE);
-  if (!message) {
-    message = this.getMessageInternal();
-    this.propertyHolder_.set(
-        jssip.message.MessageContext.PropertyName.MESSAGE, message);
+  if (!this.cachedMessage_) {
+    this.cachedMessage_ = this.getMessageInternal();
   }
-  return /** @type {!jssip.message.Message} */ (message);
+  return this.cachedMessage_;
 };
 
 
