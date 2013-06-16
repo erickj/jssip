@@ -1,6 +1,7 @@
 goog.provide('jssip.message.MessageContext');
 
 goog.require('jssip.sip.protocol.RouteSet');
+goog.require('jssip.sip.protocol.rfc3261');
 goog.require('jssip.util.PropertyHolder');
 
 
@@ -18,6 +19,9 @@ jssip.message.MessageContext = function(type, propertyMap, parserRegistry) {
   this.propertyHolder_ =
       new jssip.util.PropertyHolder(propertyMap, false /* opt_isImmutable */);
 
+  /** @private {!Object} */
+  this.parsedHeaderCache_ = {};
+
   /** @private {!jssip.parser.ParserRegistry} */
   this.parserRegistry_ = parserRegistry;
 };
@@ -34,7 +38,6 @@ jssip.message.MessageContext.Type = {
 jssip.message.MessageContext.PropertyName = {
   DIALOG: 'mc-dialog',
   MESSAGE: 'mc-message',
-  ROUTESET: 'mc-routset',
   TRANSACTION: 'mc-transaction',
   TYPE: 'mc-type'
 };
@@ -58,6 +61,31 @@ jssip.message.MessageContext.prototype.getPropertyHolder = function() {
 };
 
 
+/**
+ * The protected getter for the message when it has not been set yet.
+ * @return {!jssip.message.Message} The message object.
+ * @protected
+ */
+jssip.message.MessageContext.prototype.getMessageInternal = goog.abstractMethod;
+
+
+/**
+ * Returns the message.  Lazily requests the message from
+ * {@code getMessageInternal} on first access only.
+ * @return {!jssip.message.Message} The message object.
+ */
+jssip.message.MessageContext.prototype.getMessage = function() {
+  var message = this.propertyHolder_.get(
+      jssip.message.MessageContext.PropertyName.MESSAGE);
+  if (!message) {
+    message = this.getMessageInternal();
+    this.propertyHolder_.set(
+        jssip.message.MessageContext.PropertyName.MESSAGE, message);
+  }
+  return /** @type {!jssip.message.Message} */ (message);
+};
+
+
 // TODO(erick): Dialog work
 /**
  * Returns the dialog associated with this message.
@@ -78,41 +106,35 @@ jssip.message.MessageContext.prototype.getTransaction = function() {
 
 
 /**
- * Returns the message.  Lazily requests the message from
- * {@code getMessageInternal} on first access only.
- * @return {!jssip.message.Message} The message object.
- */
-jssip.message.MessageContext.prototype.getMessage = function() {
-  var message = this.propertyHolder_.get(
-      jssip.message.MessageContext.PropertyName.MESSAGE);
-  if (!message) {
-    message = this.getMessageInternal();
-    this.propertyHolder_.set(
-        jssip.message.MessageContext.PropertyName.MESSAGE, message);
-  }
-  return /** @type {!jssip.message.Message} */ (message);
-};
-
-
-/**
  * Returns the route set for this message, or builds one if it does not exist.
  * @return {!jssip.sip.protocol.RouteSet} The route set.
  */
 jssip.message.MessageContext.prototype.getRouteSet = function() {
-  var routeSet = this.propertyHolder_.get(
-      jssip.message.MessageContext.PropertyName.ROUTESET);
-  if (!routeSet) {
-    routeSet = jssip.sip.protocol.RouteSet.createFromMessageContext(this);
-    this.propertyHolder_.set(
-        jssip.message.MessageContext.PropertyName.ROUTESET, routeSet);
-  }
-  return /** @type {!jssip.sip.protocol.RouteSet} */ (routeSet);
+  throw Error('Not implemented yet');
 };
 
 
 /**
- * The protected getter for the message when it has not been set yet.
- * @return {!jssip.message.Message} The message object.
- * @protected
+ * Returns the parsed value of the header in the message.
+ * @param {string} headerName
+ * @return {Array.<!jssip.message.Header>} Null indicates the header is not in
+ *     the message.
+ * @private
  */
-jssip.message.MessageContext.prototype.getMessageInternal = goog.abstractMethod;
+jssip.message.MessageContext.prototype.getParsedHeader_ = function(headerName) {
+  if (!goog.isDef(this.parsedHeaderCache_[headerName])) {
+    var message = this.getMessage();
+    var headerValues = message.getHeaderValue(headerName);
+    var parsedHeaderValues = null;
+    if (headerValues != null) {
+      parsedHeaderValues = [];
+      for (var i = 0; i < headerValues.length; i++) {
+        parsedHeaderValues.push(
+          this.parserRegistry_.parseHeader(headerName, headerValues[i]));
+      }
+    }
+    this.parsedHeaderCache_[headerName] = parsedHeaderValues;
+  }
+  return /** @type {Array.<!jssip.message.Header>} */ (
+      this.parsedHeaderCache_[headerName]);
+};
