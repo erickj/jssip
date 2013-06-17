@@ -8,6 +8,7 @@ goog.require('jssip.net.Socket');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureFacade');
 goog.require('jssip.sip.UserAgent');
+goog.require('jssip.sip.plugin.transport.pluginfeature');
 goog.require('jssip.sip.protocol.LookupResult');
 goog.require('jssip.sip.protocol.TransportLayer');
 goog.require('jssip.sip.protocol.rfc3261');
@@ -75,6 +76,23 @@ jssip.sip.plugin.transport.TransportLayerFeature.prototype.send =
 
 
 /**
+ * Gets the currently registered ServerLocate feature and calls
+ * {@code locateSipServerForUri}.
+ * @param {!jssip.uri.Uri} uri
+ * @return {!jssip.async.Promise.<!Array.<!jssip.sip.protocol.LookupResult>>}
+ * @private
+ */
+jssip.sip.plugin.transport.TransportLayerFeature.prototype.
+    locateSipServerForUri_ = function(uri) {
+  var feature = this.getFeatureContext().getFacadeByType(
+      jssip.sip.plugin.transport.pluginfeature.Type.SERVER_LOCATE);
+
+  return /** @type {!jssip.sip.plugin.transport.pluginfeature.ServerLocate} */ (
+      feature).locateSipServerForUri(uri);
+};
+
+
+/**
  * @param {!jssip.message.BuilderMessageContext} messageContext
  * @param {!Array.<!jssip.sip.protocol.LookupResult>} lookupResults
  * @return {boolean}
@@ -93,35 +111,9 @@ jssip.sip.plugin.transport.TransportLayerFeature.prototype.
 
 
 /**
- * RFC 3263 Details the client process for locating SIP servers
- *
- * @see http://tools.ietf.org/html/rfc3263#section-4
- * @param {jssip.uri.Uri} uri
- * @return {!jssip.async.Promise.<!Array.<!jssip.sip.protocol.LookupResult>>}
- * @private
- */
-jssip.sip.plugin.transport.TransportLayerFeature.prototype.
-    locateSipServerForUri_ = function(uri) {
-  var ipAddress = goog.net.IpAddress.fromString(uri.getHost());
-  if (ipAddress) {
-    var port = uri.getPort() || 5060;
-    var protocol = jssip.net.Socket.Type.UDP;
-    return jssip.async.Promise.succeed(
-        [new jssip.sip.protocol.LookupResult(ipAddress, port, protocol)]);
-  }
-  // TODO(erick): lots...
-  return jssip.async.Promise.succeed([
-      new jssip.sip.protocol.LookupResult(
-          new goog.net.Ipv4Address('0.0.0.0'),
-          5060,
-          jssip.net.Socket.Type.UDP)]);
-};
-
-
-/**
- * The funcationality defined here is defined as part of UAC behavoir in 3261,
- * but it fits better architecturally here.  Collects a set of destinations to
- * try to send the message to.
+ * The functionality defined here is part of UAC behavoir in 3261, but it fits
+ * better architecturally here.  Collects a set of destinations to try to send
+ * the message to.
  *
  * @see RFC 3261 Section 8.1.2
 
@@ -147,7 +139,6 @@ jssip.sip.plugin.transport.TransportLayerFeature.prototype.
   }
   return messageContext.getMessage().getRequestUri();
 };
-
 
 
 

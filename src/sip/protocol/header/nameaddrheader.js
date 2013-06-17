@@ -13,7 +13,8 @@ goog.require('jssip.sip.protocol.NameAddr');
  * @constructor
  */
 jssip.sip.protocol.header.NameAddrHeader = function(decoratedHeader, nameAddr) {
-  goog.base(this, decoratedHeader);
+  goog.base(this, decoratedHeader,
+      jssip.sip.protocol.header.HeaderDecorator.Type.NAME_ADDR);
 
   /** @private {!jssip.sip.protocol.NameAddr} */
   this.nameAddr_ = nameAddr;

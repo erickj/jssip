@@ -22,7 +22,7 @@ jssip.message.MessageContext = function(type, propertyMap, parserRegistry) {
   /** @private {jssip.message.Message} */
   this.cachedMessage_ = null;
 
-  /** @private {!Object} */
+  /** @private {!Object.<!Array.<!jssip.message.Header>>} */
   this.parsedHeaderCache_ = {};
 
   /** @private {!jssip.parser.ParserRegistry} */
@@ -84,7 +84,6 @@ jssip.message.MessageContext.prototype.getMessage = function() {
 };
 
 
-// TODO(erick): Dialog work
 /**
  * Returns the dialog associated with this message.
  * @return {!jssip.sip.protocol.Dialog} The dialog.
@@ -115,17 +114,15 @@ jssip.message.MessageContext.prototype.getRouteSet = function() {
 /**
  * Returns the parsed value of the header in the message.
  * @param {string} headerName
- * @return {Array.<!jssip.message.Header>} Null indicates the header is not in
- *     the message.
+ * @return {!Array.<!jssip.message.Header>}
  * @private
  */
 jssip.message.MessageContext.prototype.getParsedHeader_ = function(headerName) {
   if (!goog.isDef(this.parsedHeaderCache_[headerName])) {
     var message = this.getMessage();
     var headerValues = message.getHeaderValue(headerName);
-    var parsedHeaderValues = null;
+    var parsedHeaderValues = [];
     if (headerValues != null) {
-      parsedHeaderValues = [];
       for (var i = 0; i < headerValues.length; i++) {
         parsedHeaderValues.push(
           this.parserRegistry_.parseHeader(headerName, headerValues[i]));
@@ -133,6 +130,5 @@ jssip.message.MessageContext.prototype.getParsedHeader_ = function(headerName) {
     }
     this.parsedHeaderCache_[headerName] = parsedHeaderValues;
   }
-  return /** @type {Array.<!jssip.message.Header>} */ (
-      this.parsedHeaderCache_[headerName]);
+  return this.parsedHeaderCache_[headerName];
 };

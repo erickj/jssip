@@ -14,7 +14,8 @@ goog.require('jssip.sip.protocol.header.HeaderDecorator');
  */
 jssip.sip.protocol.header.NameAddrListHeader =
     function(decoratedHeader, nameAddrList) {
-  goog.base(this, decoratedHeader);
+  goog.base(this, decoratedHeader,
+      jssip.sip.protocol.header.HeaderDecorator.Type.NAME_ADDR_LIST);
 
   /** @private {!Array.<!jssip.sip.protocol.NameAddr>} */
   this.nameAddrList_ = nameAddrList;

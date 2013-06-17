@@ -46,6 +46,8 @@ jssip.sip.plugin.transport.TransportPlugin.makeFeatureName =
 
 /** @enum {string} */
 jssip.sip.plugin.transport.TransportPlugin.FeatureName = {
+  SERVER_LOCATE: jssip.sip.plugin.transport.TransportPlugin.makeFeatureName(
+      'serverlocate'),
   TRANSPORT: jssip.sip.plugin.transport.TransportPlugin.makeFeatureName(
       'transport')
 };
@@ -58,6 +60,8 @@ jssip.sip.plugin.transport.TransportPlugin.FeatureName = {
 jssip.sip.plugin.transport.TransportPlugin.prototype.createFeatureSet_ =
     function() {
   return new jssip.plugin.FeatureSet([
+    new jssip.sip.plugin.transport.ServerLocateFeature(
+        jssip.sip.plugin.transport.TransportPlugin.FeatureName.SERVER_LOCATE),
     new jssip.sip.plugin.transport.TransportLayerFeature(
         jssip.sip.plugin.transport.TransportPlugin.FeatureName.TRANSPORT,
         this.socketFactoryRegistry_, this.resolver_)
