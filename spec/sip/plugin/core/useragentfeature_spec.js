@@ -65,14 +65,16 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
          }).toThrow();
        });
 
-    it('should return a header parser for each feature in 3261', function() {
-      for (var headerKey in jssip.sip.protocol.rfc3261.HeaderType) {
-        var parser = userAgentFeature.getHeaderParserFactory(
-            jssip.sip.protocol.rfc3261.HeaderType[headerKey]);
-        expect(parser).toEqual(
-            jasmine.any(jssip.sip.plugin.core.HeaderParserFactoryImpl));
-      }
-    });
+
+    for (var headerKey in jssip.sip.protocol.rfc3261.HeaderType) {
+      it('should return a header parser for header ' + headerKey + ' in 3261',
+         function() {
+           var parser = userAgentFeature.getHeaderParserFactory(
+               jssip.sip.protocol.rfc3261.HeaderType[headerKey]);
+           expect(parser).toEqual(
+               jasmine.any(jssip.sip.plugin.core.HeaderParserFactoryImpl));
+         });
+    };
   });
 
   describe('#getUriParserFactory', function() {
