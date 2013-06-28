@@ -1,7 +1,5 @@
 goog.provide('jssip.message.MessageContext');
 
-goog.require('jssip.sip.protocol.RouteSet');
-goog.require('jssip.sip.protocol.rfc3261');
 goog.require('jssip.util.PropertyHolder');
 
 
@@ -103,21 +101,11 @@ jssip.message.MessageContext.prototype.getTransaction = function() {
 
 
 /**
- * Returns the route set for this message, or builds one if it does not exist.
- * @return {!jssip.sip.protocol.RouteSet} The route set.
- */
-jssip.message.MessageContext.prototype.getRouteSet = function() {
-  throw Error('Not implemented yet');
-};
-
-
-/**
  * Returns the parsed value of the header in the message.
  * @param {string} headerName
  * @return {!Array.<!jssip.message.Header>}
- * @private
  */
-jssip.message.MessageContext.prototype.getParsedHeader_ = function(headerName) {
+jssip.message.MessageContext.prototype.getParsedHeader = function(headerName) {
   if (!goog.isDef(this.parsedHeaderCache_[headerName])) {
     var message = this.getMessage();
     var headerValues = message.getHeaderValue(headerName);
@@ -125,7 +113,7 @@ jssip.message.MessageContext.prototype.getParsedHeader_ = function(headerName) {
     if (headerValues != null) {
       for (var i = 0; i < headerValues.length; i++) {
         parsedHeaderValues.push(
-          this.parserRegistry_.parseHeader(headerName, headerValues[i]));
+            this.parserRegistry_.parseHeader(headerName, headerValues[i]));
       }
     }
     this.parsedHeaderCache_[headerName] = parsedHeaderValues;

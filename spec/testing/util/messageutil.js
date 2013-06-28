@@ -1,11 +1,8 @@
 goog.provide('jssip.testing.util.messageutil');
 
-goog.require('jssip.event.EventBus');
-goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.message.MessageParser');
 goog.require('jssip.message.RawMessageContext');
-goog.require('jssip.parser.ParserRegistry');
-
+goog.require('jssip.testing.util.parseutil');
 
 /** @enum {string} */
 jssip.testing.util.messageutil.ExampleMessage = {
@@ -143,12 +140,8 @@ jssip.testing.util.messageutil.checkMessageHeaders =
  */
 jssip.testing.util.messageutil.createRawMessageContext =
     function(rawMessageText) {
-  var eventBus = new jssip.event.EventBus();
-  var messageParserFactory =
-      new jssip.message.MessageParserFactory(eventBus);
-  var parserRegistry = new jssip.parser.ParserRegistry(messageParserFactory);
-
-  return new jssip.message.RawMessageContext(rawMessageText, parserRegistry);
+  return new jssip.message.RawMessageContext(rawMessageText,
+      jssip.testing.util.parseutil.createParserRegistry());
 };
 
 
