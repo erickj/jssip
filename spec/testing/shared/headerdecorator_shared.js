@@ -1,10 +1,10 @@
 goog.provide('jssip.testing.shared.SharedHeaderDecoratorSpec');
 
-goog.require('jssip.sip.protocol.header.HeaderDecorator');
+goog.require('jssip.message.HeaderDecorator');
 
 
 /**
- * @param {function(): !jssip.sip.protocol.header.HeaderDecorator} factoryFn
+ * @param {function(): !jssip.message.HeaderDecorator} factoryFn
  * @param {string} headerName
  * @param {string} rawHeaderValue
  * @param {*} parsedHeaderValue
@@ -19,7 +19,7 @@ jssip.testing.shared.SharedHeaderDecoratorSpec.sharedBehaviors =
 
     it('is a header decorator', function() {
       expect(headerDecorator).toEqual(
-          jasmine.any(jssip.sip.protocol.header.HeaderDecorator));
+          jasmine.any(jssip.message.HeaderDecorator));
     })
 
     describe('getters', function() {

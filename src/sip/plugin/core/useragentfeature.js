@@ -11,9 +11,10 @@ goog.require('jssip.sip.UserAgent');
 goog.require('jssip.sip.event.MessageEvent');
 goog.require('jssip.sip.plugin.core.HeaderParserFactoryImpl');
 goog.require('jssip.sip.plugin.core.SipUriParserFactory');
-goog.require('jssip.sip.plugin.core.header.ContactHeaderParserFactory');
 goog.require('jssip.sip.protocol.UserAgentClient');
 goog.require('jssip.sip.protocol.UserAgentServer');
+goog.require('jssip.sip.protocol.header.NameAddrHeaderParserFactory');
+goog.require('jssip.sip.protocol.header.NameAddrListHeaderParserFactory');
 goog.require('jssip.sip.protocol.rfc3261');
 goog.require('jssip.uri.Uri');
 
@@ -71,8 +72,17 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.getHeaderParserFactory =
   var headerParserFactory = this.headerParserFactory_;
   switch (name) {
     case jssip.sip.protocol.rfc3261.HeaderType.CONTACT:
-      return new jssip.sip.plugin.core.header.ContactHeaderParserFactory(
-          headerParserFactory, this.getFeatureContext().getParserRegistry());
+      return new jssip.sip.protocol.header.NameAddrListHeaderParserFactory(
+          headerParserFactory, jssip.sip.protocol.rfc3261.HeaderType.CONTACT,
+          this.getFeatureContext().getParserRegistry());
+    case jssip.sip.protocol.rfc3261.HeaderType.FROM:
+      return new jssip.sip.protocol.header.NameAddrHeaderParserFactory(
+          headerParserFactory, jssip.sip.protocol.rfc3261.HeaderType.CONTACT,
+          this.getFeatureContext().getParserRegistry());
+    case jssip.sip.protocol.rfc3261.HeaderType.TO:
+      return new jssip.sip.protocol.header.NameAddrHeaderParserFactory(
+          headerParserFactory, jssip.sip.protocol.rfc3261.HeaderType.CONTACT,
+          this.getFeatureContext().getParserRegistry());
     default:
       return headerParserFactory;
   }

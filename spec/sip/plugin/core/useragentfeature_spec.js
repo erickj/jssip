@@ -5,6 +5,7 @@ goog.require('jssip.event.EventBus');
 goog.require('jssip.message.Message.Builder');
 goog.require('jssip.sip.UserAgent.Config');
 goog.require('jssip.sip.plugin.core.UserAgentFeature');
+goog.require('jssip.sip.protocol.header.NameAddrListHeaderParserFactory');
 goog.require('jssip.sip.protocol.rfc3261');
 goog.require('jssip.testing.util.featureutil');
 goog.require('jssip.testing.util.messageutil');
@@ -75,6 +76,24 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
                jasmine.any(jssip.sip.plugin.core.HeaderParserFactoryImpl));
          });
     };
+
+    describe('custom header parser factory', function() {
+      it('should return a NameAddrListParserFactory for Contact', function() {
+        expect(userAgentFeature.getHeaderParserFactory('Contact')).toEqual(
+            jasmine.any(
+                jssip.sip.protocol.header.NameAddrListHeaderParserFactory));
+      });
+
+      var nameAddrHeaderParsers = ['To', 'From'];
+      for (var i = 0; i < nameAddrHeaderParsers.length; i++) {
+        var hdr = nameAddrHeaderParsers[i];
+        it('should return a NameAddrParserFactor for ' + hdr, function() {
+          expect(userAgentFeature.getHeaderParserFactory(hdr)).toEqual(
+              jasmine.any(
+                  jssip.sip.protocol.header.NameAddrHeaderParserFactory));
+        });
+      };
+    });
   });
 
   describe('#getUriParserFactory', function() {

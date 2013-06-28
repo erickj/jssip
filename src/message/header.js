@@ -3,6 +3,7 @@ goog.provide('jssip.message.Header');
 
 
 /**
+ * A header is a name-value pair from a message.
  * @interface
  */
 jssip.message.Header = function() {};

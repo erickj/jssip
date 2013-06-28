@@ -9,7 +9,7 @@ goog.require('jssip.testing.util.parseutil');
 
 
 /**
- * @param {!jssip.message.Messaeg} message
+ * @param {!jssip.message.Message} message
  * @param {!jssip.parser.ParserRegistry} parserRegistry
  * @constructor
  */
