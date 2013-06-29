@@ -85,12 +85,24 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
       });
 
       var nameAddrHeaderParsers = ['To', 'From'];
+      var nameAddr = 'sip:erick@bar.com;tag=1234';
       for (var i = 0; i < nameAddrHeaderParsers.length; i++) {
         var hdr = nameAddrHeaderParsers[i];
         it('should return a NameAddrParserFactor for ' + hdr, function() {
-          expect(userAgentFeature.getHeaderParserFactory(hdr)).toEqual(
-              jasmine.any(
-                  jssip.sip.protocol.header.NameAddrHeaderParserFactory));
+          var parserFactory = userAgentFeature.getHeaderParserFactory(hdr);
+          expect(parserFactory).toEqual(jasmine.any(
+              jssip.sip.protocol.header.NameAddrHeaderParserFactory));
+        });
+
+        it('should parse NameAddr objects for header ' + hdr, function() {
+          var parserFactory = userAgentFeature.getHeaderParserFactory(hdr);
+          var parser = parserFactory.createParser(nameAddr);
+          var header = parser.parse();
+          expect(header.getHeaderName()).toBe(hdr);
+          expect(header.getNameAddr()).toEqual(jasmine.any(
+              jssip.sip.protocol.NameAddr))
+          expect(header.getNameAddr().getContextParams().getParameter('tag')).
+              toBe('1234');
         });
       };
     });

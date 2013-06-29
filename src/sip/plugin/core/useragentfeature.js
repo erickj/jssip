@@ -77,11 +77,11 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.getHeaderParserFactory =
           this.getFeatureContext().getParserRegistry());
     case jssip.sip.protocol.rfc3261.HeaderType.FROM:
       return new jssip.sip.protocol.header.NameAddrHeaderParserFactory(
-          headerParserFactory, jssip.sip.protocol.rfc3261.HeaderType.CONTACT,
+          headerParserFactory, jssip.sip.protocol.rfc3261.HeaderType.FROM,
           this.getFeatureContext().getParserRegistry());
     case jssip.sip.protocol.rfc3261.HeaderType.TO:
       return new jssip.sip.protocol.header.NameAddrHeaderParserFactory(
-          headerParserFactory, jssip.sip.protocol.rfc3261.HeaderType.CONTACT,
+          headerParserFactory, jssip.sip.protocol.rfc3261.HeaderType.TO,
           this.getFeatureContext().getParserRegistry());
     default:
       return headerParserFactory;
