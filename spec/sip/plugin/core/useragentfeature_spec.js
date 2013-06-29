@@ -6,6 +6,7 @@ goog.require('jssip.message.Message.Builder');
 goog.require('jssip.sip.UserAgent.Config');
 goog.require('jssip.sip.plugin.core.UserAgentFeature');
 goog.require('jssip.sip.protocol.header.NameAddrListHeaderParserFactory');
+goog.require('jssip.sip.protocol.header.ViaHeaderParserFactory');
 goog.require('jssip.sip.protocol.rfc3261');
 goog.require('jssip.testing.util.featureutil');
 goog.require('jssip.testing.util.messageutil');
@@ -84,27 +85,35 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
                 jssip.sip.protocol.header.NameAddrListHeaderParserFactory));
       });
 
-      var nameAddrHeaderParsers = ['To', 'From'];
-      var nameAddr = 'sip:erick@bar.com;tag=1234';
-      for (var i = 0; i < nameAddrHeaderParsers.length; i++) {
-        var hdr = nameAddrHeaderParsers[i];
-        it('should return a NameAddrParserFactor for ' + hdr, function() {
-          var parserFactory = userAgentFeature.getHeaderParserFactory(hdr);
-          expect(parserFactory).toEqual(jasmine.any(
+      describe('To and From headers', function() {
+        var nameAddrHeaderParsers = ['To', 'From'];
+        var nameAddr = 'sip:erick@bar.com;tag=1234';
+        for (var i = 0; i < nameAddrHeaderParsers.length; i++) {
+          var hdr = nameAddrHeaderParsers[i];
+          it('should return a NameAddrParserFactor for ' + hdr, function() {
+            var parserFactory = userAgentFeature.getHeaderParserFactory(hdr);
+            expect(parserFactory).toEqual(jasmine.any(
               jssip.sip.protocol.header.NameAddrHeaderParserFactory));
-        });
+          });
 
-        it('should parse NameAddr objects for header ' + hdr, function() {
-          var parserFactory = userAgentFeature.getHeaderParserFactory(hdr);
-          var parser = parserFactory.createParser(nameAddr);
-          var header = parser.parse();
-          expect(header.getHeaderName()).toBe(hdr);
-          expect(header.getNameAddr()).toEqual(jasmine.any(
+          it('should parse NameAddr objects for header ' + hdr, function() {
+            var parserFactory = userAgentFeature.getHeaderParserFactory(hdr);
+            var parser = parserFactory.createParser(nameAddr);
+            var header = parser.parse();
+            expect(header.getHeaderName()).toBe(hdr);
+            expect(header.getNameAddr()).toEqual(jasmine.any(
               jssip.sip.protocol.NameAddr))
-          expect(header.getNameAddr().getContextParams().getParameter('tag')).
+            expect(header.getNameAddr().getContextParams().getParameter('tag')).
               toBe('1234');
-        });
-      };
+          });
+        };
+      });
+
+      it('should return a ViaHeaderParserFactory for Via', function() {
+        expect(userAgentFeature.getHeaderParserFactory('Via')).toEqual(
+            jasmine.any(
+                jssip.sip.protocol.header.ViaHeaderParserFactory));
+      });
     });
   });
 

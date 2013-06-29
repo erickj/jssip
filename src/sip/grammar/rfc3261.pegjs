@@ -121,7 +121,7 @@ hostport        = host ( ":" port )?
 
 host            = ( hostname / IPv4address / IPv6reference ) { return input.substring(pos, offset); }
 
-hostname        = ( domainlabel "." )* toplabel  "." ?
+hostname        = ( domainlabel "." )* toplabel  "." ? { return input.substring(pos, offset); }
 
 domainlabel     = domainlabel: ( [a-zA-Z0-9_-]+ )
 
@@ -152,7 +152,8 @@ h16             = HEXDIG HEXDIG? HEXDIG? HEXDIG?
 ls32            = ( h16 ":" h16 ) / IPv4address
 
 
-IPv4address     = dec_octet "." dec_octet "." dec_octet "." dec_octet
+IPv4address     = dec_octet "." dec_octet "." dec_octet "." dec_octet {
+                 return input.substring(pos, offset); }
 
 dec_octet       = "25" [\x30-\x35]          // 250-255
                 / "2" [\x30-\x34] DIGIT     // 200-249
@@ -160,7 +161,7 @@ dec_octet       = "25" [\x30-\x35]          // 250-255
                 / [\x31-\x39] DIGIT         // 10-99
                 / DIGIT                     // 0-9
 
-port            = port: (DIGIT ? DIGIT ? DIGIT ? DIGIT ? DIGIT ?)
+port            = port: (DIGIT ? DIGIT ? DIGIT ? DIGIT ? DIGIT ?) { return input.substring(pos, offset); }
 
 // URI PARAMETERS
 
@@ -624,7 +625,7 @@ User_Agent  =  server_val ( LWS server_val )*
 
 Via               = via_parm (COMMA via_parm)*
 
-via_parm          = sent_protocol LWS sent_by ( SEMI via_params )*
+via_parm          = sent_protocol LWS sent_by ( SEMI via_params SWS )*
 
 via_params        = via_ttl / via_maddr / via_received / via_branch / response_port / via_extension
 
@@ -652,9 +653,10 @@ sent_by           = via_host ( COLON via_port )?
 
 via_host          = ( hostname / IPv4address / IPv6reference )
 
-via_port          = via_sent_by_port: (DIGIT ? DIGIT ? DIGIT ? DIGIT ? DIGIT ?)
+via_port          = via_sent_by_port: (DIGIT ? DIGIT ? DIGIT ? DIGIT ? DIGIT ?) {
+                  return input.substring(pos, offset); }
 
-ttl               = ttl: (DIGIT DIGIT ? DIGIT ?)
+ttl               = ttl: (DIGIT DIGIT ? DIGIT ?) { return input.substring(pos, offset); }
 
 
 // WWW-AUTHENTICATE

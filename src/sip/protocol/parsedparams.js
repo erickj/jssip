@@ -1,5 +1,7 @@
 goog.provide('jssip.sip.protocol.ParsedParams');
 
+goog.require('goog.structs.Map');
+
 
 
 /**
@@ -16,42 +18,18 @@ jssip.sip.protocol.ParsedParams = function(parsedParams) {
   /** @private {!Array.<!Array>} */
   this.parsedParams_ = parsedParams;
 
-  /** @private {!Object.<number>} */
-  this.paramLocMap_ = {};
-
-  /** @private {number} */
-  this.lastInspectedIndex_ = -1;
-};
-
-
-/**
- * @const {number}
- * @private
- */
-jssip.sip.protocol.ParsedParams.NOT_FOUND_ = -1;
-
-
-/**
- * @enum {number}
- * @private
- */
-jssip.sip.protocol.ParsedParams.Index_ = {
-  NAME: 0,
-  VALUE: 2
+  /** @private {!goog.structs.Map} */
+  this.paramMap_ = this.buildParamMap_();
 };
 
 
 /**
  * Gets a parameter value.
  * @param {string} name
- * @return {(string|boolean|undefined)} or null if not found
+ * @return {?(string|boolean)}, null if not present
  */
 jssip.sip.protocol.ParsedParams.prototype.getParameter = function(name) {
-  if (!this.hasParameter(name)) {
-    return undefined;
-  }
-  return this.parsedParams_[this.paramLocMap_[name]][1][
-      jssip.sip.protocol.ParsedParams.Index_.VALUE];
+  return /** @type {(string|boolean|null)} */ (this.paramMap_.get(name, null));
 };
 
 
@@ -62,20 +40,35 @@ jssip.sip.protocol.ParsedParams.prototype.getParameter = function(name) {
  * @return {boolean}
  */
 jssip.sip.protocol.ParsedParams.prototype.hasParameter = function(name) {
-  if (!goog.isDef(this.paramLocMap_[name])) {
-    this.paramLocMap_[name] = jssip.sip.protocol.ParsedParams.NOT_FOUND_;
-    this.lastInspectedIndex_++;
-    for (var i = this.lastInspectedIndex_; i < this.parsedParams_.length; i++) {
-      var param = this.parsedParams_[i][1];
-      this.paramLocMap_[param[jssip.sip.protocol.ParsedParams.Index_.NAME]] = i;
-      if (!goog.isDef(param[jssip.sip.protocol.ParsedParams.Index_.VALUE])) {
-        param[jssip.sip.protocol.ParsedParams.Index_.VALUE] = true;
-      }
-      if (param[jssip.sip.protocol.ParsedParams.Index_.NAME] == name) {
-        break;
-      }
-    }
-    this.lastInspectedIndex_ = i;
+  return this.paramMap_.containsKey(name);
+};
+
+
+/**
+ * @return {!goog.structs.Map}
+ * @private
+ */
+jssip.sip.protocol.ParsedParams.prototype.buildParamMap_ = function() {
+  var map = {};
+  var nameIndex = 0;
+  var valueIndex = 2;
+  for (var i = 0; i < this.parsedParams_.length; i++) {
+    var param = this.parsedParams_[i][1];
+    var name = param[nameIndex];
+    var value = goog.isDef(param[valueIndex]) ? param[valueIndex] : true;
+    map[name] = value;
   }
-  return this.paramLocMap_[name] > jssip.sip.protocol.ParsedParams.NOT_FOUND_;
+  return new goog.structs.Map(map);
+};
+
+
+/**
+ * Whether this is equal to another object.
+ * @param {!Object} o
+ * @return {boolean}
+ */
+jssip.sip.protocol.ParsedParams.prototype.equals = function(o) {
+  return o === this || (o instanceof jssip.sip.protocol.ParsedParams &&
+      /** @type {!jssip.sip.protocol.ParsedParams} */ (
+          o).paramMap_.equals(this.paramMap_));
 };

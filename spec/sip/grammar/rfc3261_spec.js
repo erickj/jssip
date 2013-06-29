@@ -110,6 +110,67 @@ describe('jssip.sip.grammar.rfc3261', function() {
           expect(params[i]).toBeParam(expectedParamName, expectedParamValue);
         }
         return true;
+      },
+
+      /**
+       * @param {!Array} expectedFirstViaParm toBeViaParm argument list
+       * @param {!Array=} opt_expectedAddlViaParms Array of toBeViaParam
+       *     argument list
+       */
+      toBeVia: function(expectedFirstViaParm, opt_expectedAddlViaParms) {
+        var via = this.actual;
+        expect(via).toEqual(jasmine.any(Array));
+        expect(via.length).toBe(2)
+
+        var viaParm = via[0];
+        expect(viaParm).toBeViaParm.apply(
+            expect(viaParm), expectedFirstViaParm);
+
+        var addlViaParms = via[1];
+        var expectedAddlViaParms = opt_expectedAddlViaParms || [];
+        expect(addlViaParms.length).toBe(expectedAddlViaParms.length);
+        for (var i = 0; i < addlViaParms.length; i++) {
+          expect(addlViaParms[i]).toBeViaParm.apply(
+              expect(addlViaParms[i]), expectedAddlViaParms[i]);
+        }
+        return true;
+      },
+
+      /**
+       * @param {string} protocol Probably just 'SIP'
+       * @param {string} version Probably just '2.0'
+       * @param {string} transport UDP/TCP/TLS etc..
+       * @param {string} host Hostname or IP address
+       * @param {string=} opt_port An optional port
+       * @param {!Array.<!Array.<string>>} opt_params
+       */
+      toBeViaParm: function(
+          protocol, version, transport, host, opt_port, opt_params) {
+        var viaParm = this.actual;
+        expect(viaParm).toEqual(jasmine.any(Array));
+
+        var sentProtocol = viaParm[0];
+        expect(sentProtocol).toEqual(
+          [protocol, '/', version, '/', transport]);
+
+        var lws = viaParm[1];
+        expect(lws).toMatch(/\s*/);
+
+        var sentBy = viaParm[2];
+        var expectedPort = opt_port ? [':', opt_port] : [];
+        expect(sentBy).toEqual([host, expectedPort]);
+
+        var viaParams = viaParm[3];
+        expect(viaParams).toEqual(jasmine.any(Array));
+        opt_params = opt_params || [];
+
+        expect(viaParams.length).toBe(opt_params.length);
+        for (var i = 0; i < viaParams.length; i++) {
+          var key = opt_params[i][0];
+          var opt_value = opt_params[i][1];
+          expect(viaParams[i]).toBeParam(key, opt_value);
+        }
+        return true;
       }
     }))
   });
@@ -245,6 +306,36 @@ describe('jssip.sip.grammar.rfc3261', function() {
       });
     };
   }); // end To/From shared specs
+
+  // @see RFC 3261 Section 20.42
+  describe('Via header', function() {
+    it('should parse a Via header value', function() {
+      var viaHeaderValue =
+          "SIP/2.0/UDP erlang.bell-telephone.com:5060;branch=z9hG4bK87asdks7";
+      var parsedVia = parser.parse(viaHeaderValue, 'Via');
+      expect(parsedVia).toBeVia(
+          ['SIP', '2.0', 'UDP', 'erlang.bell-telephone.com', '5060',
+              [['branch', 'z9hG4bK87asdks7']]]);
+    });
+
+    it('should parse a Via header value with multiple params', function() {
+      var viaHeaderValue =
+          "SIP/2.0/UDP 192.0.2.1:5060 ;received=192.0.2.207;branch=z9hG4bK77asjd";
+      var parsedVia = parser.parse(viaHeaderValue, 'Via');
+      expect(parsedVia).toBeVia(['SIP', '2.0', 'UDP', '192.0.2.1', '5060',
+          [['received', '192.0.2.207'], ['branch', 'z9hG4bK77asjd']]]);
+    });
+
+    it('should parse a Via header value with extra whitespace', function() {
+      var viaHeaderValue = "SIP / 2.0 / UDP first.example.com: 4000;ttl=16" +
+          ";maddr=224.2.0.1 ;branch=z9hG4bKa7c6a8dlze.1"
+      var parsedVia = parser.parse(viaHeaderValue, 'Via');
+      expect(parsedVia).toBeVia(['SIP', '2.0', 'UDP', 'first.example.com', '4000',
+          [['ttl', '16'],
+           ['maddr', '224.2.0.1'],
+           ['branch', 'z9hG4bKa7c6a8dlze.1']]]);
+    });
+  });
 
   describe('All header specs', function() {
     for (var i = 0; i < allTestedHeaders.length; i++) {

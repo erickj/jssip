@@ -30,8 +30,36 @@ describe('jssip.sip.protocol.ParsedParams', function() {
       expect(parsedParams.getParameter('baz')).toBe(true);
     });
 
-    it('should return undefined for parameters it does not have', function() {
-      expect(parsedParams.getParameter('frobnotz')).toBe(undefined);
+    it('should return null for parameters it does not have', function() {
+      expect(parsedParams.getParameter('frobnotz')).toBe(null);
+    });
+  });
+
+  describe('#equals', function() {
+    it('should equal itself', function() {
+      expect(parsedParams.equals(parsedParams)).toBe(true);
+    });
+
+    it('should equal parsed params with the same parameters', function() {
+      var otherParsedParams =
+          new jssip.sip.protocol.ParsedParams(parsedParamArray);
+      expect(parsedParams.equals(otherParsedParams)).toBe(true);
+      expect(otherParsedParams.equals(parsedParams)).toBe(true);
+    });
+
+    it('should equal parsed params with the same out of order parameters',
+       function() {
+         var outOfOrderParamArray = [[';', ['baz']], [';', ['fiz', '=', 'buz']]];
+         var otherParsedParams =
+             new jssip.sip.protocol.ParsedParams(outOfOrderParamArray);
+         expect(parsedParams.equals(otherParsedParams)).toBe(true);
+         expect(otherParsedParams.equals(parsedParams)).toBe(true);
+       });
+
+    it('should not equal parsed params with different params', function() {
+      var otherParsedParams = new jssip.sip.protocol.ParsedParams([]);
+      expect(parsedParams.equals(otherParsedParams)).toBe(false);
+      expect(otherParsedParams.equals(parsedParams)).toBe(false);
     });
   });
 });
