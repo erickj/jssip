@@ -79,10 +79,16 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     };
 
     describe('custom header parser factory', function() {
-      it('should return a NameAddrListParserFactory for Contact', function() {
-        expect(userAgentFeature.getHeaderParserFactory('Contact')).toEqual(
-            jasmine.any(
-                jssip.sip.protocol.header.NameAddrListHeaderParserFactory));
+      describe('Contact, Route, and Record-Route headers', function() {
+        var headers = ['Contact', 'Route', 'Record-Route'];
+        for (var i = 0; i < headers.length; i++) {
+          var hdr = headers[i];
+          it('should return a NameAddrListParserFactory for ' + hdr, function() {
+            expect(userAgentFeature.getHeaderParserFactory(hdr)).toEqual(
+                jasmine.any(
+                    jssip.sip.protocol.header.NameAddrListHeaderParserFactory));
+          });
+        }
       });
 
       describe('To and From headers', function() {

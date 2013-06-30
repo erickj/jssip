@@ -73,20 +73,19 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.getHeaderParserFactory =
   var headerParserFactory = this.headerParserFactory_;
   switch (name) {
     case jssip.sip.protocol.rfc3261.HeaderType.CONTACT:
+    case jssip.sip.protocol.rfc3261.HeaderType.ROUTE:
+    case jssip.sip.protocol.rfc3261.HeaderType.RECORD_ROUTE:
       return new jssip.sip.protocol.header.NameAddrListHeaderParserFactory(
-          headerParserFactory, jssip.sip.protocol.rfc3261.HeaderType.CONTACT,
+          headerParserFactory, name,
           this.getFeatureContext().getParserRegistry());
     case jssip.sip.protocol.rfc3261.HeaderType.FROM:
-      return new jssip.sip.protocol.header.NameAddrHeaderParserFactory(
-          headerParserFactory, jssip.sip.protocol.rfc3261.HeaderType.FROM,
-          this.getFeatureContext().getParserRegistry());
     case jssip.sip.protocol.rfc3261.HeaderType.TO:
       return new jssip.sip.protocol.header.NameAddrHeaderParserFactory(
-          headerParserFactory, jssip.sip.protocol.rfc3261.HeaderType.TO,
+          headerParserFactory, name,
           this.getFeatureContext().getParserRegistry());
     case jssip.sip.protocol.rfc3261.HeaderType.VIA:
       return new jssip.sip.protocol.header.ViaHeaderParserFactory(
-          headerParserFactory, jssip.sip.protocol.rfc3261.HeaderType.VIA);
+          headerParserFactory, name);
     default:
       return headerParserFactory;
   }
