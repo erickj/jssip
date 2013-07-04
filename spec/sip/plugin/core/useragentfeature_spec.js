@@ -5,6 +5,7 @@ goog.require('jssip.event.EventBus');
 goog.require('jssip.message.Message.Builder');
 goog.require('jssip.sip.UserAgent.Config');
 goog.require('jssip.sip.plugin.core.UserAgentFeature');
+goog.require('jssip.sip.protocol.feature.UserAgentClient');
 goog.require('jssip.sip.protocol.header.NameAddrListHeaderParserFactory');
 goog.require('jssip.sip.protocol.header.ViaHeaderParserFactory');
 goog.require('jssip.sip.protocol.rfc3261');
@@ -142,7 +143,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     beforeEach(function() {
       eventListener = jasmine.createSpy();
       eventBus.addEventListener(
-          jssip.sip.protocol.UserAgentClient.EventType.RECEIVE_RESPONSE,
+          jssip.sip.protocol.feature.UserAgentClient.EventType.RECEIVE_RESPONSE,
           eventListener);
     });
 
@@ -175,7 +176,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     beforeEach(function() {
       eventListener = jasmine.createSpy();
       eventBus.addEventListener(
-          jssip.sip.protocol.UserAgentClient.EventType.CREATE_REQUEST,
+          jssip.sip.protocol.feature.UserAgentClient.EventType.CREATE_REQUEST,
           eventListener);
 
       toUri = (new jssip.uri.Uri.Builder()).
@@ -221,7 +222,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
       };
 
       eventBus.addEventListener(
-          jssip.sip.protocol.UserAgentClient.EventType.CREATE_REQUEST,
+          jssip.sip.protocol.feature.UserAgentClient.EventType.CREATE_REQUEST,
           eventListener);
       userAgentFeature.createRequest(messageBuilder, 'INVITE', toUri)
       var message = messageBuilder.build();

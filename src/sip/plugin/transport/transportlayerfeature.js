@@ -7,10 +7,9 @@ goog.require('jssip.async.Promise');
 goog.require('jssip.net.Socket');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureFacade');
-goog.require('jssip.sip.UserAgent');
 goog.require('jssip.sip.plugin.transport.pluginfeature');
 goog.require('jssip.sip.protocol.LookupResult');
-goog.require('jssip.sip.protocol.TransportLayer');
+goog.require('jssip.sip.protocol.feature.TransportLayer');
 goog.require('jssip.sip.protocol.rfc3261');
 goog.require('jssip.uri.Uri');
 
@@ -40,7 +39,7 @@ jssip.sip.plugin.transport.TransportLayerFeature =
   this.socketEventBus_ = new jssip.event.EventBus();
 
   var featureTypes = [
-    jssip.sip.UserAgent.CoreFeatureType.TRANSPORTLAYER
+    jssip.sip.protocol.feature.TransportLayer.TYPE
   ];
   goog.base(this, name, this.facade_, undefined /* opt_eventHandlerMap */,
       featureTypes);
@@ -147,7 +146,7 @@ jssip.sip.plugin.transport.TransportLayerFeature.prototype.
  * @constructor
  * @private
  * @implements {jssip.plugin.FeatureFacade}
- * @implements {jssip.sip.protocol.TransportLayer}
+ * @implements {jssip.sip.protocol.feature.TransportLayer}
  */
 jssip.sip.plugin.transport.TransportLayerFeature.Facade_ = function(delegate) {
   /** @private {!jssip.sip.plugin.transport.TransportLayerFeature} */

@@ -9,7 +9,7 @@ goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.plugin.FeatureContextImpl');
 goog.require('jssip.plugin.FeatureSet');
-goog.require('jssip.sip.protocol.TransportLayer');
+goog.require('jssip.sip.protocol.feature');
 goog.require('jssip.util.PropertyHolder');
 
 
@@ -53,27 +53,17 @@ jssip.sip.UserAgent = function(plugins, config, parentEventBus) {
       new jssip.message.MessageParserFactory(this.eventBus_), this.eventBus_);
 
   var requiredFeatureTypes = [
-    jssip.sip.UserAgent.CoreFeatureType.USERAGENTCLIENT,
-    jssip.sip.UserAgent.CoreFeatureType.USERAGENTSERVER,
-    jssip.sip.UserAgent.CoreFeatureType.TRANSPORTLAYER,
-    jssip.sip.UserAgent.CoreFeatureType.TRANSACTIONLAYER,
-    jssip.sip.UserAgent.CoreFeatureType.DIALOGLAYER
+    jssip.sip.protocol.feature.CoreType.USERAGENTCLIENT,
+    jssip.sip.protocol.feature.CoreType.USERAGENTSERVER,
+    jssip.sip.protocol.feature.CoreType.TRANSPORTLAYER,
+    jssip.sip.protocol.feature.CoreType.TRANSACTIONLAYER,
+    jssip.sip.protocol.feature.CoreType.DIALOGLAYER
   ];
 
   /** @private {!jssip.plugin.FeatureContextImpl} */
   this.featureContext_ = new jssip.plugin.FeatureContextImpl(
       this.availableFeatureSet_, this.eventBus_, this.parserRegistry_,
       requiredFeatureTypes, this.config_);
-};
-
-
-/** @enum {string} */
-jssip.sip.UserAgent.CoreFeatureType = {
-  USERAGENTCLIENT: 'useragentclient',
-  USERAGENTSERVER: 'useragentserver',
-  TRANSPORTLAYER: 'transportlayer',
-  TRANSACTIONLAYER: 'transactionlayer',
-  DIALOGLAYER: 'dialoglayer'
 };
 
 
@@ -91,7 +81,6 @@ jssip.sip.UserAgent.Event = {
 jssip.sip.UserAgent.prototype.load = function() {
   this.eventBus_.dispatchEvent(jssip.sip.UserAgent.Event.LOADSTART);
   this.activateFeatures_();
-  this.setupHandlers_();
   this.eventBus_.dispatchEvent(jssip.sip.UserAgent.Event.LOADEND);
 };
 
@@ -111,41 +100,6 @@ jssip.sip.UserAgent.prototype.activateFeatures_ = function() {
   this.featureContext_.finalize();
   this.parserRegistry_.finalize();
   this.eventBus_.dispatchEvent(jssip.sip.UserAgent.Event.FEATURESACTIVATED);
-};
-
-
-/**
- * Sets up event handlers and callbacks.
- * @private
- */
-jssip.sip.UserAgent.prototype.setupHandlers_ = function() {
-  this.eventBus_.addEventListener(
-      jssip.sip.protocol.TransportLayer.EventType.RECEIVE_MESSAGE,
-      goog.bind(this.handleTransportMesssage_, this));
-};
-
-
-// TODO(erick): Figure out how to restructure so I don't need the @suppress
-/**
- * Handles raw inbound messages from the transport layer.  Requests are handed
- * to the user agent server and response to the user agent client.
- * @param {!jssip.sip.event.MessageEvent} event
- * @suppress {invalidCasts}
- * @private
- */
-jssip.sip.UserAgent.prototype.handleTransportMesssage_ = function(event) {
-  var messageContext = event.messageContext;
-  if (messageContext.getMessage().isRequest()) {
-    var uas = /** @type {!jssip.sip.protocol.UserAgentServer} */ (
-        this.featureContext_.getFacadeByType(
-            jssip.sip.UserAgent.CoreFeatureType.USERAGENTSERVER));
-    uas.handleRequest(messageContext);
-  } else {
-    var uac = /** @type {!jssip.sip.protocol.UserAgentClient} */ (
-        this.featureContext_.getFacadeByType(
-            jssip.sip.UserAgent.CoreFeatureType.USERAGENTCLIENT));
-    uac.handleResponse(messageContext);
-  }
 };
 
 

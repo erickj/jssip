@@ -1,4 +1,4 @@
-goog.provide('jssip.sip.protocol.TransportLayer');
+goog.provide('jssip.sip.protocol.feature.TransportLayer');
 
 
 
@@ -7,11 +7,15 @@ goog.provide('jssip.sip.protocol.TransportLayer');
  *
  * @interface
  */
-jssip.sip.protocol.TransportLayer = function() {};
+jssip.sip.protocol.feature.TransportLayer = function() {};
+
+
+/** @const {string} */
+jssip.sip.protocol.feature.TransportLayer.TYPE = 'feature-transportlayer';
 
 
 /** @enum {string} */
-jssip.sip.protocol.TransportLayer.EventType = {
+jssip.sip.protocol.feature.TransportLayer.EventType = {
   RECEIVE_MESSAGE: 'transportlayer-receivemessage',
   SENT_MESSAGE: 'transportlayer-sentmessage'
 };
@@ -25,4 +29,4 @@ jssip.sip.protocol.TransportLayer.EventType = {
  * @param {!jssip.message.BuilderMessageContext} messageContext
  * @return {!jssip.async.Promise.<boolean>}
  */
-jssip.sip.protocol.TransportLayer.prototype.send = goog.abstractMethod;
+jssip.sip.protocol.feature.TransportLayer.prototype.send = goog.abstractMethod;

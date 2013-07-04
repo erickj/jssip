@@ -11,8 +11,8 @@ goog.require('jssip.sip.UserAgent');
 goog.require('jssip.sip.event.MessageEvent');
 goog.require('jssip.sip.plugin.core.HeaderParserFactoryImpl');
 goog.require('jssip.sip.plugin.core.SipUriParserFactory');
-goog.require('jssip.sip.protocol.UserAgentClient');
-goog.require('jssip.sip.protocol.UserAgentServer');
+goog.require('jssip.sip.protocol.feature.UserAgentClient');
+goog.require('jssip.sip.protocol.feature.UserAgentServer');
 goog.require('jssip.sip.protocol.header.NameAddrHeaderParserFactory');
 goog.require('jssip.sip.protocol.header.NameAddrListHeaderParserFactory');
 goog.require('jssip.sip.protocol.header.ViaHeaderParserFactory');
@@ -46,8 +46,8 @@ jssip.sip.plugin.core.UserAgentFeature = function(name) {
   this.uriParserSet_[jssip.uri.Uri.Scheme.SIPS] = true;
 
   var featureTypes = [
-    jssip.sip.UserAgent.CoreFeatureType.USERAGENTCLIENT,
-    jssip.sip.UserAgent.CoreFeatureType.USERAGENTSERVER
+    jssip.sip.protocol.feature.UserAgentClient.TYPE,
+    jssip.sip.protocol.feature.UserAgentServer.TYPE
   ];
 
   goog.base(this, name, this.facade_, undefined /* opt_eventHandlerMap */,
@@ -119,7 +119,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createEvent_ =
  * Fires CREATE_RESPONSE event.  This builder sets headers so that they do NOT
  * overwrite existing headers.
  *
- * @see {jssip.sip.protocol.UserAgentClient#createRequest}
+ * @see {jssip.sip.protocol.feature.UserAgentClient#createRequest}
  * @param {!jssip.message.Message.Builder} messageBuilder A message builder.
  * @param {string} method The SIP request method.
  * @param {!jssip.uri.Uri} toUri A to URI.
@@ -152,7 +152,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
   }
 
   this.dispatchEvent(this.createEvent_(builderMessageContext,
-      jssip.sip.protocol.UserAgentClient.EventType.CREATE_REQUEST));
+      jssip.sip.protocol.feature.UserAgentClient.EventType.CREATE_REQUEST));
   return builderMessageContext;
 };
 
@@ -311,7 +311,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.handleResponse =
   }
 
   var event = this.createEvent_(messageContext,
-      jssip.sip.protocol.UserAgentClient.EventType.RECEIVE_RESPONSE);
+      jssip.sip.protocol.feature.UserAgentClient.EventType.RECEIVE_RESPONSE);
   this.dispatchEvent(event);
 };
 
@@ -329,7 +329,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.handleRequest =
 
   var event = this.createEvent_(
       messageContext,
-      jssip.sip.protocol.UserAgentServer.EventType.RECEIVE_REQUEST);
+      jssip.sip.protocol.feature.UserAgentServer.EventType.RECEIVE_REQUEST);
   this.dispatchEvent(event);
 };
 
@@ -340,8 +340,8 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.handleRequest =
  *     instance to delegate to.
  * @constructor
  * @private
- * @implements {jssip.sip.protocol.UserAgentClient}
- * @implements {jssip.sip.protocol.UserAgentServer}
+ * @implements {jssip.sip.protocol.feature.UserAgentClient}
+ * @implements {jssip.sip.protocol.feature.UserAgentServer}
  * @implements {jssip.plugin.FeatureFacade}
  */
 jssip.sip.plugin.core.UserAgentFeature.Facade_ = function(delegate) {
