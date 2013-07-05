@@ -53,7 +53,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
   });
 
   describe('#getHeaderParserFactory', function() {
-    it('should throw if the feature is not yet activated', function() {
+    it('throws if the feature is not yet activated', function() {
       userAgentFeature = new jssip.sip.plugin.core.UserAgentFeature(
           'unactivated-feature');
       expect(function() {
@@ -61,77 +61,70 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
       }).toThrow();
     });
 
-    it('should throw if the header type is not one declared in 3261',
+    it('throws if the header type is not one declared in 3261',
        function() {
          expect(function() {
            userAgentFeature.getHeaderParserFactory('Foobars');
          }).toThrow();
        });
 
+    describe('3261 headers', function() {
+      var customHeaderParserFactories = {
+        Contact: jssip.sip.protocol.header.NameAddrListHeaderParserFactory,
+        Route: jssip.sip.protocol.header.NameAddrListHeaderParserFactory,
+        'Record-Route':
+            jssip.sip.protocol.header.NameAddrListHeaderParserFactory,
+        To: jssip.sip.protocol.header.NameAddrHeaderParserFactory,
+        From:jssip.sip.protocol.header.NameAddrHeaderParserFactory,
+        Via: jssip.sip.protocol.header.ViaHeaderParserFactory
+      };
 
-    for (var headerKey in jssip.sip.protocol.rfc3261.HeaderType) {
-      it('should return a header parser for header ' + headerKey + ' in 3261',
-         function() {
-           var parser = userAgentFeature.getHeaderParserFactory(
-               jssip.sip.protocol.rfc3261.HeaderType[headerKey]);
-           expect(parser).toEqual(
-               jasmine.any(jssip.sip.plugin.core.HeaderParserFactoryImpl));
-         });
-    };
+      for (var headerKey in jssip.sip.protocol.rfc3261.HeaderType) {
+        var hdr = jssip.sip.protocol.rfc3261.HeaderType[headerKey];
+        var msg = 'returns a header parser for header ' + hdr;
+        it(msg, function(hdr) {
+          return function() {
+            var parser = userAgentFeature.getHeaderParserFactory(hdr);
+            expect(parser).toEqual(jasmine.any(
+                customHeaderParserFactories[hdr] ||
+                    jssip.sip.plugin.core.HeaderParserFactoryImpl));
+          };
+        }(hdr));
+      };
+    });
 
     describe('custom header parser factory', function() {
-      describe('Contact, Route, and Record-Route headers', function() {
-        var headers = ['Contact', 'Route', 'Record-Route'];
-        for (var i = 0; i < headers.length; i++) {
-          var hdr = headers[i];
-          it('should return a NameAddrListParserFactory for ' + hdr, function() {
-            expect(userAgentFeature.getHeaderParserFactory(hdr)).toEqual(
-                jasmine.any(
-                    jssip.sip.protocol.header.NameAddrListHeaderParserFactory));
-          });
-        }
-      });
-
       describe('To and From headers', function() {
         var nameAddrHeaderParsers = ['To', 'From'];
         var nameAddr = 'sip:erick@bar.com;tag=1234';
         for (var i = 0; i < nameAddrHeaderParsers.length; i++) {
           var hdr = nameAddrHeaderParsers[i];
-          it('should return a NameAddrParserFactor for ' + hdr, function() {
-            var parserFactory = userAgentFeature.getHeaderParserFactory(hdr);
-            expect(parserFactory).toEqual(jasmine.any(
-              jssip.sip.protocol.header.NameAddrHeaderParserFactory));
-          });
 
-          it('should parse NameAddr objects for header ' + hdr, function() {
-            var parserFactory = userAgentFeature.getHeaderParserFactory(hdr);
-            var parser = parserFactory.createParser(nameAddr);
-            var header = parser.parse();
-            expect(header.getHeaderName()).toBe(hdr);
-            expect(header.getNameAddr()).toEqual(jasmine.any(
-              jssip.sip.protocol.NameAddr))
-            expect(header.getNameAddr().getContextParams().getParameter('tag')).
-              toBe('1234');
-          });
+          it('parses NameAddr objects for header ' + hdr, function(hdr) {
+            return function() {
+              var parserFactory = userAgentFeature.getHeaderParserFactory(hdr);
+              var parser = parserFactory.createParser(nameAddr);
+              var header = parser.parse();
+              expect(header.getHeaderName()).toBe(hdr);
+              expect(header.getNameAddr()).toEqual(jasmine.any(
+                jssip.sip.protocol.NameAddr))
+              expect(header.getNameAddr().getContextParams().getParameter('tag')).
+                toBe('1234');
+            };
+          }(hdr));
         };
-      });
-
-      it('should return a ViaHeaderParserFactory for Via', function() {
-        expect(userAgentFeature.getHeaderParserFactory('Via')).toEqual(
-            jasmine.any(
-                jssip.sip.protocol.header.ViaHeaderParserFactory));
       });
     });
   });
 
   describe('#getUriParserFactory', function() {
-    it('should throw if the scheme is not SIP or SIPS', function() {
+    it('throws if the scheme is not SIP or SIPS', function() {
       expect(function() {
         userAgentFeature.getUriParserFactory('foo');
       }).toThrow();
     });
 
-    it('should return a SipUriParserFactory for SIP and SIPS schemes', function() {
+    it('returns a SipUriParserFactory for SIP and SIPS schemes', function() {
       expect(userAgentFeature.getUriParserFactory(jssip.uri.Uri.Scheme.SIP)).
           toEqual(jasmine.any(jssip.sip.plugin.core.SipUriParserFactory));
       expect(userAgentFeature.getUriParserFactory(jssip.uri.Uri.Scheme.SIPS)).
@@ -147,7 +140,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
           eventListener);
     });
 
-    it('should emit RECEIVE_RESPONSE events', function() {
+    it('emits RECEIVE_RESPONSE events', function() {
       var rawMessageContext = jssip.testing.util.messageutil.createRawMessageContext(
           exampleMessage.INVITE_200_OK);
 
@@ -159,7 +152,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
       expect(event.messageContext).toBe(rawMessageContext);
     });
 
-    it('should throw an error if it receives a request', function() {
+    it('throws an error if it receives a request', function() {
       var exampleMessage = jssip.testing.util.messageutil.ExampleMessage;
 
       expect(function() {
@@ -184,7 +177,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
           addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'im.lazy').build();
     });
 
-    it('should add to the message builder provided', function() {
+    it('adds to the message builder provided', function() {
       userAgentFeature.createRequest(messageBuilder, 'FOOSBAR', toUri);
 
       var message = messageBuilder.build();
@@ -199,12 +192,11 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
         headerType.FROM, /EJ <sip:erick@bar.com>;tag=[a-f0-9]+/,
         headerType.CALL_ID, /[a-f0-9]+/,
         headerType.CSEQ, /[0-9]+ FOOSBAR/,
-        headerType.MAX_FORWARDS, '70',
-        headerType.VIA, /^SIP\/2\.0\/UDP\s+10.1.1.1:5061;branch=z9hG4bK-[a-f0-9]+/
+        headerType.MAX_FORWARDS, '70'
       ), message);
     });
 
-    it('should dispatch a CREATE_RESPONSE event', function() {
+    it('dispatches a CREATE_RESPONSE event', function() {
       userAgentFeature.createRequest(messageBuilder, 'INVITE', toUri)
       expect(eventListener).toHaveBeenCalledWith(
           jasmine.any(jssip.sip.event.MessageEvent));
@@ -214,7 +206,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
           jasmine.any(jssip.message.BuilderMessageContext));
     });
 
-    it('should be possible to add and override message headers', function() {
+    it('is possible to add and override message headers', function() {
       eventListener = function(evt) {
         var builder = evt.messageContext.getBuilder();
         builder.setHeader('X-Foobar', 'xfoo');

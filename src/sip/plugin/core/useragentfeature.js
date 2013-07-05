@@ -1,6 +1,7 @@
 goog.provide('jssip.sip.plugin.core.UserAgentFeature');
 goog.provide('jssip.sip.plugin.core.UserAgentFeature.Facade_');
 
+goog.require('goog.asserts');
 goog.require('goog.crypt');
 goog.require('goog.crypt.Sha256');
 goog.require('goog.object');
@@ -9,6 +10,7 @@ goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureFacade');
 goog.require('jssip.sip.UserAgent');
 goog.require('jssip.sip.event.MessageEvent');
+goog.require('jssip.sip.plugin.core.MessageDestinationFetcher');
 goog.require('jssip.sip.plugin.core.HeaderParserFactoryImpl');
 goog.require('jssip.sip.plugin.core.SipUriParserFactory');
 goog.require('jssip.sip.protocol.feature.UserAgentClient');
@@ -32,6 +34,9 @@ jssip.sip.plugin.core.UserAgentFeature = function(name) {
 
   /** @private {jssip.sip.plugin.core.HeaderParserFactoryImpl} */
   this.headerParserFactory_ = null;
+
+  /** @private {jssip.sip.plugin.core.MessageDestinationFetcher} */
+  this.messageDestinationFetcher_ = null;
 
   /**
    * @private {!Object}
@@ -57,6 +62,13 @@ jssip.sip.plugin.core.UserAgentFeature = function(name) {
 goog.inherits(
     jssip.sip.plugin.core.UserAgentFeature, jssip.plugin.AbstractFeature);
 
+
+/** @override */
+jssip.sip.plugin.core.UserAgentFeature.prototype.onActivated = function() {
+  this.messageDestinationFetcher_ =
+      new jssip.sip.plugin.core.MessageDestinationFetcher(
+          this.getFeatureContext().getPlatformContext().getResolver());
+};
 
 /** @override */
 jssip.sip.plugin.core.UserAgentFeature.prototype.getHeaderParserFactory =
@@ -134,15 +146,12 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
   messageBuilder.setSipVersion(rfc3261.SIP_VERSION);
   messageBuilder.setMethod(method);
 
-  // TODO(erick): Set the request URI according to 3261#12.2.1.1
   messageBuilder.setRequestUri(toUri.toString());
-
   headerMap[rfc3261.HeaderType.TO] = this.generateToHeader_(toUri);
   headerMap[rfc3261.HeaderType.FROM] = this.generateFromHeader_();
   headerMap[rfc3261.HeaderType.CALL_ID] = this.generateCallId_();
   headerMap[rfc3261.HeaderType.CSEQ] = this.generateCSeq_(method);
   headerMap[rfc3261.HeaderType.MAX_FORWARDS] = this.generateMaxForwards_();
-  headerMap[rfc3261.HeaderType.VIA] = this.generateVia_();
   headerMap[rfc3261.HeaderType.CONTACT] = this.generateContact_();
 
   // Set headers so that they do NOT overwrite existing headers.
@@ -154,6 +163,20 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
   this.dispatchEvent(this.createEvent_(builderMessageContext,
       jssip.sip.protocol.feature.UserAgentClient.EventType.CREATE_REQUEST));
   return builderMessageContext;
+};
+
+
+/**
+ * Sends the request.
+ *
+ * @see {jssip.sip.protocol.feature.UserAgentClient#sendRequest}
+ * @param {!jssip.message.MessageContext} requestMessageContext
+ * @return {!jssip.async.Promise.<boolean>}
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequest =
+    function(requestMessageContext) {
+  goog.asserts.assert(requestMessageContext.isRequest());
+  throw new Error('not implemented');
 };
 
 
@@ -354,6 +377,13 @@ jssip.sip.plugin.core.UserAgentFeature.Facade_ = function(delegate) {
 jssip.sip.plugin.core.UserAgentFeature.Facade_.prototype.createRequest =
     function(messageBuilder, method, toUri) {
   return this.delegate_.createRequest(messageBuilder, method, toUri);
+};
+
+
+/** @override */
+jssip.sip.plugin.core.UserAgentFeature.Facade_.prototype.sendRequest =
+    function(requestMessageContext) {
+  return this.delegate_.sendRequest(requestMessageContext);
 };
 
 

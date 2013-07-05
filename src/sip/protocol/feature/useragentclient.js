@@ -42,6 +42,21 @@ jssip.sip.protocol.feature.UserAgentClient.prototype.createRequest =
 
 
 /**
+ * Sends a request. Returns a deferred response that indicates the request was
+ * eventually sent across the transport layer to the message destination.  A
+ * successful response does not indicate anything about the response to the
+ * request.
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.2}
+ *
+ * @param {!jssip.message.MessageContext} requestMessageContext
+ * @return {!jssip.async.Promise.<boolean>} Whether transport to the destination
+ *     succeeded.
+ */
+jssip.sip.protocol.feature.UserAgentClient.prototype.sendRequest =
+    goog.abstractMethod;
+
+
+/**
  * @param {!jssip.message.MessageContext} responseMessageContext
  */
 jssip.sip.protocol.feature.UserAgentClient.prototype.handleResponse =

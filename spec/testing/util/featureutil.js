@@ -5,6 +5,7 @@ goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.platform.PlatformContext');
 goog.require('jssip.plugin.FeatureContext');
+goog.require('jssip.testing.util.netutil.TestResolver');
 
 
 /**
@@ -23,7 +24,12 @@ jssip.testing.util.featureutil.createFeatureContext =
       new jssip.message.MessageParserFactory(opt_eventBus);
   var parserRegistry = new jssip.parser.ParserRegistry(messageParserFactory);
   var featureContext = new jssip.plugin.FeatureContext();
+
+  var resolver = new jssip.testing.util.netutil.TestResolver();
   var platformContext = new jssip.platform.PlatformContext();
+  goog.mixin(platformContext, {
+    getResolver: function() { return resolver; }
+  });
 
   goog.mixin(featureContext, {
     getPlatformContext: function() { return platformContext; },
