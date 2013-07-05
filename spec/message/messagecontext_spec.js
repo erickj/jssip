@@ -59,8 +59,23 @@ describe('jssip.message.MessageContext', function() {
   });
 
   describe('#getMessage', function() {
-    it('should return the result of #getMessageInternal', function() {
+    it('returns the result of #getMessageInternal', function() {
       expect(messageContext.getMessage()).toBe(messageDummy);
+    });
+  });
+
+  describe('#isRequest', function() {
+    it('returns true if the message is a request', function() {
+      expect(messageContext.isRequest()).toBe(true);
+    });
+
+    it('returns false if the message is a response', function() {
+      var responseMessage = jssip.testing.util.messageutil.parseMessage(
+          jssip.testing.util.messageutil.ExampleMessage.INVITE_200_OK);
+      var responseMessageContext =
+          new jssip.message.MessageContextSpec.TestMessageContext(
+              responseMessage, mockParserRegistry);
+      expect(responseMessageContext.isRequest()).toBe(false);
     });
   });
 
@@ -72,7 +87,7 @@ describe('jssip.message.MessageContext', function() {
       testHeaderValues = messageDummy.getHeaderValue(testHeader);
     });
 
-    it('should parse headers from the parser registry', function() {
+    it('parses headers from the parser registry', function() {
       var result = ['parse result of 0th header'];
       mockParserRegistry.parseHeader(testHeader, testHeaderValues[0]).
           $returns(result).$times(1);

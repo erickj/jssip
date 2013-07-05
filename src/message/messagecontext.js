@@ -83,6 +83,14 @@ jssip.message.MessageContext.prototype.getMessage = function() {
 
 
 /**
+ * @return {boolean} Whether or not this is a message context for a request.
+ */
+jssip.message.MessageContext.prototype.isRequest = function() {
+  return this.getMessage().isRequest();
+};
+
+
+/**
  * Returns the dialog associated with this message.
  * @return {!jssip.sip.protocol.Dialog} The dialog.
  */
