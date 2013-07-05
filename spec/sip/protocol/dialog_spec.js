@@ -13,6 +13,7 @@ describe('jssip.sip.protocol.Dialog', function() {
   var remoteTarget;
   var isSecure;
   var routeSet;
+  var state;
 
   beforeEach(function() {
     callId = 'abc.callid.123';
@@ -24,69 +25,77 @@ describe('jssip.sip.protocol.Dialog', function() {
     remoteTarget = /** @type {!jssip.uri.Uri} */ ({});
     isSecure = false;
     routeSet = /** @type {!jssip.sip.protocol.RouteSet} */ ({});
+    state = jssip.sip.protocol.Dialog.State.CONFIRMED;
 
     dialog = new jssip.sip.protocol.Dialog(callId, remoteTag, localTag,
-        sequenceNumber, localUri, remoteUri, remoteTarget, isSecure, routeSet);
+        sequenceNumber, localUri, remoteUri, remoteTarget, isSecure, routeSet,
+        state);
   });
 
   describe('getters', function() {
     describe('#getCallId', function() {
-      it('should get the CallId', function() {
+      it('gets the CallId', function() {
         expect(dialog.getCallId()).toBe(callId);
       });
     });
 
     describe('#getRemoteTag', function() {
-      it('should get the RemoteTag', function() {
+      it('gets the RemoteTag', function() {
         expect(dialog.getRemoteTag()).toBe(remoteTag);
       });
     });
 
     describe('#getLocalTag', function() {
-      it('should get the LocalTag', function() {
+      it('gets the LocalTag', function() {
         expect(dialog.getLocalTag()).toBe(localTag);
       });
     });
 
     describe('#getSequenceNumber', function() {
-      it('should get the SequenceNumber', function() {
+      it('gets the SequenceNumber', function() {
         expect(dialog.getSequenceNumber()).toBe(sequenceNumber);
       });
     });
 
     describe('#getLocalUri', function() {
-      it('should get the LocalUri', function() {
+      it('gets the LocalUri', function() {
         expect(dialog.getLocalUri()).toBe(localUri);
       });
     });
 
     describe('#getRemoteUri', function() {
-      it('should get the RemoteUri', function() {
+      it('gets the RemoteUri', function() {
         expect(dialog.getRemoteUri()).toBe(remoteUri);
       });
     });
 
     describe('#getRemoteTarget', function() {
-      it('should get the RemoteTarget', function() {
+      it('gets the RemoteTarget', function() {
         expect(dialog.getRemoteTarget()).toBe(remoteTarget);
       });
     });
 
     describe('#getIsSecure', function() {
-      it('should get the IsSecure', function() {
+      it('gets the IsSecure', function() {
         expect(dialog.getIsSecure()).toBe(isSecure);
       });
     });
 
     describe('#getRouteSet', function() {
-      it('should get the RouteSet', function() {
+      it('gets the RouteSet', function() {
         expect(dialog.getRouteSet()).toBe(routeSet);
       });
     });
 
     describe('#getState', function() {
-      it('should get the State', function() {
-        expect(dialog.getState()).toBe(jssip.sip.protocol.Dialog.State.NULL);
+      it('gets the State', function() {
+        expect(dialog.getState()).toBe(state);
+      });
+    });
+
+    describe('#isOutOfDialog', function() {
+      it('returns false', function() {
+        expect(dialog.isOutOfDialog()).toBe(false);
       });
     });
   });

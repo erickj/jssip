@@ -20,10 +20,12 @@ goog.require('jssip.sip.protocol.rfc3261');
  * @param {!jssip.uri.Uri} remoteTarget
  * @param {boolean} isSecure
  * @param {!jssip.sip.protocol.RouteSet} routeSet
+ * @param {jssip.sip.protocol.Dialog.State} state
  * @constructor
  */
 jssip.sip.protocol.Dialog = function(callId, remoteTag, localTag,
-    sequenceNumber, localUri, remoteUri, remoteTarget, isSecure, routeSet) {
+    sequenceNumber, localUri, remoteUri, remoteTarget, isSecure, routeSet,
+    state) {
   /** @private {string} */
   this.callId_ = callId;
 
@@ -52,13 +54,12 @@ jssip.sip.protocol.Dialog = function(callId, remoteTag, localTag,
   this.routeSet_ = routeSet;
 
   /** @private {jssip.sip.protocol.Dialog.State} */
-  this.state_ = jssip.sip.protocol.Dialog.State.NULL;
+  this.state_ = state;
 };
 
 
 /** @enum {string} */
 jssip.sip.protocol.Dialog.State = {
-  NULL: 'null',
   EARLY: 'early',
   CONFIRMED: 'confirmed',
   TERMINATED: 'terminated'
@@ -123,3 +124,9 @@ jssip.sip.protocol.Dialog.prototype.getRouteSet = function() {
 jssip.sip.protocol.Dialog.prototype.getState = function() {
   return this.state_;
 };
+
+
+/** @return {boolean} */
+jssip.sip.protocol.Dialog.prototype.isOutOfDialog = function() {
+  return false;
+}
