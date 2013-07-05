@@ -16,6 +16,7 @@ describe('jssip.plugin.FeatureContextImpl', function() {
   var parserRegistry;
   var requiredFeatureTypes;
   var userAgentConfig;
+  var platformContext;
 
   beforeEach(function() {
     var f1 = new jssip.plugin.AbstractFeature(
@@ -31,9 +32,10 @@ describe('jssip.plugin.FeatureContextImpl', function() {
     config[jssip.sip.UserAgent.ConfigProperty.ADDRESS_OF_RECORD] = 'aor';
     userAgentConfig = new jssip.sip.UserAgent.Config(
         [] /* featureNames */, config);
+    platformContext = /** @type {!jssip.platform.PlatformContext} */ ({});
 
     context = new jssip.plugin.FeatureContextImpl(featureSet, eventBus,
-        parserRegistry, requiredFeatureTypes, userAgentConfig);
+        parserRegistry, requiredFeatureTypes, userAgentConfig, platformContext);
   });
 
   describe('#isFeatureActive', function() {
@@ -118,6 +120,12 @@ describe('jssip.plugin.FeatureContextImpl', function() {
     it('should get null for properties that are not set', function() {
       var prop = jssip.sip.UserAgent.ConfigProperty.OUTBOUND_PROXY;
       expect(context.getUserAgentConfigProperty(prop)).toBe(null);
+    });
+  });
+
+  describe('#getPlatformContext', function() {
+    it('should be the provided platform context', function() {
+      expect(context.getPlatformContext()).toBe(platformContext);
     });
   });
 

@@ -16,9 +16,10 @@ goog.require('jssip.sip.plugin.core.CorePlugin');
  * @param {!Array.<!jssip.plugin.Plugin>} plugins The plugins array.
  * @param {!Array.<!jssip.sip.UserAgent.Config>} configs Each config
  *     generates a user agent for the endpoint.
+ * @param {!jssip.platform.PlatformContext} platformContext
  * @constructor
  */
-jssip.Endpoint = function(plugins, configs) {
+jssip.Endpoint = function(plugins, configs, platformContext) {
   /** @private {!jssip.event.EventBus} */
   this.eventBus_ = new jssip.event.EventBus();
 
@@ -27,8 +28,8 @@ jssip.Endpoint = function(plugins, configs) {
 
   plugins.push(new jssip.sip.plugin.core.CorePlugin());
   for (var i = 0; i < configs.length; i++) {
-    this.userAgents_.push(
-        new jssip.sip.UserAgent(plugins, configs[i], this.eventBus_));
+    this.userAgents_.push(new jssip.sip.UserAgent(
+        plugins, configs[i], this.eventBus_, platformContext));
   }
 };
 

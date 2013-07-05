@@ -16,11 +16,13 @@ goog.require('jssip.plugin.FeatureContext');
  *     {@code finalize} is called.
  * @param {!jssip.sip.UserAgent.Config} userAgentConfig The user agent
  *     configuration.
+ * @param {!jssip.platform.PlatformContext} platformContext The platform
+ *     context.
  * @constructor
  * @implements {jssip.plugin.FeatureContext}
  */
 jssip.plugin.FeatureContextImpl = function(featureSet, eventBus, parserRegistry,
-    requiredFeatureTypes, userAgentConfig) {
+    requiredFeatureTypes, userAgentConfig, platformContext) {
   /** @private {!jssip.plugin.FeatureSet} */
   this.featureSet_ = featureSet;
 
@@ -38,6 +40,9 @@ jssip.plugin.FeatureContextImpl = function(featureSet, eventBus, parserRegistry,
 
   /** @private {!jssip.sip.UserAgent.Config} */
   this.userAgentConfig_ = userAgentConfig;
+
+  /** @private {!jssip.platform.PlatformContext} */
+  this.platformContext_ = platformContext;
 
   /** @private {boolean} */
   this.finalized_ = false;
@@ -110,6 +115,13 @@ jssip.plugin.FeatureContextImpl.prototype.getUserAgentConfigProperty =
   var value = this.userAgentConfig_.get(property);
   goog.asserts.assert(goog.isString(value) || !goog.isDef(value));
   return goog.isString(value) ? value : null;
+};
+
+
+/** @override */
+jssip.plugin.FeatureContextImpl.prototype.getPlatformContext =
+    function() {
+  return this.platformContext_;
 };
 
 

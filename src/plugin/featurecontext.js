@@ -67,6 +67,13 @@ jssip.plugin.FeatureContext.prototype.getParserRegistry = function() {};
 
 
 /**
+ * Gets the platform context.
+ * @return {!jssip.platform.PlatformContext}
+ */
+jssip.plugin.FeatureContext.prototype.getPlatformContext = function() {};
+
+
+/**
  * Gets a configuration value from the user agent.
  * @param {jssip.sip.UserAgent.ConfigProperty} property
  * @return {?string}

@@ -29,9 +29,11 @@ goog.require('jssip.util.PropertyHolder');
  * @param {!jssip.sip.UserAgent.Config} config The config.
  * @param {!jssip.event.EventBus} parentEventBus The parent of the user agents
  *     event bus.
+ * @param {!jssip.platform.PlatformContext} platformContext
  * @constructor
  */
-jssip.sip.UserAgent = function(plugins, config, parentEventBus) {
+jssip.sip.UserAgent =
+    function(plugins, config, parentEventBus, platformContext) {
   /** @private {!Array.<!jssip.plugin.Plugin>} */
   this.availablePlugins_ = plugins;
 
@@ -63,7 +65,7 @@ jssip.sip.UserAgent = function(plugins, config, parentEventBus) {
   /** @private {!jssip.plugin.FeatureContextImpl} */
   this.featureContext_ = new jssip.plugin.FeatureContextImpl(
       this.availableFeatureSet_, this.eventBus_, this.parserRegistry_,
-      requiredFeatureTypes, this.config_);
+      requiredFeatureTypes, this.config_, platformContext);
 };
 
 
