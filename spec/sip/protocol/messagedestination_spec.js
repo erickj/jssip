@@ -1,10 +1,10 @@
-goog.provide('jssip.sip.protocol.LookupResultSpec');
+goog.provide('jssip.sip.protocol.MessageDestinationSpec');
 
 goog.require('goog.net.IpAddress');
 goog.require('jssip.net.Socket');
-goog.require('jssip.sip.protocol.LookupResult');
+goog.require('jssip.sip.protocol.MessageDestination');
 
-describe('jssip.sip.protocol.LookupResult', function() {
+describe('jssip.sip.protocol.MessageDestination', function() {
   var lookupResult;
   var ipAddress;
   var port;
@@ -15,7 +15,7 @@ describe('jssip.sip.protocol.LookupResult', function() {
     port = 5060;
     socketType = jssip.net.Socket.Type.TLS;
 
-    lookupResult = new jssip.sip.protocol.LookupResult(ipAddress, port, socketType);
+    lookupResult = new jssip.sip.protocol.MessageDestination(ipAddress, port, socketType);
   });
 
   describe('getters', function() {

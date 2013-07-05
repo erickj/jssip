@@ -1,4 +1,4 @@
-goog.provide('jssip.sip.protocol.LookupResult');
+goog.provide('jssip.sip.protocol.MessageDestination');
 
 
 
@@ -13,7 +13,7 @@ goog.provide('jssip.sip.protocol.LookupResult');
  * @param {jssip.net.Socket.Type} socketType
  * @constructor
  */
-jssip.sip.protocol.LookupResult =
+jssip.sip.protocol.MessageDestination =
     function(ipAddress, port, socketType) {
   /** @private {!goog.net.IpAddress} */
   this.ipAddress_ = ipAddress;
@@ -29,7 +29,7 @@ jssip.sip.protocol.LookupResult =
 /**
  * @return {jssip.net.Socket.Type}
  */
-jssip.sip.protocol.LookupResult.prototype.getSocketType = function() {
+jssip.sip.protocol.MessageDestination.prototype.getSocketType = function() {
   return this.socketType_;
 };
 
@@ -37,7 +37,7 @@ jssip.sip.protocol.LookupResult.prototype.getSocketType = function() {
 /**
  * @return {!goog.net.IpAddress}
  */
-jssip.sip.protocol.LookupResult.prototype.getIpAddress = function() {
+jssip.sip.protocol.MessageDestination.prototype.getIpAddress = function() {
   return this.ipAddress_;
 };
 
@@ -45,6 +45,6 @@ jssip.sip.protocol.LookupResult.prototype.getIpAddress = function() {
 /**
  * @return {number}
  */
-jssip.sip.protocol.LookupResult.prototype.getPort = function() {
+jssip.sip.protocol.MessageDestination.prototype.getPort = function() {
   return this.port_;
 };
