@@ -3,7 +3,9 @@ goog.provide('jssip.testing.util.featureutil');
 goog.require('jssip.event.EventBus');
 goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.parser.ParserRegistry');
+goog.require('jssip.platform.PlatformContext');
 goog.require('jssip.plugin.FeatureContext');
+
 
 /**
  * @param {!jssip.event.EventBus=} opt_eventBus The event bus to use for all
@@ -21,7 +23,10 @@ jssip.testing.util.featureutil.createFeatureContext =
       new jssip.message.MessageParserFactory(opt_eventBus);
   var parserRegistry = new jssip.parser.ParserRegistry(messageParserFactory);
   var featureContext = new jssip.plugin.FeatureContext();
+  var platformContext = new jssip.platform.PlatformContext();
+
   goog.mixin(featureContext, {
+    getPlatformContext: function() { return platformContext; },
     getParserRegistry: function() { return parserRegistry; },
     getEventBus: function() { return opt_eventBus; },
     getUserAgentConfigProperty: function(k) {

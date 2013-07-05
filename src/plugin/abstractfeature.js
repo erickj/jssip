@@ -109,8 +109,16 @@ jssip.plugin.AbstractFeature.prototype.activate = function(featureContext) {
   }
 
   this.isActive_ = true;
+  this.onActivated();
   this.dispatchEvent(jssip.plugin.Feature.Event.ACTIVATED);
 };
+
+
+/**
+ * Hook for subclasses to perform internal setup on activation.
+ * @protected
+ */
+jssip.plugin.AbstractFeature.prototype.onActivated = goog.nullFunction;
 
 
 /**
@@ -137,6 +145,16 @@ jssip.plugin.AbstractFeature.prototype.getHeaderParserFactory =
  */
 jssip.plugin.AbstractFeature.prototype.getUriParserFactory =
     goog.abstractMethod;
+
+
+/**
+ * Internal accessor for the platform context.
+ * @return {!jssip.platform.PlatformContext}
+ * @protected
+ */
+jssip.plugin.AbstractFeature.prototype.getPlatformContext = function() {
+  return this.getFeatureContext().getPlatformContext();
+};
 
 
 /**

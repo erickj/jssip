@@ -16,22 +16,24 @@ describe('jssip.plugin.AbstractFeature', function() {
   });
 
   describe('inheritance', function() {
-    it('should be an event bus', function() {
+    it('is an event bus', function() {
       expect(feature instanceof jssip.event.EventBus).toBe(true);
     });
   });
 
   describe('getters', function() {
-    it('should get the name', function() {
-      expect(feature.getName()).toBe(name);
+    describe('#getName', function() {
+      it('gets the name', function() {
+        expect(feature.getName()).toBe(name);
+      });
     });
 
-    describe('feature facade', function() {
-      it('should throw on #getFeatureFacade if not set', function() {
+    describe('#getFeatureFacade', function() {
+      it('throws if not set', function() {
         expect(function() { feature.getFeatureFacade(); }).toThrow();
       });
 
-      it('should return the feature facade when set', function() {
+      it('returns the feature facade when set', function() {
         var featureFacade = {};
         feature =
             new jssip.plugin.AbstractFeature(name, featureFacade);
@@ -57,6 +59,7 @@ describe('jssip.plugin.AbstractFeature', function() {
           eventHandlerMap, featureTypes, headers, uriSchemes);
       feature.getHeaderParserFactory = jasmine.createSpy();
       feature.getUriParserFactory = jasmine.createSpy();
+      feature.onActivated = jasmine.createSpy();
 
       eventBus = {
         addEventListener: jasmine.createSpy(),
@@ -67,7 +70,21 @@ describe('jssip.plugin.AbstractFeature', function() {
       parserRegistry = featureContext.getParserRegistry();
     });
 
-    it('should not be active until activated', function() {
+    describe('#getPlatformContext', function() {
+      it('throws until the feature is active', function() {
+        expect(function() {
+          feature.getPlatformContext()
+        }).toThrow();
+      });
+
+      it('gets the platform context after activation', function() {
+        feature.activate(featureContext);
+        expect(feature.getPlatformContext()).
+            toBe(featureContext.getPlatformContext());
+      });
+    });
+
+    it('is not active until activated', function() {
       expect(feature.isActive()).toBe(false);
       feature.activate(featureContext);
       expect(feature.isActive()).toBe(true);
@@ -78,64 +95,75 @@ describe('jssip.plugin.AbstractFeature', function() {
       }).toThrow();
     });
 
-    it('should register event handlers', function() {
-      expect(eventBus.addEventListener).not.toHaveBeenCalled();
-      feature.activate(featureContext);
-      expect(eventBus.addEventListener).toHaveBeenCalledWith(
+    describe('event handling', function() {
+      it('registers event handlers', function() {
+        expect(eventBus.addEventListener).not.toHaveBeenCalled();
+        feature.activate(featureContext);
+        expect(eventBus.addEventListener).toHaveBeenCalledWith(
           'listen.test1', eventHandlerMap['listen.test1']);
-      expect(eventBus.addEventListener).toHaveBeenCalledWith(
+        expect(eventBus.addEventListener).toHaveBeenCalledWith(
           'listen.test2', eventHandlerMap['listen.test2']);
+      });
+
+      it('sets up the event chain on activation', function() {
+        expect(feature.getParentEventTarget()).toBe(null);
+        feature.activate(featureContext);
+        expect(feature.getParentEventTarget()).toBe(eventBus);
+      });
+
+      it('dispatches an activated event', function() {
+        var spy = jasmine.createSpy();
+        feature.addEventListener(jssip.plugin.Feature.Event.ACTIVATED, spy);
+        feature.activate(featureContext);
+        expect(spy).toHaveBeenCalled();
+      });
+
+      it('calls #onActivated hook', function() {
+        expect(feature.onActivated).not.toHaveBeenCalled();
+        feature.activate(featureContext);
+        expect(feature.onActivated).toHaveBeenCalledWith();
+      });
     });
 
-
-    it('should setup the event chain on activation', function() {
-      expect(feature.getParentEventTarget()).toBe(null);
-      feature.activate(featureContext);
-      expect(feature.getParentEventTarget()).toBe(eventBus);
+    describe('feature registration', function() {
+      it('registers for given feature types', function() {
+        var spy = jasmine.createSpy();
+        featureContext.registerFeatureForType = spy;
+        feature.activate(featureContext);
+        expect(spy).toHaveBeenCalledWith('amazing', feature);
+        expect(spy).toHaveBeenCalledWith('spectacular', feature);
+      });
     });
 
-    it('should dispatch an activated event', function() {
-      var spy = jasmine.createSpy();
-      feature.addEventListener(jssip.plugin.Feature.Event.ACTIVATED, spy);
-      feature.activate(featureContext);
-      expect(spy).toHaveBeenCalled();
-    });
+    describe('parser registration', function() {
+      it('registers parser factories', function() {
+        var hdrParser = {};
+        var uriParser = {};
 
-    it('should register for given feature types', function() {
-      var spy = jasmine.createSpy();
-      featureContext.registerFeatureForType = spy;
-      feature.activate(featureContext);
-      expect(spy).toHaveBeenCalledWith('amazing', feature);
-      expect(spy).toHaveBeenCalledWith('spectacular', feature);
-    });
+        feature.getHeaderParserFactory.andReturn(hdrParser);
+        feature.getUriParserFactory.andReturn(uriParser);
 
-    it('should register parser factories', function() {
-      var hdrParser = {};
-      var uriParser = {};
+        spyOn(parserRegistry, 'registerHeaderParserFactory').andReturn(true);
+        spyOn(parserRegistry, 'registerUriParserFactory').andReturn(true);
 
-      feature.getHeaderParserFactory.andReturn(hdrParser);
-      feature.getUriParserFactory.andReturn(uriParser);
+        feature.activate(featureContext);
 
-      spyOn(parserRegistry, 'registerHeaderParserFactory').andReturn(true);
-      spyOn(parserRegistry, 'registerUriParserFactory').andReturn(true);
-
-      feature.activate(featureContext);
-
-      for (var i = 0; i < headers.length; i++) {
-        var header = headers[i];
-        expect(feature.getHeaderParserFactory).
+        for (var i = 0; i < headers.length; i++) {
+          var header = headers[i];
+          expect(feature.getHeaderParserFactory).
             toHaveBeenCalledWith(header);
-        expect(parserRegistry.registerHeaderParserFactory).
+          expect(parserRegistry.registerHeaderParserFactory).
             toHaveBeenCalledWith(header, hdrParser);
-      }
+        }
 
-      for (i = 0; i < uriSchemes.length; i++) {
-        var scheme = uriSchemes[i];
-        expect(feature.getUriParserFactory).
+        for (i = 0; i < uriSchemes.length; i++) {
+          var scheme = uriSchemes[i];
+          expect(feature.getUriParserFactory).
             toHaveBeenCalledWith(scheme);
-        expect(parserRegistry.registerUriParserFactory).
+          expect(parserRegistry.registerUriParserFactory).
             toHaveBeenCalledWith(scheme, uriParser);
-      }
+        }
+      });
     });
   });
 });
