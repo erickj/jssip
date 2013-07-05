@@ -1,6 +1,7 @@
 goog.provide('jssip.sip.protocol.Dialog');
 
 goog.require('jssip.sip.protocol.rfc3261');
+goog.require('jssip.util.Serializable');
 
 
 
@@ -22,6 +23,7 @@ goog.require('jssip.sip.protocol.rfc3261');
  * @param {!jssip.sip.protocol.RouteSet} routeSet
  * @param {jssip.sip.protocol.Dialog.State} state
  * @constructor
+ * @impements {jssip.util.Serializable}
  */
 jssip.sip.protocol.Dialog = function(callId, remoteTag, localTag,
     sequenceNumber, localUri, remoteUri, remoteTarget, isSecure, routeSet,
@@ -130,3 +132,17 @@ jssip.sip.protocol.Dialog.prototype.getState = function() {
 jssip.sip.protocol.Dialog.prototype.isOutOfDialog = function() {
   return false;
 }
+
+
+// TODO: The serializable methods are unimplemented for now.  Need to implement
+// once a storage implmentation is in place that will actually call them.
+/** @override */
+jssip.sip.protocol.Dialog.prototype.serialize = function() {
+  throw new Error('Not implemented');
+};
+
+
+/** @override */
+jssip.sip.protocol.Dialog.prototype.getSerializedType = function() {
+  throw new Error('Not implemented');
+};
