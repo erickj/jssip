@@ -208,6 +208,27 @@ EOS
   task :stupid_jssip_deps => [:init] do
     Utils.write_deps(JSSIP_DEPS, ['--root="src"'])
   end
+
+  desc 'Generate spec runner for [target]'
+  task :spec, :target do |t, args|
+    target = args[:target]
+    target = Utils.specize_target_name(Utils.normalize_target_name(target))
+    unless Utils.is_target_spec?(target)
+      raise 'Unable to generate spec runner for non spec target'
+    end
+
+    Utils.build_specrunner(target)
+  end
+
+  desc 'Generate spec runners for [namespace] or jssip'
+  task :specs, :namespace do |t, args|
+    ns = args[:namespace] || ''
+
+    puts "Generating specs for namespace [#{ns}]"
+    Utils.find_spec_targets(ns).each do |target|
+      Utils.build_specrunner(target)
+    end
+  end
 end
 
 desc 'Lists build dependencies for [target]'
@@ -240,7 +261,7 @@ end
 # Note: test:specs calls an explicit exit, any tests added after test:specs
 # won't run
 desc 'Run tests and build'
-task :test => [:clean, :init, :'test:rhino', :'test:genspecs', :'test:specs']
+task :test => [:clean, :init, :'test:rhino', :'build:specs', :'test:specs']
 
 namespace :test do
   desc 'Load endpoint.js into Rhino to check for warnings and fatal errors'
@@ -297,27 +318,6 @@ namespace :test do
     # TODO: this will break things if other tests include this as a dependency
     # (I think it's ok for the default test case since this runs last)
     exit failed_test_targets.length
-  end
-
-  desc 'Generate spec runner for [target]'
-  task :genspec, :target do |t, args|
-    target = args[:target]
-    target = Utils.specize_target_name(Utils.normalize_target_name(target))
-    unless Utils.is_target_spec?(target)
-      raise 'Unable to generate spec runner for non spec target'
-    end
-
-    Utils.build_specrunner(target)
-  end
-
-  desc 'Generate spec runners for [namespace] or jssip'
-  task :genspecs, :namespace do |t, args|
-    ns = args[:namespace] || ''
-
-    puts "Generating specs for namespace [#{ns}]"
-    Utils.find_spec_targets(ns).each do |target|
-      Utils.build_specrunner(target)
-    end
   end
 end
 
@@ -501,7 +501,7 @@ EOS
 //
 // ATTENTION: This file was generated with 'rake build:stupid_jssip_deps' It is generally
 // unusable for running standard closure DEBUG mode - use 'rake build:concat' or
-// run the 'rake test:genspecs' task to autogenerate test files.
+// run the 'rake build:specs' task to autogenerate test files.
 //
 // This file is only here to avoid unnecessary goog.require statements in the jssip
 // library during compilation. See here for more information:
