@@ -57,9 +57,7 @@ jssip.sip.UserAgent =
   var requiredFeatureTypes = [
     jssip.sip.protocol.feature.CoreType.USERAGENTCLIENT,
     jssip.sip.protocol.feature.CoreType.USERAGENTSERVER,
-    jssip.sip.protocol.feature.CoreType.TRANSPORTLAYER,
-    jssip.sip.protocol.feature.CoreType.TRANSACTIONLAYER,
-    jssip.sip.protocol.feature.CoreType.DIALOGLAYER
+    jssip.sip.protocol.feature.CoreType.TRANSPORTLAYER
   ];
 
   /** @private {!jssip.plugin.FeatureContextImpl} */
