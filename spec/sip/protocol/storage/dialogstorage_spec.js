@@ -141,7 +141,7 @@ describe('jssip.sip.protocol.storage.DialogStorage', function() {
 
       describe('on local request', function() {
         beforeEach(function() {
-          isLocal = true;
+          mockMessageContext.isLocal().$returns(true);
           mockMessageContext.isRequest().$returns(true);
         });
 
@@ -156,7 +156,7 @@ describe('jssip.sip.protocol.storage.DialogStorage', function() {
 
       describe('on remote response', function() {
         beforeEach(function() {
-          isLocal = false;
+          mockMessageContext.isLocal().$returns(false);
           mockMessageContext.isRequest().$returns(false);
         });
 
@@ -179,7 +179,7 @@ describe('jssip.sip.protocol.storage.DialogStorage', function() {
 
       describe('on local response', function() {
         beforeEach(function() {
-          isLocal = true;
+          mockMessageContext.isLocal().$returns(true);
           mockMessageContext.isRequest().$returns(false);
         });
 
@@ -194,7 +194,7 @@ describe('jssip.sip.protocol.storage.DialogStorage', function() {
 
       describe('on remote request', function() {
         beforeEach(function() {
-          isLocal = false;
+          mockMessageContext.isLocal().$returns(false);
           mockMessageContext.isRequest().$returns(true);
         });
 

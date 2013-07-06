@@ -34,6 +34,13 @@ jssip.message.MessageContext.Type = {
 
 
 /**
+ * Whether this message originates locally.
+ * @return {boolean}
+ */
+jssip.message.MessageContext.prototype.isLocal = goog.abstractMethod;
+
+
+/**
  * @return {!jssip.parser.ParserRegistry}
  * @protected
  */
@@ -73,10 +80,10 @@ jssip.message.MessageContext.prototype.isRequest = function() {
 
 /**
  * Returns the dialog associated with this message.
- * @return {!jssip.sip.protocol.Dialog} The dialog.
+ * @return {jssip.sip.protocol.Dialog} The dialog.
  */
 jssip.message.MessageContext.prototype.getDialog = function() {
-  throw Error('Not implemented yet');
+  return this.sipContext_.getDialogStorage().getDialogForMessageContext(this);
 };
 
 

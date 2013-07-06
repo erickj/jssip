@@ -5,6 +5,9 @@ goog.require('jssip.message.MessageContext');
 
 
 /**
+ * A message context for remote messages received as raw text.  A raw message
+ * context must always return false for {@code #isLocal}.
+ *
  * @param {string} rawMessageText The raw message text.
  * @param {!jssip.parser.ParserRegistry} parserRegistry
  * @param {!jssip.sip.SipContext} sipContext
@@ -34,4 +37,10 @@ jssip.message.RawMessageContext.prototype.getRawMessageText = function() {
 /** @override */
 jssip.message.RawMessageContext.prototype.getMessageInternal = function() {
   return this.getParserRegistry().parseMessage(this.getRawMessageText());
+};
+
+
+/** @override */
+jssip.message.RawMessageContext.prototype.isLocal = function() {
+  return false;
 };

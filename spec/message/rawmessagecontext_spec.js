@@ -56,5 +56,11 @@ describe('jssip.message.RawMessageContext', function() {
     });
   });
 
+  describe('#isLocal', function() {
+    it('returns false', function() {
+      expect(requestRawMessageContext.isLocal()).toBe(false);
+    });
+  });
+
   sharedMessageContextBehaviors(factoryFn);
 });

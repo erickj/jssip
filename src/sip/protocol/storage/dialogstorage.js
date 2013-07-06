@@ -22,15 +22,13 @@ jssip.sip.protocol.storage.DialogStorage = function(backingStore) {
 /**
  * Gets a dialog for a message if one exists in storage.
  * @param {!jssip.message.MessageContext} messageContext
- * @param {boolean} isLocal Whether this is a locally originated message
- *     context.
  * @return {jssip.sip.protocol.Dialog} The dialog for the message or null if not
  *     found.
  */
 jssip.sip.protocol.storage.DialogStorage.prototype.getDialogForMessageContext =
-    function(messageContext, isLocal) {
+    function(messageContext) {
   var dialogKey = jssip.sip.protocol.storage.DialogStorage.Key_.
-      createForMessageContext(messageContext, isLocal);
+      createForMessageContext(messageContext);
   return /** @type {!jssip.sip.protocol.Dialog} */ (
       this.backingStore_.get(dialogKey.value)) || null;
 };
@@ -92,11 +90,10 @@ jssip.sip.protocol.storage.DialogStorage.Key_.createForDialog =
 /**
  * Creates a key from a message context.
  * @param {!jssip.message.MessageContext} messageContext
- * @param {boolean} isLocal
  * @return {!jssip.sip.protocol.storage.DialogStorage.Key_}
  */
 jssip.sip.protocol.storage.DialogStorage.Key_.createForMessageContext =
-    function(messageContext, isLocal) {
+    function(messageContext) {
   var callIdHeader = messageContext.getParsedHeader(
       jssip.sip.protocol.rfc3261.HeaderType.CALL_ID)[0];
   var toHeader = messageContext.getParsedHeader(
@@ -120,6 +117,7 @@ jssip.sip.protocol.storage.DialogStorage.Key_.createForMessageContext =
 
   var localTag;
   var remoteTag;
+  var isLocal = messageContext.isLocal();
   if (messageContext.isRequest()) {
     localTag = isLocal ? fromTag : toTag;
     remoteTag = isLocal ? toTag : fromTag;

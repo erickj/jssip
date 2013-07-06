@@ -5,6 +5,9 @@ goog.require('jssip.message.MessageContext');
 
 
 /**
+ * A message context for building local messages.  A builder message context
+ * must always return true for {@code #isLocal}.
+ *
  * @param {!jssip.message.Message.Builder} builder
  * @param {!jssip.parser.ParserRegistry} parserRegistry
  * @param {!jssip.sip.SipContext} sipContext
@@ -34,4 +37,10 @@ jssip.message.BuilderMessageContext.prototype.getBuilder = function() {
 /** @override */
 jssip.message.BuilderMessageContext.prototype.getMessageInternal = function() {
   return this.getBuilder().build();
+};
+
+
+/** @override */
+jssip.message.BuilderMessageContext.prototype.isLocal = function() {
+  return true;
 };
