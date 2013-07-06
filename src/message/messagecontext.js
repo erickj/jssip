@@ -1,21 +1,15 @@
 goog.provide('jssip.message.MessageContext');
 
-goog.require('jssip.util.PropertyHolder');
-
 
 
 /**
  * @param {jssip.message.MessageContext.Type} type
- * @param {!Object} propertyMap
  * @param {!jssip.parser.ParserRegistry} parserRegistry
  * @constructor
  */
-jssip.message.MessageContext = function(type, propertyMap, parserRegistry) {
-  propertyMap[jssip.message.MessageContext.PropertyName.TYPE] = type;
-
-  /** @private {!jssip.util.PropertyHolder} */
-  this.propertyHolder_ =
-      new jssip.util.PropertyHolder(propertyMap, false /* opt_isImmutable */);
+jssip.message.MessageContext = function(type, parserRegistry) {
+  /** @private {jssip.message.MessageContext.Type} */
+  this.type_ = type;
 
   /** @private {jssip.message.Message} */
   this.cachedMessage_ = null;
@@ -35,29 +29,12 @@ jssip.message.MessageContext.Type = {
 };
 
 
-/** @enum {string} */
-jssip.message.MessageContext.PropertyName = {
-  DIALOG: 'mc-dialog',
-  TRANSACTION: 'mc-transaction',
-  TYPE: 'mc-type'
-};
-
-
 /**
  * @return {!jssip.parser.ParserRegistry}
  * @protected
  */
 jssip.message.MessageContext.prototype.getParserRegistry = function() {
   return this.parserRegistry_;
-};
-
-
-/**
- * @return {!jssip.util.PropertyHolder}
- * @protected
- */
-jssip.message.MessageContext.prototype.getPropertyHolder = function() {
-  return this.propertyHolder_;
 };
 
 

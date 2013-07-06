@@ -11,19 +11,12 @@ goog.require('jssip.message.MessageContext');
  * @extends {jssip.message.MessageContext}
  */
 jssip.message.RawMessageContext = function(rawMessageText, parserRegistry) {
-  var propertyMap = {};
-  propertyMap[jssip.message.RawMessageContext.PropertyName.RAWMESSAGE] =
-      rawMessageText;
-  goog.base(
-      this, jssip.message.MessageContext.Type.RAW, propertyMap, parserRegistry);
+  goog.base(this, jssip.message.MessageContext.Type.RAW, parserRegistry);
+
+  /** @private {string} */
+  this.rawMessageText_ = rawMessageText;
 };
 goog.inherits(jssip.message.RawMessageContext, jssip.message.MessageContext);
-
-
-/** @enum {string} */
-jssip.message.RawMessageContext.PropertyName = {
-  RAWMESSAGE: 'rawmessage'
-};
 
 
 /**
@@ -31,8 +24,7 @@ jssip.message.RawMessageContext.PropertyName = {
  * @return {string} Message text.
  */
 jssip.message.RawMessageContext.prototype.getRawMessageText = function() {
-  return /** @type {string} */ (this.getPropertyHolder().get(
-      jssip.message.RawMessageContext.PropertyName.RAWMESSAGE));
+  return this.rawMessageText_;
 };
 
 

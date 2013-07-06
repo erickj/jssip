@@ -17,10 +17,9 @@ jssip.message.MessageContextSpec.TestMessageContext =
     function(message, parserRegistry) {
   /** @private {!jssip.message.Message} */
   this.messageInternal_ = message;
-  var propertyMap = {};
 
   goog.base(this, /** @type {jssip.message.MessageContext.Type} */ ("test"),
-      propertyMap, parserRegistry);
+      parserRegistry);
 };
 goog.inherits(jssip.message.MessageContextSpec.TestMessageContext,
     jssip.message.MessageContext);
