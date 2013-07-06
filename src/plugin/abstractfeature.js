@@ -158,6 +158,16 @@ jssip.plugin.AbstractFeature.prototype.getPlatformContext = function() {
 
 
 /**
+ * Internal accessor for the SIP context.
+ * @return {!jssip.sip.SipContext}
+ * @protected
+ */
+jssip.plugin.AbstractFeature.prototype.getSipContext = function() {
+  return this.getFeatureContext().getSipContext();
+};
+
+
+/**
  * @param {!jssip.parser.ParserRegistry} parserRegistry
  * @private
  */

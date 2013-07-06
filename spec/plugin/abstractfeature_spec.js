@@ -84,6 +84,20 @@ describe('jssip.plugin.AbstractFeature', function() {
       });
     });
 
+    describe('#getSipContext', function() {
+      it('throws until the feature is active', function() {
+        expect(function() {
+          feature.getSipContext()
+        }).toThrow();
+      });
+
+      it('gets the sip context after activation', function() {
+        feature.activate(featureContext);
+        expect(feature.getSipContext()).
+            toBe(featureContext.getSipContext());
+      });
+    });
+
     it('is not active until activated', function() {
       expect(feature.isActive()).toBe(false);
       feature.activate(featureContext);
