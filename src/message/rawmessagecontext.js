@@ -7,11 +7,14 @@ goog.require('jssip.message.MessageContext');
 /**
  * @param {string} rawMessageText The raw message text.
  * @param {!jssip.parser.ParserRegistry} parserRegistry
+ * @param {!jssip.sip.SipContext} sipContext
  * @constructor
  * @extends {jssip.message.MessageContext}
  */
-jssip.message.RawMessageContext = function(rawMessageText, parserRegistry) {
-  goog.base(this, jssip.message.MessageContext.Type.RAW, parserRegistry);
+jssip.message.RawMessageContext =
+    function(rawMessageText, parserRegistry, sipContext) {
+  goog.base(
+      this, jssip.message.MessageContext.Type.RAW, parserRegistry, sipContext);
 
   /** @private {string} */
   this.rawMessageText_ = rawMessageText;

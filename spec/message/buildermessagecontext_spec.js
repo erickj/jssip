@@ -3,7 +3,7 @@ goog.provide('jssip.message.BuilderMessageContextSpec');
 goog.require('jssip.message.BuilderMessageContext');
 goog.require('jssip.message.Message.Builder');
 goog.require('jssip.testing.SharedMessageContextSpec');
-
+goog.require('jssip.testing.util.messageutil');
 
 describe('jssip.message.RawMessageContext', function() {
   var messageContext;
@@ -17,8 +17,9 @@ describe('jssip.message.RawMessageContext', function() {
         setHeaders(['name', 'value']);
 
     parserRegistry = /** @type {!jssip.parser.ParserRegistry} */ ({});
-    return messageContext =
-        new jssip.message.BuilderMessageContext(builder, parserRegistry);
+    return messageContext = new jssip.message.BuilderMessageContext(
+        builder, parserRegistry,
+        jssip.testing.util.messageutil.createSipContext());
   };
 
   beforeEach(factoryFn);

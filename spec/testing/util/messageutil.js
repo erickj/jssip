@@ -2,6 +2,8 @@ goog.provide('jssip.testing.util.messageutil');
 
 goog.require('jssip.message.MessageParser');
 goog.require('jssip.message.RawMessageContext');
+goog.require('jssip.sip.SipContext');
+goog.require('jssip.storage.SimpleMemoryStorage');
 goog.require('jssip.testing.util.parseutil');
 
 /** @enum {string} */
@@ -141,7 +143,8 @@ jssip.testing.util.messageutil.checkMessageHeaders =
 jssip.testing.util.messageutil.createRawMessageContext =
     function(rawMessageText) {
   return new jssip.message.RawMessageContext(rawMessageText,
-      jssip.testing.util.parseutil.createParserRegistry());
+      jssip.testing.util.parseutil.createParserRegistry(),
+      jssip.testing.util.messageutil.createSipContext());
 };
 
 
@@ -153,4 +156,14 @@ jssip.testing.util.messageutil.createRawMessageContext =
 jssip.testing.util.messageutil.parseMessage = function(rawMessageText) {
   var parser = new jssip.message.MessageParser(rawMessageText);
   return parser.parse();
+};
+
+
+/**
+ * Creates a test SIP context with simple storage backing.
+ * @return {!jssip.sip.SipContext}
+ */
+jssip.testing.util.messageutil.createSipContext = function() {
+  return new jssip.sip.SipContext(
+      new jssip.storage.SimpleMemoryStorage());
 };

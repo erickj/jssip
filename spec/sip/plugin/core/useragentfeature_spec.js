@@ -42,7 +42,7 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
 
     eventBus = new jssip.event.EventBus();
     featureContext = jssip.testing.util.featureutil.createFeatureContext(
-      eventBus, propertyMap);
+        eventBus, propertyMap);
 
     messageBuilder = new jssip.message.Message.Builder();
 

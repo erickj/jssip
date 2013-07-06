@@ -5,9 +5,10 @@ goog.provide('jssip.message.MessageContext');
 /**
  * @param {jssip.message.MessageContext.Type} type
  * @param {!jssip.parser.ParserRegistry} parserRegistry
+ * @param {!jssip.sip.SipContext} sipContext
  * @constructor
  */
-jssip.message.MessageContext = function(type, parserRegistry) {
+jssip.message.MessageContext = function(type, parserRegistry, sipContext) {
   /** @private {jssip.message.MessageContext.Type} */
   this.type_ = type;
 
@@ -19,6 +20,9 @@ jssip.message.MessageContext = function(type, parserRegistry) {
 
   /** @private {!jssip.parser.ParserRegistry} */
   this.parserRegistry_ = parserRegistry;
+
+  /** @private {!jssip.sip.SipContext} */
+  this.sipContext_ = sipContext;
 };
 
 

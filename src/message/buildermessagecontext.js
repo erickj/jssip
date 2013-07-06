@@ -7,11 +7,14 @@ goog.require('jssip.message.MessageContext');
 /**
  * @param {!jssip.message.Message.Builder} builder
  * @param {!jssip.parser.ParserRegistry} parserRegistry
+ * @param {!jssip.sip.SipContext} sipContext
  * @constructor
  * @extends {jssip.message.MessageContext}
  */
-jssip.message.BuilderMessageContext = function(builder, parserRegistry) {
-  goog.base(this, jssip.message.MessageContext.Type.BUILDER, parserRegistry);
+jssip.message.BuilderMessageContext =
+    function(builder, parserRegistry, sipContext) {
+  goog.base(this,
+      jssip.message.MessageContext.Type.BUILDER, parserRegistry, sipContext);
 
   /** @private {!jssip.message.Message.Builder} */
   this.builder_ = builder;

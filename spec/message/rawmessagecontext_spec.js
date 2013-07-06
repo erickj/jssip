@@ -6,7 +6,7 @@ goog.require('jssip.message.Message');
 goog.require('jssip.message.RawMessageContext');
 goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.testing.SharedMessageContextSpec');
-
+goog.require('jssip.testing.util.messageutil');
 
 describe('jssip.message.RawMessageContext', function() {
   var eventTarget;
@@ -25,10 +25,12 @@ describe('jssip.message.RawMessageContext', function() {
     eventTarget = new goog.events.EventTarget();
     parserRegistry = new jssip.parser.ParserRegistry(
         new jssip.message.MessageParserFactory(eventTarget), eventTarget);
-    requestRawMessageContext =
-        new jssip.message.RawMessageContext(requestText, parserRegistry);
-    return responseRawMessageContext =
-        new jssip.message.RawMessageContext(responseText, parserRegistry);
+    requestRawMessageContext = new jssip.message.RawMessageContext(
+        requestText, parserRegistry,
+        jssip.testing.util.messageutil.createSipContext());
+    return responseRawMessageContext = new jssip.message.RawMessageContext(
+        responseText, parserRegistry,
+        jssip.testing.util.messageutil.createSipContext());
   };
 
   beforeEach(factoryFn);

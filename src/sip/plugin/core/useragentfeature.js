@@ -140,7 +140,8 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
     function(messageBuilder, method, toUri) {
   var rfc3261 = jssip.sip.protocol.rfc3261;
   var builderMessageContext = new jssip.message.BuilderMessageContext(
-      messageBuilder, this.getFeatureContext().getParserRegistry());
+      messageBuilder, this.getFeatureContext().getParserRegistry(),
+      this.getSipContext());
   var headerMap = {};
 
   messageBuilder.setSipVersion(rfc3261.SIP_VERSION);
