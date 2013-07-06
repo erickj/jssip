@@ -9,7 +9,9 @@ goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.plugin.FeatureContextImpl');
 goog.require('jssip.plugin.FeatureSet');
+goog.require('jssip.sip.SipContext');
 goog.require('jssip.sip.protocol.feature');
+goog.require('jssip.storage.SimpleMemoryStorage');
 goog.require('jssip.util.PropertyHolder');
 
 
@@ -60,10 +62,13 @@ jssip.sip.UserAgent =
     jssip.sip.protocol.feature.CoreType.TRANSPORTLAYER
   ];
 
+  var storage = new jssip.storage.SimpleMemoryStorage();
+  var sipContext = new jssip.sip.SipContext(storage);
+
   /** @private {!jssip.plugin.FeatureContextImpl} */
   this.featureContext_ = new jssip.plugin.FeatureContextImpl(
       this.availableFeatureSet_, this.eventBus_, this.parserRegistry_,
-      requiredFeatureTypes, this.config_, platformContext);
+      requiredFeatureTypes, this.config_, platformContext, sipContext);
 };
 
 

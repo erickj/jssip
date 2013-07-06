@@ -17,6 +17,7 @@ describe('jssip.plugin.FeatureContextImpl', function() {
   var requiredFeatureTypes;
   var userAgentConfig;
   var platformContext;
+  var sipContext;
 
   beforeEach(function() {
     var f1 = new jssip.plugin.AbstractFeature(
@@ -33,13 +34,15 @@ describe('jssip.plugin.FeatureContextImpl', function() {
     userAgentConfig = new jssip.sip.UserAgent.Config(
         [] /* featureNames */, config);
     platformContext = /** @type {!jssip.platform.PlatformContext} */ ({});
+    sipContext = /** @type {!jssip.sip.SipContext} */ ({});
 
     context = new jssip.plugin.FeatureContextImpl(featureSet, eventBus,
-        parserRegistry, requiredFeatureTypes, userAgentConfig, platformContext);
+        parserRegistry, requiredFeatureTypes, userAgentConfig, platformContext,
+        sipContext);
   });
 
   describe('#isFeatureActive', function() {
-    it('should return the activity state for the features', function() {
+    it('returns the activity state for the features', function() {
       expect(context.isFeatureActive('feature1')).toBe(false);
       features[0].activate(context);
       expect(context.isFeatureActive('feature1')).toBe(true);
@@ -47,7 +50,7 @@ describe('jssip.plugin.FeatureContextImpl', function() {
   });
 
   describe('#isFeatureTypeActive', function() {
-    it('should return the activity state for a feature type', function() {
+    it('returns the activity state for a feature type', function() {
       expect(context.isFeatureTypeActive('atype')).toBe(false);
       features[0].activate(context);
       expect(context.isFeatureTypeActive('atype')).toBe(true);
@@ -60,38 +63,38 @@ describe('jssip.plugin.FeatureContextImpl', function() {
     });
 
     describe('#getFacadeByName', function() {
-      it('should throw an error if a feature does not exist', function() {
+      it('throws an error if a feature does not exist', function() {
         expect(function() {
           context.getFacadeByName('adlfjaldj');
         }).toThrow()
       });
 
-      it('should throw an error if a feature is not active', function() {
+      it('throws an error if a feature is not active', function() {
         expect(function() {
           context.getFacadeByName('feature1');
         }).toThrow();
       });
 
-      it('should return the facade for an active feature', function() {
+      it('returns the facade for an active feature', function() {
         expect(context.getFacadeByName('feature2')).
           toBe(features[1].getFeatureFacade());
       });
     });
 
     describe('getFacadeByType', function() {
-      it('should throw an error if a feature does not exist', function() {
+      it('throws an error if a feature does not exist', function() {
         expect(function() {
           context.getFacadeByType('adlfjaldj');
         }).toThrow()
       });
 
-      it('should throw an error if a feature is not active', function() {
+      it('throws an error if a feature is not active', function() {
         expect(function() {
           context.getFacadeByType('atype');
         }).toThrow();
       });
 
-      it('should return the facade for an active feature', function() {
+      it('returns the facade for an active feature', function() {
         expect(context.getFacadeByType('btype')).
           toBe(features[1].getFeatureFacade());
       });
@@ -99,33 +102,39 @@ describe('jssip.plugin.FeatureContextImpl', function() {
   });
 
   describe('#getEventBus', function() {
-    it('should get the event bus', function() {
+    it('gets the event bus', function() {
       expect(context.getEventBus()).toBe(eventBus);
     });
   });
 
   describe('#getParserRegistry', function() {
-    it('should get the parser registry', function() {
+    it('gets the parser registry', function() {
       expect(context.getParserRegistry()).toBe(parserRegistry);
     });
   });
 
   describe('#getUserAgentConfigProperty', function() {
-    it('should get a property value that is set', function() {
+    it('gets a property value that is set', function() {
       var prop = jssip.sip.UserAgent.ConfigProperty.ADDRESS_OF_RECORD;
       var value = userAgentConfig.get(prop);
       expect(context.getUserAgentConfigProperty(prop)).toBe(value);
     });
 
-    it('should get null for properties that are not set', function() {
+    it('gets null for properties that are not set', function() {
       var prop = jssip.sip.UserAgent.ConfigProperty.OUTBOUND_PROXY;
       expect(context.getUserAgentConfigProperty(prop)).toBe(null);
     });
   });
 
   describe('#getPlatformContext', function() {
-    it('should be the provided platform context', function() {
+    it('gets the provided platform context', function() {
       expect(context.getPlatformContext()).toBe(platformContext);
+    });
+  });
+
+  describe('#getSipContext', function() {
+    it('gets the the provided SIP context', function() {
+      expect(context.getSipContext()).toBe(sipContext);
     });
   });
 
@@ -140,21 +149,20 @@ describe('jssip.plugin.FeatureContextImpl', function() {
       }
     });
 
-    it('should throw an error if finalized twice', function() {
+    it('throws an error if finalized twice', function() {
       context.finalize();
       expect(function() {
         context.finalize();
       }).toThrow();
     })
 
-    it('should throw an error if not all required types were registered',
-       function() {
-         expect(function() {
-           failureContext.finalize();
-         }).toThrow();
-       });
+    it('throws an error if not all required types were registered', function() {
+      expect(function() {
+        failureContext.finalize();
+      }).toThrow();
+    });
 
-    it('should succeed otherwise', function() {
+    it('succeeds otherwise', function() {
       context.finalize();
     });
   });

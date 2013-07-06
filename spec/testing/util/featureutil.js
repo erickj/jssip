@@ -5,6 +5,8 @@ goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.platform.PlatformContext');
 goog.require('jssip.plugin.FeatureContext');
+goog.require('jssip.sip.SipContext');
+goog.require('jssip.storage.SimpleMemoryStorage');
 goog.require('jssip.testing.util.netutil.TestResolver');
 
 
@@ -31,7 +33,11 @@ jssip.testing.util.featureutil.createFeatureContext =
     getResolver: function() { return resolver; }
   });
 
+  var storage = new jssip.storage.SimpleMemoryStorage();
+  var sipContext = new jssip.sip.SipContext(storage);
+
   goog.mixin(featureContext, {
+    getSipContext: function() { return sipContext; },
     getPlatformContext: function() { return platformContext; },
     getParserRegistry: function() { return parserRegistry; },
     getEventBus: function() { return opt_eventBus; },

@@ -18,11 +18,12 @@ goog.require('jssip.plugin.FeatureContext');
  *     configuration.
  * @param {!jssip.platform.PlatformContext} platformContext The platform
  *     context.
+ * @param {!jssip.sip.SipContext} sipContext The SIP context.
  * @constructor
  * @implements {jssip.plugin.FeatureContext}
  */
 jssip.plugin.FeatureContextImpl = function(featureSet, eventBus, parserRegistry,
-    requiredFeatureTypes, userAgentConfig, platformContext) {
+    requiredFeatureTypes, userAgentConfig, platformContext, sipContext) {
   /** @private {!jssip.plugin.FeatureSet} */
   this.featureSet_ = featureSet;
 
@@ -43,6 +44,9 @@ jssip.plugin.FeatureContextImpl = function(featureSet, eventBus, parserRegistry,
 
   /** @private {!jssip.platform.PlatformContext} */
   this.platformContext_ = platformContext;
+
+  /** @private {!jssip.sip.SipContext} */
+  this.sipContext_ = sipContext;
 
   /** @private {boolean} */
   this.finalized_ = false;
@@ -122,6 +126,12 @@ jssip.plugin.FeatureContextImpl.prototype.getUserAgentConfigProperty =
 jssip.plugin.FeatureContextImpl.prototype.getPlatformContext =
     function() {
   return this.platformContext_;
+};
+
+
+/** @override */
+jssip.plugin.FeatureContextImpl.prototype.getSipContext = function() {
+  return this.sipContext_;
 };
 
 

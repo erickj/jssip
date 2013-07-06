@@ -3,7 +3,7 @@ goog.provide('jssip.plugin.FeatureContext');
 
 
 /**
- * Provides resources from the user agent to features.
+ * Provides resources from the application to features.
  * @interface
  */
 jssip.plugin.FeatureContext = function() {};
@@ -71,6 +71,13 @@ jssip.plugin.FeatureContext.prototype.getParserRegistry = function() {};
  * @return {!jssip.platform.PlatformContext}
  */
 jssip.plugin.FeatureContext.prototype.getPlatformContext = function() {};
+
+
+/**
+ * Gets the SIP context.
+ * @return {!jssip.sip.SipContext}
+ */
+jssip.plugin.FeatureContext.prototype.getSipContext = function() {};
 
 
 /**
