@@ -3,6 +3,7 @@ goog.provide('jssip.message.MessageContextSpec.TestMessageContext');
 
 goog.require('goog.testing.MockControl');
 goog.require('jssip.message.MessageContext');
+goog.require('jssip.sip.protocol.storage.DialogStorage');
 goog.require('jssip.testing.SharedMessageContextSpec');
 goog.require('jssip.testing.util.messageutil');
 goog.require('jssip.testing.util.parseutil');
@@ -11,17 +12,18 @@ goog.require('jssip.testing.util.parseutil');
 /**
  * @param {!jssip.message.Message} message
  * @param {!jssip.parser.ParserRegistry} parserRegistry
+ * @param {!jssip.sip.SipContext} sipContext
  * @constructor
  */
 jssip.message.MessageContextSpec.TestMessageContext =
-    function(message, parserRegistry) {
+    function(message, parserRegistry, sipContext) {
   /** @type {!jssip.message.Message} */
   this.messageInternal = message;
 
   this.setHeaderInternalSpy = jasmine.createSpy();
 
   goog.base(this, /** @type {jssip.message.MessageContext.Type} */ ("test"),
-      parserRegistry, jssip.testing.util.messageutil.createSipContext());
+      parserRegistry, sipContext);
 };
 goog.inherits(jssip.message.MessageContextSpec.TestMessageContext,
     jssip.message.MessageContext);
@@ -47,17 +49,19 @@ describe('jssip.message.MessageContext', function() {
 
   var messageContext;
   var messageDummy;
+  var sipContext;
 
   var factoryFn = function() {
     mockControl = new goog.testing.MockControl();
     mockParserRegistry =
         jssip.testing.util.parseutil.createMockParserRegistry(mockControl);
 
+    sipContext = jssip.testing.util.messageutil.createSipContext();
     messageDummy = jssip.testing.util.messageutil.parseMessage(
         jssip.testing.util.messageutil.ExampleMessage.INVITE);
     return messageContext =
         new jssip.message.MessageContextSpec.TestMessageContext(
-            messageDummy, mockParserRegistry);
+            messageDummy, mockParserRegistry, sipContext);
   };
 
   beforeEach(factoryFn);
@@ -94,6 +98,29 @@ describe('jssip.message.MessageContext', function() {
           new jssip.message.MessageContextSpec.TestMessageContext(
               responseMessage, mockParserRegistry);
       expect(responseMessageContext.isRequest()).toBe(false);
+    });
+  });
+
+  describe('#getDialog', function() {
+    var mockDialogStorage;
+    var dialog;
+
+    beforeEach(function() {
+      dialog = /** @type {!jssip.sip.protocol.Dialog} */ ({});
+      mockDialogStorage = mockControl.createLooseMock(
+          jssip.sip.protocol.storage.DialogStorage);
+      sipContext.getDialogStorage = function() {
+        return mockDialogStorage;
+      }
+    });
+
+    it('returns a dialog when from dialog storage', function() {
+      mockDialogStorage.getDialogForMessageContext(messageContext).
+          $returns(dialog);
+
+      mockControl.$replayAll();
+      expect(messageContext.getDialog()).toBe(dialog);
+      mockControl.$verifyAll();
     });
   });
 
