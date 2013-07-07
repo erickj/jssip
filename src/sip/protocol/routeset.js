@@ -1,5 +1,6 @@
 goog.provide('jssip.sip.protocol.RouteSet');
 
+goog.require('jssip.sip.protocol.NameAddr');
 goog.require('jssip.sip.protocol.Route');
 
 
@@ -22,6 +23,39 @@ jssip.sip.protocol.RouteSet.prototype.isEmpty = function() {
 /** @return {!Array.<!jssip.sip.protocol.Route} */
 jssip.sip.protocol.RouteSet.prototype.getRoutes = function() {
   return this.routes_;
+};
+
+
+/** @return {boolean} */
+jssip.sip.protocol.RouteSet.prototype.isFirstRouteStrict = function() {
+  return !this.isEmpty() && !this.routes_[0].isLooseRoute();
+};
+
+
+/**
+ * Shifts the first route off of the route set or throws if the route set is
+ * empty.
+ * @return {!jssip.sip.protocol.Route}
+ * @throws {Error} if the route set is empty.
+ */
+jssip.sip.protocol.RouteSet.prototype.shift = function() {
+  if (this.isEmpty()) {
+    throw new Error('Route set is empty');
+  }
+  return this.routes_.shift();
+};
+
+
+/**
+ * Pushes a route or name-addr onto the end of the route set. If a name-addr is
+ * given it will be converted into a route.
+ * @param {!(jssip.sip.protocol.Route|jssip.sip.protocol.NameAddr)} newRoute
+ */
+jssip.sip.protocol.RouteSet.prototype.push = function(newRoute) {
+  if (newRoute instanceof jssip.sip.protocol.NameAddr) {
+    newRoute = new jssip.sip.protocol.Route(newRoute);
+  }
+  this.routes_.push(newRoute);
 };
 
 
