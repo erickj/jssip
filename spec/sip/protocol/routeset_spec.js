@@ -51,6 +51,13 @@ describe('jssip.sip.protocol.RouteSet', function() {
   });
 
   describe('#getRoutes', function() {
+    it('returns a clone of its internal route list', function() {
+      var routes = routeSet.getRoutes();
+      expect(routes).not.toBe(routeSet.getRoutes());
+      routes.push(1);
+      expect(routeSet.getRoutes()).not.toContain(1);
+    });
+
     it('should return equivalents of the routes', function() {
       expect(routeSet.getRoutes()).toEqual(routes);
     });

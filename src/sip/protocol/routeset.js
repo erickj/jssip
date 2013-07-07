@@ -1,5 +1,6 @@
 goog.provide('jssip.sip.protocol.RouteSet');
 
+goog.require('goog.array');
 goog.require('jssip.sip.protocol.NameAddr');
 goog.require('jssip.sip.protocol.Route');
 
@@ -22,7 +23,7 @@ jssip.sip.protocol.RouteSet.prototype.isEmpty = function() {
 
 /** @return {!Array.<!jssip.sip.protocol.Route} */
 jssip.sip.protocol.RouteSet.prototype.getRoutes = function() {
-  return this.routes_;
+  return goog.array.clone(this.routes_);
 };
 
 
