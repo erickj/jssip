@@ -151,4 +151,14 @@ describe("jssip.message.Message", function() {
       });
     });
   });
+
+  describe('#dispose', function() {
+    it('is disposable', function() {
+      var message = requestBuilder.build();
+      expect(message.isDisposed()).toBe(false);
+
+      message.dispose();
+      expect(message.isDisposed()).toBe(true);
+    });
+  });
 });

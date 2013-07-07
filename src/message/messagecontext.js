@@ -90,7 +90,10 @@ jssip.message.MessageContext.prototype.setHeaderInternal = goog.abstractMethod;
  * @private
  */
 jssip.message.MessageContext.prototype.clearCaches_ = function() {
-  this.cachedMessage_ = null;
+  if (this.cachedMessage_) {
+    this.cachedMessage_.dispose();
+    this.cachedMessage_ = null;
+  }
   this.parsedHeaderCache_ = {};
 };
 
@@ -118,7 +121,8 @@ jssip.message.MessageContext.prototype.getMessageInternal = goog.abstractMethod;
  * @return {!jssip.message.Message} The message object.
  */
 jssip.message.MessageContext.prototype.getMessage = function() {
-  if (!this.cachedMessage_) {
+  if (!this.cachedMessage_ || this.cachedMessage_.isDisposed()) {
+    this.clearCaches_();
     this.cachedMessage_ = this.getMessageInternal();
   }
   return this.cachedMessage_;

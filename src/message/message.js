@@ -1,6 +1,7 @@
 goog.provide('jssip.message.Message');
 goog.provide('jssip.message.Message.Builder');
 
+goog.require('goog.Disposable');
 goog.require('goog.array');
 
 
@@ -54,6 +55,7 @@ goog.require('goog.array');
  * @param {!jssip.message.Message.Builder} builder The builder object
  *     to construct this message from.
  * @constructor
+ * @extends {goog.Disposable}
  */
 jssip.message.Message = function(builder) {
   /**
@@ -112,6 +114,7 @@ jssip.message.Message = function(builder) {
     };
   };
 };
+goog.inherits(jssip.message.Message, goog.Disposable);
 
 
 /** @return {boolean} Whether this is a request. False indicates a response. */
@@ -182,6 +185,19 @@ jssip.message.Message.prototype.addRawHeader_ = function(name, value) {
   }
   this.headers_[name].push(
       jssip.message.Message.normalizeMultilineValues_(value));
+};
+
+
+/** @override */
+jssip.message.Message.prototype.disposeInternal = function() {
+  delete this.isRequest_;
+  delete this.method_;
+  delete this.requestUri_;
+  delete this.sipVersion_;
+  delete this.statusCode_;
+  delete this.reasonPhrase_;
+  delete this.body_;
+  delete this.headers_;
 };
 
 

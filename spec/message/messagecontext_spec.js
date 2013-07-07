@@ -15,8 +15,8 @@ goog.require('jssip.testing.util.parseutil');
  */
 jssip.message.MessageContextSpec.TestMessageContext =
     function(message, parserRegistry) {
-  /** @private {!jssip.message.Message} */
-  this.messageInternal_ = message;
+  /** @type {!jssip.message.Message} */
+  this.messageInternal = message;
 
   this.setHeaderInternalSpy = jasmine.createSpy();
 
@@ -30,7 +30,7 @@ goog.inherits(jssip.message.MessageContextSpec.TestMessageContext,
 /** @override */
 jssip.message.MessageContextSpec.TestMessageContext.prototype.
     getMessageInternal = function() {
-  return this.messageInternal_;
+  return this.messageInternal;
 };
 
 
@@ -69,6 +69,16 @@ describe('jssip.message.MessageContext', function() {
   describe('#getMessage', function() {
     it('returns the result of #getMessageInternal', function() {
       expect(messageContext.getMessage()).toBe(messageDummy);
+    });
+
+    it('checks the #isDisposed status of the cached message', function() {
+      var postDisposeMessage = /** @type {!jssip.message.Message} */ ({});
+      var message = messageContext.getMessage();
+      messageContext.messageInternal = postDisposeMessage;
+
+      expect(messageContext.getMessage()).toBe(message);
+      message.dispose();
+      expect(messageContext.getMessage()).toBe(postDisposeMessage);
     });
   });
 
