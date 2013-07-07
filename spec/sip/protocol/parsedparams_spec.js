@@ -62,4 +62,14 @@ describe('jssip.sip.protocol.ParsedParams', function() {
       expect(otherParsedParams.equals(parsedParams)).toBe(false);
     });
   });
+
+  describe('#stringify', function() {
+    it('stringifies the parameter set', function() {
+      expect(parsedParams.stringify()).toBe(';fiz=buz;baz');
+    });
+
+    it('serializes an empty string for empty parameters', function() {
+      expect(new jssip.sip.protocol.ParsedParams([]).stringify()).toBe('');
+    });
+  });
 });

@@ -43,3 +43,34 @@ jssip.sip.protocol.NameAddr.prototype.getDisplayName = function() {
 jssip.sip.protocol.NameAddr.prototype.getContextParams = function() {
   return this.contextParams_;
 };
+
+
+/** @return {string} */
+jssip.sip.protocol.NameAddr.prototype.stringify = function() {
+  var str = this.isAddrSpec_() ?
+      this.uri_.stringify() :
+      this.stringifyNameAddr_();
+  return str + this.contextParams_.stringify();
+};
+
+
+/**
+ * @return {string}
+ * @private
+ */
+jssip.sip.protocol.NameAddr.prototype.stringifyNameAddr_ = function() {
+  var str = '';
+  if (this.displayName_) {
+    str += '"' + this.displayName_ + '" ';
+  }
+  return str + '<' + this.uri_.stringify() + '>';
+};
+
+
+/**
+ * @return {boolean}
+ * @private
+ */
+jssip.sip.protocol.NameAddr.prototype.isAddrSpec_ = function() {
+  return !this.displayName_ && !this.uri_.hasParameters();
+};

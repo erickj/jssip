@@ -82,20 +82,21 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.getHeaderParserFactory =
         new jssip.sip.plugin.core.HeaderParserFactoryImpl(eventBus);
   }
 
+  var rfc3261 = jssip.sip.protocol.rfc3261;
   var headerParserFactory = this.headerParserFactory_;
   switch (name) {
-    case jssip.sip.protocol.rfc3261.HeaderType.CONTACT:
-    case jssip.sip.protocol.rfc3261.HeaderType.ROUTE:
-    case jssip.sip.protocol.rfc3261.HeaderType.RECORD_ROUTE:
+    case rfc3261.HeaderType.CONTACT:
+    case rfc3261.HeaderType.ROUTE:
+    case rfc3261.HeaderType.RECORD_ROUTE:
       return new jssip.sip.protocol.header.NameAddrListHeaderParserFactory(
           headerParserFactory, name,
           this.getFeatureContext().getParserRegistry());
-    case jssip.sip.protocol.rfc3261.HeaderType.FROM:
-    case jssip.sip.protocol.rfc3261.HeaderType.TO:
+    case rfc3261.HeaderType.FROM:
+    case rfc3261.HeaderType.TO:
       return new jssip.sip.protocol.header.NameAddrHeaderParserFactory(
           headerParserFactory, name,
           this.getFeatureContext().getParserRegistry());
-    case jssip.sip.protocol.rfc3261.HeaderType.VIA:
+    case rfc3261.HeaderType.VIA:
       return new jssip.sip.protocol.header.ViaHeaderParserFactory(
           headerParserFactory, name);
     default:
@@ -147,9 +148,10 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
   messageBuilder.setSipVersion(rfc3261.SIP_VERSION);
   messageBuilder.setMethod(method);
 
-  messageBuilder.setRequestUri(toUri.toString());
-  headerMap[rfc3261.HeaderType.TO] = this.generateToHeader_(toUri);
-  headerMap[rfc3261.HeaderType.FROM] = this.generateFromHeader_();
+  messageBuilder.setRequestUri(toUri.stringify());
+  headerMap[rfc3261.HeaderType.TO] = this.generateToFromHeader_(toUri);
+  headerMap[rfc3261.HeaderType.FROM] =
+      this.generateFromHeader_(this.generateTag_());
   headerMap[rfc3261.HeaderType.CALL_ID] = this.generateCallId_();
   headerMap[rfc3261.HeaderType.CSEQ] = this.generateCSeq_(method);
   headerMap[rfc3261.HeaderType.MAX_FORWARDS] = this.generateMaxForwards_();
@@ -177,38 +179,72 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
 jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequest =
     function(requestMessageContext) {
   goog.asserts.assert(requestMessageContext.isRequest());
-  throw new Error('not implemented');
+  this.generateInDialogRequest_(requestMessageContext);
 };
 
 
 /**
- * @param {!jssip.uri.Uri} toUri
+ * Generating the Request in a Dialog
+ * @see {http://tools.ietf.org/html/rfc3261#section-12.2.1.1}
+ * @param {!jssip.message.MessageContext} requestMessageContext
+ * @private
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateInDialogRequest_ =
+    function(requestMessageContext) {
+  var dialog = requestMessageContext.getDialog();
+  if (!dialog) {
+    return;
+  }
+  var rfc3261 = jssip.sip.protocol.rfc3261;
+  var toHeader =
+      this.generateToFromHeader_(dialog.getRemoteUri(), dialog.getRemoteTag());
+  requestMessageContext.setHeader(rfc3261.HeaderType.TO, toHeader);
+  var fromHeader =
+      this.generateToFromHeader_(dialog.getLocalUri(), dialog.getLocalTag());
+  requestMessageContext.setHeader(rfc3261.HeaderType.FROM, fromHeader);
+};
+
+
+
+/**
+ * @param {!jssip.uri.Uri} uri
+ * @param {string=} opt_tag
  * @return {string}
  * @private
  */
-jssip.sip.plugin.core.UserAgentFeature.prototype.generateToHeader_ =
-    function(toUri) {
+jssip.sip.plugin.core.UserAgentFeature.prototype.generateToFromHeader_ =
+    function(uri, opt_tag) {
   // TODO(erick): Set the To header according to 3261#20.39 e.g. allow for
   // display-names in the To and figure out something to do with dialog tags.
-  return toUri.toString();
+  var headerValue = uri.stringify();
+  if (opt_tag) {
+    headerValue += ';tag=' + opt_tag;
+  }
+  return headerValue;
 };
 
 
 /**
  * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.3}
  * @see {http://tools.ietf.org/html/rfc3261#section-20.20}
+ * @param {!jssip.uri.Uri} fromUri
+ * @param {string=} opt_tag The from tag
  * @return {string}
  * @private
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.generateFromHeader_ =
-    function() {
+    function(opt_tag) {
   var aor = this.getFeatureContext().getUserAgentConfigProperty(
       jssip.sip.UserAgent.ConfigProperty.ADDRESS_OF_RECORD);
   var displayName = this.getFeatureContext().getUserAgentConfigProperty(
       jssip.sip.UserAgent.ConfigProperty.DISPLAY_NAME) ||
       jssip.sip.protocol.rfc3261.DEFAULT_DISPLAY_NAME;
   // TODO(erick): Need to build this so it has a scheme.
-  return displayName + ' <sip:' + aor + '>;tag=' + this.generateTag_();
+  var headerValue = displayName + ' <sip:' + aor + '>';
+  if (opt_tag) {
+    headerValue += ';tag=' + opt_tag;
+  }
+  return headerValue;
 };
 
 

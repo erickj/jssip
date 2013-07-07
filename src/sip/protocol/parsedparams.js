@@ -72,3 +72,19 @@ jssip.sip.protocol.ParsedParams.prototype.equals = function(o) {
       /** @type {!jssip.sip.protocol.ParsedParams} */ (
           o).paramMap_.equals(this.paramMap_));
 };
+
+
+/** @return {string} */
+jssip.sip.protocol.ParsedParams.prototype.stringify = function() {
+  var str = '';
+  var nameIndex = 0;
+  var valueIndex = 2;
+  for (var i = 0; i < this.parsedParams_.length; i++) {
+    var param = this.parsedParams_[i][1];
+    str += ';' + param[nameIndex];
+    if (goog.isDef(param[valueIndex])) {
+      str += '=' + param[valueIndex];
+    }
+  }
+  return str;
+};

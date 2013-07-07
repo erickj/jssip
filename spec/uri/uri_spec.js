@@ -154,7 +154,7 @@ describe('jssip.uri.Uri', function() {
     });
   });
 
-  describe('#toString', function() {
+  describe('#stringify', function() {
     var makeUriBuilder = function() {
       return new jssip.uri.Uri.Builder();
     };
@@ -219,10 +219,10 @@ describe('jssip.uri.Uri', function() {
           build()
     };
 
-    it('should #toString to match the original', function() {
+    it('should #stringify to match the original', function() {
       for (var uriString in expectedUriMap) {
         var uri = expectedUriMap[uriString];
-        expect(uri.toString()).toEqual(uriString);
+        expect(uri.stringify()).toEqual(uriString);
       }
     });
   });

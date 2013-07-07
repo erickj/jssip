@@ -123,13 +123,22 @@ jssip.uri.Uri.prototype.hasParameter = function(parameterName) {
 };
 
 
+/**
+ * Returns true if the URI has any parameters.
+ * @return {boolean}
+ */
+jssip.uri.Uri.prototype.hasParameters = function() {
+  return !!this.get(jssip.uri.Uri.PropertyName.PARAMETERS);
+};
+
+
 // TODO(erick): Can reuse uriParser probably to reassemble this URI into a
 // string.
 /**
  * Turns a URI into a string.
  * @return {string} The serialized URI.
  */
-jssip.uri.Uri.prototype.toString = function() {
+jssip.uri.Uri.prototype.stringify = function() {
   // TODO(erick): As soon as non sip(s) URIs are needed see note above.
   var scheme = this.get(jssip.uri.Uri.PropertyName.SCHEME);
   if (scheme != jssip.uri.Uri.Scheme.SIP &&
@@ -160,7 +169,6 @@ jssip.uri.Uri.prototype.toString = function() {
 
   return str;
 };
-
 
 
 /**

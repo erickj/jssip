@@ -183,12 +183,12 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
       var message = messageBuilder.build();
       expect(message.isRequest()).toBe(true);
       expect(message.getMethod()).toBe('FOOSBAR');
-      expect(message.getRequestUri()).toBe(toUri.toString());
+      expect(message.getRequestUri()).toBe(toUri.stringify());
 
       // TODO(erick): This is really shitty, I'm just copying code'
       var headerType = rfc3261.HeaderType;
       jssip.testing.util.messageutil.checkMessageHeaders(goog.object.create(
-        headerType.TO, toUri.toString(),
+        headerType.TO, toUri.stringify(),
         headerType.FROM, /EJ <sip:erick@bar.com>;tag=[a-f0-9]+/,
         headerType.CALL_ID, /[a-f0-9]+/,
         headerType.CSEQ, /[0-9]+ FOOSBAR/,
