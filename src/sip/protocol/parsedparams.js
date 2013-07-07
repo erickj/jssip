@@ -88,3 +88,22 @@ jssip.sip.protocol.ParsedParams.prototype.stringify = function() {
   }
   return str;
 };
+
+
+/**
+ * Creates a ParsedParams from a map of parameter values.
+ * @param {!Object.<string|boolean>} parameterMap
+ * @return {!jssip.sip.protocol.ParsedParams}
+ */
+jssip.sip.protocol.ParsedParams.createFromParameterMap =
+    function(parameterMap) {
+  var uglifiedParamList = [];
+  for (var paramName in parameterMap) {
+    var param = [paramName];
+    if (goog.isString(parameterMap[param])) {
+      param.push('=', parameterMap[param]);
+    }
+    uglifiedParamList.push([';', param]);
+  };
+  return new jssip.sip.protocol.ParsedParams(uglifiedParamList);
+};

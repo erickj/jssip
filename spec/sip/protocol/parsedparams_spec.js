@@ -72,4 +72,17 @@ describe('jssip.sip.protocol.ParsedParams', function() {
       expect(new jssip.sip.protocol.ParsedParams([]).stringify()).toBe('');
     });
   });
+
+  describe('.createFromParameterMap', function() {
+    it('converts a map of parameter values into a ParsedParams', function() {
+      var map = {
+        foo: 'bar',
+        hasBaz: true
+      }
+      var parsedParams =
+          jssip.sip.protocol.ParsedParams.createFromParameterMap(map);
+      expect(parsedParams.getParameter('foo')).toBe('bar');
+      expect(parsedParams.getParameter('hasBaz')).toBe(true);
+    });
+  });
 });
