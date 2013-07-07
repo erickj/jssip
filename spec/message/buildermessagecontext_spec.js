@@ -24,12 +24,6 @@ describe('jssip.message.BuilderMessageContext', function() {
 
   beforeEach(factoryFn);
 
-  describe('#getBuilder', function() {
-    it('returns the builder', function() {
-      expect(messageContext.getBuilder()).toBe(builder);
-    });
-  });
-
   describe('#getMessage', function() {
     it('returns a built message', function() {
       var message = messageContext.getMessage();

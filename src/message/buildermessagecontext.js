@@ -26,17 +26,9 @@ goog.inherits(
     jssip.message.BuilderMessageContext, jssip.message.MessageContext);
 
 
-/**
- * @return {!jssip.message.Message.Builder} Message builder.
- */
-jssip.message.BuilderMessageContext.prototype.getBuilder = function() {
-  return this.builder_;
-};
-
-
 /** @override */
 jssip.message.BuilderMessageContext.prototype.getMessageInternal = function() {
-  return this.getBuilder().build();
+  return this.builder_.build();
 };
 
 

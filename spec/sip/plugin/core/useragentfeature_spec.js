@@ -208,9 +208,9 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
 
     it('is possible to add and override message headers', function() {
       eventListener = function(evt) {
-        var builder = evt.messageContext.getBuilder();
-        builder.setHeader('X-Foobar', 'xfoo');
-        builder.setHeader('From', 'yomama', true /* opt_overwrite */);
+        var builderContext = evt.messageContext;
+        builderContext.setHeader('X-Foobar', 'xfoo');
+        builderContext.setHeader('From', 'yomama', true /* opt_overwrite */);
       };
 
       eventBus.addEventListener(
