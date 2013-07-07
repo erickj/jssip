@@ -58,53 +58,32 @@ goog.require('goog.array');
  * @extends {goog.Disposable}
  */
 jssip.message.Message = function(builder) {
-  /**
-   * @type {boolean}
-   * @private
-   */
+  /** @private {boolean} */
   this.isRequest_ = builder.isRequest();
 
-  /**
-   * @type {string}
-   * @private
-   */
+  /** @private {string} */
   this.method_ = this.isRequest_ ? builder.getMethod() : '';
 
-  /**
-   * @type {string}
-   * @private
-   */
+  /** @private {string} */
   this.requestUri_ = this.isRequest_ ? builder.getRequestUri() : '';
 
-  /**
-   * @type {string}
-   * @private
-   */
+  /** @private {string} */
   this.sipVersion_ = builder.getSipVersion();
 
-  /**
-   * @type {string}
-   * @private
-   */
+  /** @private {string} */
   this.statusCode_ = !this.isRequest_ ? builder.getStatusCode() : '';
 
-  /**
-   * @type {string}
-   * @private
-   */
+  /** @private {string} */
   this.reasonPhrase_ = !this.isRequest_ ? builder.getReasonPhrase() : '';
 
-  /**
-   * @type {?string}
-   * @private
-   */
+  /** @private {?string} */
   this.body_ = builder.getBody();
 
-  /**
-   * @type {!Object.<string, !Array.<string>>}
-   * @private
-   */
+  /** @private {!Object.<string, !Array.<string>>} */
   this.headers_ = {};
+
+  /** @private {!Array.<string>} */
+  this.headerOrder_ = goog.array.clone(builder.getHeaderOrder());
 
   var headerMap = builder.getHeaders();
   for (var header in headerMap) {
@@ -185,6 +164,98 @@ jssip.message.Message.prototype.addRawHeader_ = function(name, value) {
   }
   this.headers_[name].push(
       jssip.message.Message.normalizeMultilineValues_(value));
+};
+
+
+/**
+ * Stringifies the message to the proper RFC 3261 message format.
+ * @return {string}
+ */
+jssip.message.Message.prototype.stringify = function() {
+  var CRLF = '\r\n';
+  var statusLineParts = this.isRequest() ?
+      this.serializeRequestParts_() :
+      this.serializeResponseParts_();
+  var lines = [statusLineParts.join(' ')];
+
+  // TODO: could squash down headers that may be separated by commas to a single
+  // line
+  for (var i = 0; i < this.headerOrder_.length; i++) {
+    var headerName = this.headerOrder_[i];
+    var headerValues = this.getHeaderValue(headerName) || [];
+    for (var j = 0; j < headerValues.length; j++) {
+      lines.push(headerName + ': ' + headerValues[j]);
+    }
+  };
+  lines.push('');
+  lines.push(this.getBody());
+
+  return lines.join(CRLF);
+};
+
+
+/**
+ * @return {!Array.<string>}
+ */
+jssip.message.Message.prototype.serializeRequestParts_ = function() {
+  return [this.getMethod(), this.getRequestUri(), this.getSipVersion()];
+};
+
+
+/**
+ * @return {!Array.<string>}
+ */
+jssip.message.Message.prototype.serializeResponseParts_ = function() {
+  return [this.getSipVersion(), this.getStatusCode(), this.getReasonPhrase()];
+};
+
+
+/**
+ * Whether this is equal to another object.
+ * @param {!Object} o
+ * @return {boolean}
+ */
+jssip.message.Message.prototype.equals = function(o) {
+  if (o === this) {
+    return true;
+  }
+  if (!(o instanceof jssip.message.Message)) {
+    return false;
+  }
+  var otherMessage = /** @type {!jssip.message.Message} */ (o);
+  return this.method_ == otherMessage.method_ &&
+      this.requestUri_ == otherMessage.requestUri_ &&
+      this.sipVersion_ == otherMessage.sipVersion_ &&
+      this.statusCode_ == otherMessage.statusCode_ &&
+      this.reasonPhrase_ == otherMessage.reasonPhrase_ &&
+      this.body_ == otherMessage.body_ &&
+      this.headersEqual_(otherMessage);
+};
+
+
+// TODO: account for comma separated header values
+/**
+ * @param {!jssip.message.Message} otherMessage
+ * @return {boolean}
+ * @private
+ */
+jssip.message.Message.prototype.headersEqual_ = function(otherMessage) {
+  if (this.headerOrder_.length != otherMessage.headerOrder_.length) {
+    return false;
+  }
+
+  // Note: this does not need to ensure that all headers are in the same order,
+  // only that all headers in this message are in otherMessage and headers of
+  // the same name have identical values in the correct order.
+  for (var i = 0; i < this.headerOrder_.length; i++) {
+    var headerName = this.headerOrder_[i];
+    var myHeaderValues = this.getHeaderValue(headerName);
+    var otherHeaderValues = otherMessage.getHeaderValue(headerName);
+    if (!goog.array.equals(myHeaderValues, otherHeaderValues)) {
+      return false;
+    }
+  }
+  return true;
 };
 
 
@@ -281,6 +352,9 @@ jssip.message.Message.Builder = function() {
 
   /** @private {!Object.<!Array.<string>>} */
   this.headerMap_ = {};
+
+  /** @private {!Array.<string>} */
+  this.headerOrder_ = [];
 };
 
 
@@ -329,6 +403,12 @@ jssip.message.Message.Builder.prototype.getBody = function() {
 /** @return {!Object.<!Array.<string>>} The headers. */
 jssip.message.Message.Builder.prototype.getHeaders = function() {
   return this.headerMap_;
+};
+
+
+/** @return {!Array.<string>} */
+jssip.message.Message.Builder.prototype.getHeaderOrder = function() {
+  return this.headerOrder_;
 };
 
 
@@ -434,6 +514,7 @@ jssip.message.Message.Builder.prototype.setHeader =
   if (this.headerMap_[key] && !opt_overwrite) {
     this.headerMap_[key] = this.headerMap_[key].concat(value);
   } else {
+    this.headerOrder_.push(key);
     this.headerMap_[key] = goog.array.flatten(value);
   }
   return this;

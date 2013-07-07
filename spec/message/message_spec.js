@@ -2,6 +2,7 @@ goog.provide('jssip.message.MessageSpec');
 
 goog.require('jssip.message.Message');
 goog.require('jssip.message.Message.Builder');
+goog.require('jssip.testing.util.messageutil');
 
 describe("jssip.message.Message", function() {
   var requestBuilder;
@@ -32,6 +33,136 @@ describe("jssip.message.Message", function() {
       requestBuilder.setHeader(header, headers[header]);
       responseBuilder.setHeader(header, headers[header]);
     };
+  });
+
+  describe('#equals', function() {
+    var equalsMessage;
+
+    beforeEach(function() {
+      equalsMessage = responseBuilder.build();
+    });
+
+    it('returns true for a message is always equal to itself', function() {
+      expect(equalsMessage.equals(equalsMessage)).toBe(true);
+    });
+
+    it('returns true for a message that is identical to itself', function() {
+      expect(equalsMessage.equals(responseBuilder.build())).toBe(true);
+    });
+
+    it('returns false for a message that is dissimilar to itself', function() {
+      responseBuilder.setHeader('not', 'equals');
+      expect(equalsMessage.equals(responseBuilder.build())).toBe(false);
+    });
+
+    describe('semantic equivalence', function() {
+      var builder1;
+      var builder2;
+
+      beforeEach(function() {
+        builder1 = new jssip.message.Message.Builder();
+        builder1.setMethod(method).
+            setSipVersion(version).
+            setRequestUri(uri).
+            setBody(body);
+        builder1.setHeader('bar', 'bar-val');
+        builder1.setHeader('foo', 'foo-val');
+
+        builder2 = new jssip.message.Message.Builder();
+        builder2.setMethod(method).
+            setSipVersion(version).
+            setRequestUri(uri).
+            setBody(body);
+        builder2.setHeader('foo', 'foo-val');
+        builder2.setHeader('bar', 'bar-val');
+      });
+
+      it('returns true for different order parameters with the same semantics',
+         function() {
+           expect(builder1.build().equals(builder2.build())).toBe(true);
+           expect(builder2.build().equals(builder1.build())).toBe(true);
+         });
+
+      it('returns true if parameters for the same header maintain proper order',
+         function() {
+           builder1.setHeader('foo', 'foo-val2');
+           builder1.setHeader('foo', 'foo-val3');
+           builder2.setHeader('foo', ['foo-val2', 'foo-val3']);
+           expect(builder1.build().equals(builder2.build())).toBe(true);
+           expect(builder2.build().equals(builder1.build())).toBe(true);
+         });
+
+      it('returns false if parameters fail to maintain proper order',
+         function() {
+           builder1.setHeader('foo', 'foo-val3');
+           builder1.setHeader('foo', 'foo-val2');
+           builder2.setHeader('foo', ['foo-val2', 'foo-val3']);
+           expect(builder1.build().equals(builder2.build())).toBe(false);
+           expect(builder2.build().equals(builder1.build())).toBe(false);
+         });
+
+      it('returns false if parameters fail to maintain equivalent values',
+         function() {
+           builder1.setHeader('foo', 'foo-val-X');
+           builder2.setHeader('foo', 'foo-val-Y');
+           expect(builder1.build().equals(builder2.build())).toBe(false);
+           expect(builder2.build().equals(builder1.build())).toBe(false);
+         });
+    });
+  });
+
+  describe('#stringify', function() {
+    it('stringifies requests', function() {
+      var expected = 'FOO foo@bar SIP/2.0\r\n' +
+          'foo: foo-value\r\n' +
+          '\r\n' + body;
+      expect(requestBuilder.build().stringify()).toBe(expected);
+    });
+
+    it('stringifies responses', function() {
+      var expected = 'SIP/2.0 100 because\r\n' +
+          'foo: foo-value\r\n' +
+          '\r\n' + body;
+      expect(responseBuilder.build().stringify()).toBe(expected);
+    });
+
+    it('preserves semantic header order', function() {
+      requestBuilder.setHeader('Route', 'Aruba');
+      requestBuilder.setHeader('Route', 'Jamaica');
+      requestBuilder.setHeader('Route', ['Bermuda', 'Bahama']);
+      var expected = 'FOO foo@bar SIP/2.0\r\n' +
+          'foo: foo-value\r\n' +
+          'Route: Aruba\r\n' +
+          'Route: Jamaica\r\n' +
+          'Route: Bermuda\r\n' +
+          'Route: Bahama\r\n' +
+          '\r\n' + body;
+      expect(requestBuilder.build().stringify()).toBe(expected);
+    });
+
+    describe('parsing reciprocity', function() {
+      var Examples = jssip.testing.util.messageutil.ExampleMessage;
+      for (var example in Examples) {
+        it('parses and stringifies ' + example, function(example) {
+          return function() {
+            var rawMessage = Examples[example];
+            var parsedExampleMessage =
+                jssip.testing.util.messageutil.parseMessage(rawMessage);
+            expect(parsedExampleMessage.stringify()).toBe(rawMessage);
+          }
+        }(example));
+      };
+    });
+  });
+
+  describe('#dispose', function() {
+    it('is disposable', function() {
+      var message = requestBuilder.build();
+      expect(message.isDisposed()).toBe(false);
+
+      message.dispose();
+      expect(message.isDisposed()).toBe(true);
+    });
   });
 
   describe('jssip.message.Message.Builder', function() {
@@ -149,16 +280,6 @@ describe("jssip.message.Message", function() {
         expect(message.getHeaderValue('foo')[0]).
             toBe('this value spans across multiple lines');
       });
-    });
-  });
-
-  describe('#dispose', function() {
-    it('is disposable', function() {
-      var message = requestBuilder.build();
-      expect(message.isDisposed()).toBe(false);
-
-      message.dispose();
-      expect(message.isDisposed()).toBe(true);
     });
   });
 });
