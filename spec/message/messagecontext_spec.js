@@ -2,6 +2,7 @@ goog.provide('jssip.message.MessageContextSpec');
 goog.provide('jssip.message.MessageContextSpec.TestMessageContext');
 
 goog.require('goog.testing.MockControl');
+goog.require('jssip.message.HeaderImpl');
 goog.require('jssip.message.MessageContext');
 goog.require('jssip.sip.protocol.storage.DialogStorage');
 goog.require('jssip.testing.SharedMessageContextSpec');
@@ -20,7 +21,7 @@ jssip.message.MessageContextSpec.TestMessageContext =
   /** @type {!jssip.message.Message} */
   this.messageInternal = message;
 
-  this.setHeaderInternalSpy = jasmine.createSpy();
+  this.internalSpy = jasmine.createSpy();
 
   goog.base(this, /** @type {jssip.message.MessageContext.Type} */ ("test"),
       parserRegistry, sipContext);
@@ -39,7 +40,14 @@ jssip.message.MessageContextSpec.TestMessageContext.prototype.
 /** @override */
 jssip.message.MessageContextSpec.TestMessageContext.prototype.
     setHeaderInternal = function(key, value, opt_overwrite) {
-  this.setHeaderInternalSpy(key, value, opt_overwrite);
+  this.internalSpy(key, value, opt_overwrite);
+};
+
+
+/** @override */
+jssip.message.MessageContextSpec.TestMessageContext.prototype.
+    setRequestUriInternal = function(requestUri) {
+  this.internalSpy(requestUri);
 };
 
 
@@ -47,21 +55,23 @@ describe('jssip.message.MessageContext', function() {
   var mockControl;
   var mockParserRegistry;
 
+  var parserRegistry;
   var messageContext;
   var messageDummy;
   var sipContext;
 
-  var factoryFn = function() {
+  var factoryFn = function(opt_parserRegistry) {
     mockControl = new goog.testing.MockControl();
     mockParserRegistry =
         jssip.testing.util.parseutil.createMockParserRegistry(mockControl);
 
+    parserRegistry = opt_parserRegistry || mockParserRegistry;
     sipContext = jssip.testing.util.messageutil.createSipContext();
     messageDummy = jssip.testing.util.messageutil.parseMessage(
         jssip.testing.util.messageutil.ExampleMessage.INVITE);
     return messageContext =
         new jssip.message.MessageContextSpec.TestMessageContext(
-            messageDummy, mockParserRegistry, sipContext);
+            messageDummy, parserRegistry, sipContext);
   };
 
   beforeEach(factoryFn);
@@ -143,20 +153,62 @@ describe('jssip.message.MessageContext', function() {
       messageContext.getParsedHeader(testHeader);
       mockControl.$verifyAll();
     });
+
+    it('gets parsed headers with no registered header parser', function() {
+      messageContext =
+          factoryFn(jssip.testing.util.parseutil.createParserRegistry());
+      messageContext.messageInternal.getHeaderValue = function() {
+        return ['flaptacious'];
+      }
+
+      var headers = messageContext.getParsedHeader('Fizzle-Bang');
+      expect(headers[0]).toEqual(jasmine.any(jssip.message.HeaderImpl));
+      expect(headers[0].getParsedValue()).toEqual(['flaptacious']);
+    });
   });
 
-  describe('#setHeader', function() {
-    it('calls the #setHeaderInternal implementation of the subclass',
-       function() {
-         var header = 'Foo';
-         var value = 'foobar';
-         var overwrite = false;
+  describe('cache clearing methods', function() {
+    var cachedMessage;
 
-         expect(messageContext.setHeaderInternalSpy).not.toHaveBeenCalled();
-         messageContext.setHeader(header, value, overwrite);
-         expect(messageContext.setHeaderInternalSpy).
-             toHaveBeenCalledWith(header, value, overwrite);
-       });
+    beforeEach(function() {
+      cachedMessage = messageContext.getMessage();
+    });
+
+    describe('#setHeader', function() {
+      it('calls the #setHeaderInternal implementation of the subclass',
+         function() {
+           var header = 'Foo';
+           var value = 'foobar';
+           var overwrite = false;
+
+           expect(messageContext.internalSpy).not.toHaveBeenCalled();
+           messageContext.setHeader(header, value, overwrite);
+           expect(messageContext.internalSpy).
+               toHaveBeenCalledWith(header, value, overwrite);
+         });
+
+      it('clears the cache', function() {
+        expect(cachedMessage.isDisposed()).toBe(false);
+        messageContext.setHeader('Foo', 'bar');
+        expect(cachedMessage.isDisposed()).toBe(true);
+      });
+    });
+
+    describe('#setRequestUri', function() {
+      it('calls the #setRequestUriInternal implementation of the subclass',
+         function() {
+           expect(messageContext.internalSpy).not.toHaveBeenCalled();
+           messageContext.setRequestUri('sip:minions@me.com');
+           expect(messageContext.internalSpy).
+               toHaveBeenCalledWith('sip:minions@me.com');
+         });
+
+      it('clears the cache', function() {
+        expect(cachedMessage.isDisposed()).toBe(false);
+        messageContext.setRequestUri('sip:minions@me.com');
+        expect(cachedMessage.isDisposed()).toBe(true);
+      });
+    });
   });
 
   sharedMessageContextBehaviors(factoryFn);

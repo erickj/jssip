@@ -43,3 +43,10 @@ jssip.message.BuilderMessageContext.prototype.setHeaderInternal =
     function(key, value, opt_overwrite) {
   this.builder_.setHeader(key, value, opt_overwrite);
 };
+
+
+/** @override */
+jssip.message.BuilderMessageContext.prototype.setRequestUriInternal =
+    function(requestUri) {
+  this.builder_.setRequestUri(requestUri);
+};

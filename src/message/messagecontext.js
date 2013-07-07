@@ -1,6 +1,9 @@
 goog.provide('jssip.message.MessageContext');
 goog.provide('jssip.message.ImmutableMessageContextError');
 
+goog.require('jssip.message.HeaderImpl');
+goog.require('jssip.parser.NoRegisteredHeaderParserError');
+
 
 
 /**
@@ -86,6 +89,28 @@ jssip.message.MessageContext.prototype.setHeaderInternal = goog.abstractMethod;
 
 
 /**
+ * Sets the request URI on mutable message contexts.
+ * @param {string} requestUri
+ * @return {!jssip.message.MessageContext} Returns this.
+ * @throws {jssip.message.MessageContext.ImmutableMessageContextError}
+ */
+jssip.message.MessageContext.prototype.setRequestUri = function(requestUri) {
+  this.clearCaches_();
+  this.setRequestUriInternal(requestUri);
+  return this;
+};
+
+
+/**
+ * Internal implementation for setRequestUri to override by subclasses.
+ * @param {string} requestUri
+ * @throws {jssip.message.MessageContext.ImmutableMessageContextError}
+ */
+jssip.message.MessageContext.prototype.setRequestUriInternal =
+    goog.abstractMethod;
+
+
+/**
  * Clears all internally cached state.
  * @private
  */
@@ -156,7 +181,12 @@ jssip.message.MessageContext.prototype.getTransaction = function() {
 
 
 /**
- * Returns the parsed value of the header in the message.
+ * Returns an array of headers that are present in the message.  Be aware that
+ * each header's {@code #getParsedValue} method also returns an array of values.
+ * This is to account for the ability of headers to appear multiple times in a
+ * SIP message, each containing multiple comma (or other delimiting character)
+ * separated values.
+ *
  * @param {string} headerName
  * @return {!Array.<!jssip.message.Header>}
  */
@@ -168,9 +198,20 @@ jssip.message.MessageContext.prototype.getParsedHeader = function(headerName) {
     var headerValues = message.getHeaderValue(headerName);
     var parsedHeaderValues = [];
     if (headerValues != null) {
-      for (var i = 0; i < headerValues.length; i++) {
-        parsedHeaderValues.push(
-            this.parserRegistry_.parseHeader(headerName, headerValues[i]));
+      try {
+        for (var i = 0; i < headerValues.length; i++) {
+          parsedHeaderValues.push(
+              this.parserRegistry_.parseHeader(headerName, headerValues[i]));
+        }
+      } catch(e) {
+        if (e instanceof jssip.parser.NoRegisteredHeaderParserError) {
+          for (var i = 0; i < headerValues.length; i++) {
+            parsedHeaderValues.push(new jssip.message.HeaderImpl(
+                headerName, headerValues[i], [headerValues[i]]));
+          }
+        } else {
+          throw e;
+        }
       }
     }
     this.parsedHeaderCache_[headerName] = parsedHeaderValues;

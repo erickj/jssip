@@ -52,3 +52,10 @@ jssip.message.RawMessageContext.prototype.setHeaderInternal = function() {
   throw new jssip.message.ImmutableMessageContextError(
       'Unable set new headers on immutable raw message context');
 };
+
+
+/** @override */
+jssip.message.RawMessageContext.prototype.setRequestUriInternal = function() {
+  throw new jssip.message.ImmutableMessageContextError(
+      'Unable set new request URI on immutable raw message context');
+};
