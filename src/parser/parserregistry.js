@@ -1,10 +1,33 @@
 goog.provide('jssip.parser.ParserRegistry');
+goog.provide('jssip.parser.NoRegisteredHeaderParserError');
+goog.provide('jssip.parser.NoRegisteredUriParserError');
 
 goog.require('goog.dispose');
 goog.require('jssip.parser.ParseError');
 goog.require('jssip.parser.ParseEvent');
 goog.require('jssip.parser.Parser');
 
+
+/**
+ * @param {string} headerName
+ * @constructor
+ * @extends {Error}
+ */
+jssip.parser.NoRegisteredHeaderParserError = function(headerName) {
+  this.message = 'No header parser registered for header ' + headerName;
+};
+goog.inherits(jssip.parser.NoRegisteredHeaderParserError, Error);
+
+
+/**
+ * @param {string} scheme
+ * @constructor
+ * @extends {Error}
+ */
+jssip.parser.NoRegisteredUriParserError = function(scheme) {
+  this.message = 'No URI parser registered for scheme ' + scheme;
+};
+goog.inherits(jssip.parser.NoRegisteredUriParserError, Error);
 
 
 /**
@@ -54,7 +77,7 @@ jssip.parser.ParserRegistry.prototype.parseMessage = function(rawMessageText) {
 jssip.parser.ParserRegistry.prototype.parseHeader = function(name, value) {
   var parserFactory = this.headerParserFactories_[name.toLowerCase()];
   if (!parserFactory) {
-    throw Error('Unable to locate Header parser for header ' + name);
+    throw new jssip.parser.NoRegisteredHeaderParserError(name);
   }
   var headerParser = parserFactory.createParser(value);
   headerParser.initializeHeaderName(name);
@@ -71,11 +94,11 @@ jssip.parser.ParserRegistry.prototype.parseHeader = function(name, value) {
 jssip.parser.ParserRegistry.prototype.parseUri = function(uri) {
   var scheme = uri.substring(0, uri.indexOf(':'));
   if (!scheme) {
-    throw Error('Unable to parse URI with unknown scheme');
+    throw Error('Unable to parse URI with missing scheme');
   }
   var parserFactory = this.uriParserFactories_[scheme.toLowerCase()];
   if (!parserFactory) {
-    throw Error('Unable to locate URI parser for scheme ' + scheme);
+    throw new jssip.parser.NoRegisteredUriParserError(scheme);
   }
   return /** @type {!jssip.uri.Uri} */ (
       this.invokeParser_(parserFactory.createParser(uri)));

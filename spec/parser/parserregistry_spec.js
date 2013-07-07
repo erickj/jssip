@@ -3,6 +3,8 @@ goog.provide('jssip.parser.ParserRegistrySpec');
 goog.require('goog.events.EventTarget');
 goog.require('jssip.parser.ParseError');
 goog.require('jssip.parser.ParserRegistry');
+goog.require('jssip.parser.NoRegisteredHeaderParserError');
+goog.require('jssip.parser.NoRegisteredUriParserError');
 
 describe('jssip.parser.ParserRegistry', function() {
   var registry;
@@ -44,7 +46,8 @@ describe('jssip.parser.ParserRegistry', function() {
       it('should throw an error for an unknown header type', function() {
         expect(function() {
           registry.parseHeader('hdr', 'val');
-        }).toThrow();
+        }).toThrow(
+            new jssip.parser.NoRegisteredHeaderParserError('hdr').message);
       });
     });
 
@@ -59,7 +62,14 @@ describe('jssip.parser.ParserRegistry', function() {
 
       it('should throw an error for an unknown URI scheme', function() {
         expect(function() {
-          registry.parseUri('scheme', 'scheme:uri');
+          registry.parseUri('scheme-x:uri');
+        }).toThrow(
+            new jssip.parser.NoRegisteredUriParserError('scheme-x').message);
+      });
+
+      it('should throw an error for a missing scheme', function() {
+        expect(function() {
+          registry.parseUri('uri');
         }).toThrow();
       });
     });
