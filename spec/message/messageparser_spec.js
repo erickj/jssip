@@ -23,15 +23,15 @@ describe('jssip.message.MessageParser', function() {
 
   describe('message parsing', function() {
     var request = "INVITE sip:bob@biloxi.com SIP/2.0\r\n" +
-      "Foo: request-foo\r\n" +
-      "Biz: request-biz\r\n" +
-      "\r\n";
+        "Foo: request-foo\r\n" +
+        "Biz: request-biz\r\n" +
+        "\r\n";
 
     var response = "SIP/2.0 200 OK\r\n" +
-      "Foo: response-foo-1\r\n" +
-      "Biz: response-biz\r\n" +
-      "Foo: response-foo-2\r\n" +
-      "\r\n";
+        "Foo: response-foo-1\r\n" +
+        "Biz: response-biz\r\n" +
+        "Foo: response-foo-2\r\n" +
+        "\r\n";
 
     beforeEach(function() {
       this.addMatchers({
@@ -97,9 +97,9 @@ describe('jssip.message.MessageParser', function() {
     it('should dispatch a parse warning on malformed headers and continue parsing',
        function() {
          var messageText = "SIP/2.0 200 OK\r\n" +
-           "Foo\r\n" +
-           "Bar: bar-value\r\n" +
-           "\r\n";
+             "Foo\r\n" +
+             "Bar: bar-value\r\n" +
+             "\r\n";
          var parser = new jssip.message.MessageParser(messageText);
          var handlerInvoked = false;
          var handler = function(e) {
@@ -115,9 +115,9 @@ describe('jssip.message.MessageParser', function() {
 
     it('should handle multi-line headers', function() {
       var messageText = "SIP/2.0 200 OK\r\n" +
-        "Foo: Hi this is crazy\nbut call me\nmaybe\r\n" +
-        "Bar: bar-value\r\n" +
-        "\r\n";
+          "Foo: Hi this is crazy\nbut call me\nmaybe\r\n" +
+          "Bar: bar-value\r\n" +
+          "\r\n";
       var parser = new jssip.message.MessageParser(messageText);
       var message = parser.parse();
       expect(message.getHeaderValue('foo')[0]).
@@ -128,16 +128,16 @@ describe('jssip.message.MessageParser', function() {
     it('should throw a parse error if there is no CRLF after headers',
        function() {
          var messageText = "SIP/2.0 200 OK\r\n" +
-           "Foo: bar\r\n";
+             "Foo: bar\r\n";
          var parser = new jssip.message.MessageParser(messageText);
          expect(function() { parser.parse(); }).toThrowParseError();
        });
 
     it('should set the message body if there is one', function() {
       var messageText = "SIP/2.0 200 OK\r\n" +
-        "Foo: foo-value\r\n" +
-        "\r\n" +
-        "Let the body begin!";
+          "Foo: foo-value\r\n" +
+          "\r\n" +
+          "Let the body begin!";
       var parser = new jssip.message.MessageParser(messageText);
       var message = parser.parse();
       expect(message.getBody()).toBe('Let the body begin!');

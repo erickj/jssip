@@ -235,10 +235,10 @@ jssip.message.MessageParser.prototype.parseHeaders_ = function() {
       this.dispatchParseEvent('Unable to parse malformed header: ' + line);
       continue;
     }
-    headers.push(goog.string.trimRight(matches[1]));
-    headers.push(goog.string.trimLeft(matches[2]));
+    var headerName = goog.string.trimRight(matches[1]);
+    var headerValue = goog.string.trimLeft(matches[2]);
+    this.messageBuilder_.setHeader(headerName, headerValue);
   }
-  this.messageBuilder_.setHeaders(headers);
 };
 
 

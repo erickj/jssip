@@ -104,11 +104,13 @@ jssip.message.Message = function(builder) {
    */
   this.headers_ = {};
 
-  for (var i = 0, headers = builder.getHeaders(); i < headers.length; i++) {
-    // Header name/values are stored in even/odd positions of the
-    // headers array.
-    this.addRawHeader_(headers[i], headers[++i]);
-  }
+  var headerMap = builder.getHeaders();
+  for (var header in headerMap) {
+    var valueList = headerMap[header];
+    for (var i = 0; i < valueList.length; i++) {
+      this.addRawHeader_(header, valueList[i]);
+    };
+  };
 };
 
 
@@ -261,11 +263,8 @@ jssip.message.Message.Builder = function() {
    */
   this.body_ = null;
 
-  /** @private {Array.<string>} */
-  this.headerList_ = null;
-
-  /** @private {Object.<!Array.<string>>} */
-  this.headerMap_ = null;
+  /** @private {!Object.<!Array.<string>>} */
+  this.headerMap_ = {};
 };
 
 
@@ -311,20 +310,9 @@ jssip.message.Message.Builder.prototype.getBody = function() {
 };
 
 
-/** @return {!Array.<string>} The headers. */
+/** @return {!Object.<!Array.<string>>} The headers. */
 jssip.message.Message.Builder.prototype.getHeaders = function() {
-  var headerList = this.headerList_;
-  if (!headerList && this.headerMap_) {
-    headerList = [];
-    for (var key in this.headerMap_) {
-      var values = this.headerMap_[key];
-      for (var i = 0; i < values.length; i++) {
-        headerList.push(key);
-        headerList.push(values[i]);
-      }
-    }
-  }
-  return headerList || [];
+  return this.headerMap_;
 };
 
 
@@ -416,47 +404,17 @@ jssip.message.Message.Builder.prototype.setBody = function(body) {
 
 
 /**
- * Set the headers array. Header name/value pairs are stored in the even/odd
- * indices.  This should be used for message parsing, where we want to be able
- * to reconstruct a message exactly as it was parsed or account for multiple
- * headers with the same name in the mesage.
- *
- * This will throw an error if {@code #setHeader} has already been called.
- *
- * @param {!Array.<string>} headers The header array.
- * @return {!jssip.message.Message.Builder} Return this.
- * @throws {Error}
- */
-jssip.message.Message.Builder.prototype.setHeaders = function(headers) {
-  if (this.headerMap_) {
-    throw Error('Unable to use header list with header map');
-  }
-  this.headerList_ = headers;
-  return this;
-};
-
-
-/**
  * Sets a header key-value pair.  Multiple calls to this with the same key will
  * overwrite existing values.
- *
- * This will throw an error if {@code #setHeaders} has already been called.
  *
  * @param {string} key The header name.
  * @param {string|!Array.<string>} value A single value or value list.
  * @param {boolean=} opt_overwrite Whether to overwrite any existing values for
  *     the given header name or append.  The default is to append.
  * @return {!jssip.message.Message.Builder} Return this.
- * @throws {Error}
  */
 jssip.message.Message.Builder.prototype.setHeader =
     function(key, value, opt_overwrite) {
-  if (this.headerList_) {
-    throw Error('Unable to use header map with header list');
-  } else if (!this.headerMap_) {
-    this.headerMap_ = {};
-  }
-
   if (this.headerMap_[key] && !opt_overwrite) {
     this.headerMap_[key] = this.headerMap_[key].concat(value);
   } else {

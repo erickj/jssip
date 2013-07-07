@@ -6,32 +6,36 @@ goog.require('jssip.message.Message.Builder');
 describe("jssip.message.Message", function() {
   var requestBuilder;
   var responseBuilder;
+
   var method = 'FOO';
   var version = 'SIP/2.0';
   var uri = 'foo@bar';
   var statusCode = '100';
   var reason = 'because';
   var body = 'a body of work';
-  var headers = ['foo','foo-value'];
+  var headers = {foo: 'foo-value'};
 
   beforeEach(function() {
     requestBuilder = new jssip.message.Message.Builder();
     requestBuilder.setMethod(method).
-      setSipVersion(version).
-      setRequestUri(uri).
-      setBody(body).
-      setHeaders(headers);
+        setSipVersion(version).
+        setRequestUri(uri).
+        setBody(body);
 
     responseBuilder = new jssip.message.Message.Builder();
     responseBuilder.setSipVersion(version).
-      setStatusCode(statusCode).
-      setReasonPhrase(reason).
-      setBody(body).
-      setHeaders(headers);
+        setStatusCode(statusCode).
+        setReasonPhrase(reason).
+        setBody(body);
+
+    for (var header in headers) {
+      requestBuilder.setHeader(header, headers[header]);
+      responseBuilder.setHeader(header, headers[header]);
+    };
   });
 
   describe('jssip.message.Message.Builder', function() {
-    it('should create a request message when request values are set',
+    it('creates a request message when request values are set',
        function() {
          var message = requestBuilder.build();
          expect(message.isRequest()).toBe(true);
@@ -43,7 +47,7 @@ describe("jssip.message.Message", function() {
          expect(message.getHeaderValue('foo')).toEqual(['foo-value']);
        });
 
-    it('should create a response message when response values are set',
+    it('creates a response message when response values are set',
        function() {
          var message = responseBuilder.build();
          expect(message.isRequest()).toBe(false);
@@ -55,7 +59,7 @@ describe("jssip.message.Message", function() {
          expect(message.getHeaderValue('foo')).toEqual(['foo-value']);
        });
 
-    it('should throw when setting response and request values', function() {
+    it('throws when setting response and request values', function() {
       expect(function() { responseBuilder.setMethod(method); }).toThrow();
       expect(function() { responseBuilder.setRequestUri(uri); }).toThrow();
 
@@ -67,7 +71,7 @@ describe("jssip.message.Message", function() {
       }).toThrow();
     });
 
-    it('should throw when building an incomplete request', function() {
+    it('throws when building an incomplete request', function() {
       var builder = new jssip.message.Message.Builder();
       // throw because... missing SIP version
       expect(function() { builder.build(); }).toThrow();
@@ -79,7 +83,7 @@ describe("jssip.message.Message", function() {
       builder.build();
     });
 
-    it('should throw when building an incomplete response', function() {
+    it('throws when building an incomplete response', function() {
       var builder = new jssip.message.Message.Builder();
       // throw because... missing SIP version
       expect(function() { builder.build(); }).toThrow();
@@ -91,88 +95,60 @@ describe("jssip.message.Message", function() {
       builder.build();
     });
 
-    describe('building headers', function() {
+    describe('#setHeader', function() {
       beforeEach(function() {
         requestBuilder = new jssip.message.Message.Builder();
         requestBuilder.setMethod(method).
-          setSipVersion(version).
-          setRequestUri(uri).
-          setBody(body);
+            setSipVersion(version).
+            setRequestUri(uri).
+            setBody(body);
       });
 
-      describe('#setHeaders', function() {
-        it('should throw if used after #setHeader', function() {
-          requestBuilder.setHeader('foo', 'bar');
-          expect(function() {
-            requestBuilder.setHeaders(['fiz', 'buz']);
-          }).toThrow();
-        });
+      it('sets name value pairs for header values', function() {
+        var message = requestBuilder.
+            setHeader('bloop', 'foo').
+            setHeader('floop', 'flop').
+            setHeader('gloop', ['hop', 'on', 'pop']).
+            build();
+        expect(message.getHeaderValue('bloop')).toEqual(['foo']);
+        expect(message.getHeaderValue('floop')).toEqual(['flop']);
+        expect(message.getHeaderValue('gloop')).toEqual(['hop', 'on', 'pop']);
       });
 
-      describe('#setHeader', function() {
-        it('should set name value pairs for header values', function() {
-          var message = requestBuilder.
-              setHeader('bloop', 'foo').
-              setHeader('bloop', 'bar').
-              setHeader('floop', 'flop').
-              setHeader('gloop', ['hop', 'on', 'pop']).
-              build();
-          expect(message.getHeaderValue('bloop')).toEqual(['foo', 'bar']);
-          expect(message.getHeaderValue('floop')).toEqual(['flop']);
-          expect(message.getHeaderValue('gloop')).toEqual(['hop', 'on', 'pop']);
-        });
-
-        it('should overwrite header values when explicitly set', function() {
-          var message = requestBuilder.
-              setHeader('bloop', 'foo').
-              setHeader('bloop', 'foo2', true /* opt_overwrite */).
-              build();
-          expect(message.getHeaderValue('bloop')).toEqual(['foo2']);
-        });
-
-        it('should throw if used after #setHeaders', function() {
-          requestBuilder.setHeaders(['fiz', 'buz']);
-          expect(function() {
-            requestBuilder.setHeader('foo', 'bar');
-          }).toThrow();
-        });
+      it('overwrites header values when explicitly set', function() {
+        var message = requestBuilder.
+            setHeader('bloop', 'foo').
+            setHeader('bloop', 'foo2', true /* opt_overwrite */).
+            build();
+        expect(message.getHeaderValue('bloop')).toEqual(['foo2']);
       });
-    });
-  });
 
-  describe('Headers', function() {
-    var message;
+      it('accepts multiple values for the same header', function() {
+        requestBuilder.setHeader('foo', 'baz');
+        requestBuilder.setHeader('foo', 'bar');
+        var message = requestBuilder.build();
+        expect(message.getHeaderValue('foo')).toEqual(['baz', 'bar']);
+      });
 
-    it('should add/return raw headers', function() {
-      requestBuilder.setHeaders(['foo', 'bar']);
-      message = requestBuilder.build();
-      expect(message.getHeaderValue('foo')).toEqual(['bar']);
-    });
+      it('returns null for headers that do not exist', function() {
+        var message = requestBuilder.build();
+        expect(message.getHeaderValue('foo')).toBe(null);
+      });
 
-    it('should accept multiple values for the same header', function() {
-      requestBuilder.setHeaders(['foo', 'baz', 'foo', 'bar']);
-      message = requestBuilder.build();
-      expect(message.getHeaderValue('foo')).toEqual(['baz', 'bar']);
-    });
+      it('assigns headers case insensitively', function() {
+        requestBuilder.setHeader('foo', 'bar');
+        requestBuilder.setHeader('FOO', 'baz');
+        var message = requestBuilder.build();
+        expect(message.getHeaderValue('Foo')).toEqual(['bar', 'baz']);
+      });
 
-    it('should return null for headers that do not exist', function() {
-      requestBuilder.setHeaders([]);
-      message = requestBuilder.build();
-      expect(message.getHeaderValue('foo')).toBe(null);
-    });
-
-    it('should look for headers case insensitively', function() {
-      requestBuilder.setHeaders(['foo', 'bar', 'FOO', 'baz']);
-      message = requestBuilder.build();
-      expect(message.getHeaderValue('Foo')).toEqual(['bar', 'baz']);
-    });
-
-    it('should normalize multiline values', function() {
-      requestBuilder.setHeaders(
-          ['foo', 'this value\n \t  spans across\nmultiple lines']);
-      message = requestBuilder.build();
-      expect(message.getHeaderValue('foo')[0]).
-        toBe('this value spans across multiple lines');
+      it('normalizes multiline values', function() {
+        requestBuilder.setHeader(
+            'foo', 'this value\n \t  spans across\nmultiple lines');
+        var message = requestBuilder.build();
+        expect(message.getHeaderValue('foo')[0]).
+            toBe('this value spans across multiple lines');
+      });
     });
   });
 });

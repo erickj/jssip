@@ -1,5 +1,6 @@
 goog.provide('jssip.message.RawMessageContext');
 
+goog.require('jssip.message.ImmutableMessageContextError');
 goog.require('jssip.message.MessageContext');
 
 
@@ -43,4 +44,11 @@ jssip.message.RawMessageContext.prototype.getMessageInternal = function() {
 /** @override */
 jssip.message.RawMessageContext.prototype.isLocal = function() {
   return false;
+};
+
+
+/** @override */
+jssip.message.RawMessageContext.prototype.setHeaderInternal = function() {
+  throw new jssip.message.ImmutableMessageContextError(
+      'Unable set new headers on immutable raw message context');
 };

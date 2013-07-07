@@ -44,3 +44,10 @@ jssip.message.BuilderMessageContext.prototype.getMessageInternal = function() {
 jssip.message.BuilderMessageContext.prototype.isLocal = function() {
   return true;
 };
+
+
+/** @override */
+jssip.message.BuilderMessageContext.prototype.setHeaderInternal =
+    function(key, value, opt_overwrite) {
+  this.builder_.setHeader(key, value, opt_overwrite);
+};

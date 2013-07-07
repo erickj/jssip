@@ -5,7 +5,7 @@ goog.require('jssip.message.Message.Builder');
 goog.require('jssip.testing.SharedMessageContextSpec');
 goog.require('jssip.testing.util.messageutil');
 
-describe('jssip.message.RawMessageContext', function() {
+describe('jssip.message.BuilderMessageContext', function() {
   var messageContext;
   var builder;
   var parserRegistry;
@@ -14,7 +14,7 @@ describe('jssip.message.RawMessageContext', function() {
     builder.setMethod('FOO').
         setSipVersion('SIP/2.0').
         setRequestUri('sip:foo@bar.com').
-        setHeaders(['name', 'value']);
+        setHeader('name', 'value');
 
     parserRegistry = /** @type {!jssip.parser.ParserRegistry} */ ({});
     return messageContext = new jssip.message.BuilderMessageContext(
@@ -25,18 +25,18 @@ describe('jssip.message.RawMessageContext', function() {
   beforeEach(factoryFn);
 
   describe('#getBuilder', function() {
-    it('should return the builder', function() {
+    it('returns the builder', function() {
       expect(messageContext.getBuilder()).toBe(builder);
     });
   });
 
   describe('#getMessage', function() {
-    it('should return a built message', function() {
+    it('returns a built message', function() {
       var message = messageContext.getMessage();
       expect(message).toEqual(jasmine.any(jssip.message.Message));
     });
 
-    it('should only parse a message once', function() {
+    it('only parses a message once', function() {
       spyOn(builder, 'build').andCallThrough();
       var message = messageContext.getMessage();
       expect(messageContext.getMessage()).toBe(message);
@@ -47,6 +47,17 @@ describe('jssip.message.RawMessageContext', function() {
   describe('#isLocal', function() {
     it('returns true', function() {
       expect(messageContext.isLocal()).toBe(true);
+    });
+  });
+
+  describe('#setHeaderInternal', function() {
+    it('sets a header on the builder', function() {
+      var message = messageContext.getMessage();
+      expect(message.getHeaderValue('FoozBallz')).toBe(null);
+
+      messageContext.setHeader('FoozBallz', 'zllaBzooF');
+      message = messageContext.getMessage();
+      expect(message.getHeaderValue('FoozBallz')).toEqual(['zllaBzooF']);
     });
   });
 

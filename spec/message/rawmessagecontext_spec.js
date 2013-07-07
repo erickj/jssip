@@ -2,7 +2,9 @@ goog.provide('jssip.message.RawMessageContextSpec');
 
 goog.require('goog.events.EventTarget');
 goog.require('jssip.parser.ParserRegistry');
+goog.require('jssip.message.ImmutableMessageContextError');
 goog.require('jssip.message.Message');
+goog.require('jssip.message.MessageContext');
 goog.require('jssip.message.RawMessageContext');
 goog.require('jssip.message.MessageParserFactory');
 goog.require('jssip.testing.SharedMessageContextSpec');
@@ -59,6 +61,14 @@ describe('jssip.message.RawMessageContext', function() {
   describe('#isLocal', function() {
     it('returns false', function() {
       expect(requestRawMessageContext.isLocal()).toBe(false);
+    });
+  });
+
+  describe('#setHeaderInternal', function() {
+    it('throws an ImmutableMessageContextError', function() {
+      expect(function() {
+        requestRawMessageContext.setHeader('Foo', 'bar');
+      }).toThrow(new jssip.message.ImmutableMessageContextError().message);
     });
   });
 

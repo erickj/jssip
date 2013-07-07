@@ -18,6 +18,8 @@ jssip.message.MessageContextSpec.TestMessageContext =
   /** @private {!jssip.message.Message} */
   this.messageInternal_ = message;
 
+  this.setHeaderInternalSpy = jasmine.createSpy();
+
   goog.base(this, /** @type {jssip.message.MessageContext.Type} */ ("test"),
       parserRegistry, jssip.testing.util.messageutil.createSipContext());
 };
@@ -29,6 +31,13 @@ goog.inherits(jssip.message.MessageContextSpec.TestMessageContext,
 jssip.message.MessageContextSpec.TestMessageContext.prototype.
     getMessageInternal = function() {
   return this.messageInternal_;
+};
+
+
+/** @override */
+jssip.message.MessageContextSpec.TestMessageContext.prototype.
+    setHeaderInternal = function(key, value, opt_overwrite) {
+  this.setHeaderInternalSpy(key, value, opt_overwrite);
 };
 
 
@@ -97,6 +106,20 @@ describe('jssip.message.MessageContext', function() {
       messageContext.getParsedHeader(testHeader);
       mockControl.$verifyAll();
     });
+  });
+
+  describe('#setHeader', function() {
+    it('calls the #setHeaderInternal implementation of the subclass',
+       function() {
+         var header = 'Foo';
+         var value = 'foobar';
+         var overwrite = false;
+
+         expect(messageContext.setHeaderInternalSpy).not.toHaveBeenCalled();
+         messageContext.setHeader(header, value, overwrite);
+         expect(messageContext.setHeaderInternalSpy).
+             toHaveBeenCalledWith(header, value, overwrite);
+       });
   });
 
   sharedMessageContextBehaviors(factoryFn);

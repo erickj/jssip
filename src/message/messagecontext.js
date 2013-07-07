@@ -1,5 +1,17 @@
 goog.provide('jssip.message.MessageContext');
+goog.provide('jssip.message.ImmutableMessageContextError');
 
+
+
+/**
+ * @param {string} message
+ * @constructor
+ * @extends {Error}
+ */
+jssip.message.ImmutableMessageContextError = function(message) {
+  this.message = message;
+};
+goog.inherits(jssip.message.ImmutableMessageContextError, Error);
 
 
 /**
@@ -38,6 +50,49 @@ jssip.message.MessageContext.Type = {
  * @return {boolean}
  */
 jssip.message.MessageContext.prototype.isLocal = goog.abstractMethod;
+
+
+/**
+ * Sets a header on the message in this message context.
+ *
+ * NOTE: alternating calls to {@code #getMessage} or other methods that call
+ * {@code #getMessage} with calls to {@code #setHeader} will create lots of
+ * garbage collection overhead.
+ *
+ * @param {string} key The header name.
+ * @param {string|!Array.<string>} value A single value or value list.
+ * @param {boolean=} opt_overwrite Whether to overwrite any existing values for
+ *     the given header name or append.  The default is to append.
+ * @return {!jssip.message.MessageContext} Returns this.
+ * @throws {jssip.message.MessageContext.ImmutableMessageContextError}
+ */
+jssip.message.MessageContext.prototype.setHeader =
+    function(key, value, opt_overwrite) {
+  this.clearCaches_();
+  this.setHeaderInternal(key, value, opt_overwrite);
+  return this;
+};
+
+
+/**
+ * Internal implementation for setHeader to override by subclasses.
+ * @param {string} key The header name.
+ * @param {string|!Array.<string>} value A single value or value list.
+ * @param {boolean=} opt_overwrite Whether to overwrite any existing values for
+ *     the given header name or append.  The default is to append.
+ * @throws {jssip.message.MessageContext.ImmutableMessageContextError}
+ */
+jssip.message.MessageContext.prototype.setHeaderInternal = goog.abstractMethod;
+
+
+/**
+ * Clears all internally cached state.
+ * @private
+ */
+jssip.message.MessageContext.prototype.clearCaches_ = function() {
+  this.cachedMessage_ = null;
+  this.parsedHeaderCache_ = {};
+};
 
 
 /**
@@ -102,6 +157,8 @@ jssip.message.MessageContext.prototype.getTransaction = function() {
  * @return {!Array.<!jssip.message.Header>}
  */
 jssip.message.MessageContext.prototype.getParsedHeader = function(headerName) {
+  // TODO: Add some header name normalization logic here to make sure this only
+  // caches the header once for long form and short form header names.
   if (!goog.isDef(this.parsedHeaderCache_[headerName])) {
     var message = this.getMessage();
     var headerValues = message.getHeaderValue(headerName);
