@@ -9,24 +9,33 @@ describe('jssip.sip.protocol.RouteSet', function() {
   var looseRoute;
   var strictRoute;
   var mockControl;
+  var looseMockNameAddr;
+  var strictMockNameAddr;
 
   beforeEach(function() {
     mockControl = new goog.testing.MockControl();
 
     var looseParsedParams =
         new jssip.sip.protocol.ParsedParams([[';', ['lr']]]);
-    var looseMockNameAddr = mockControl.createStrictMock(
+    looseMockNameAddr = mockControl.createStrictMock(
         jssip.sip.protocol.NameAddr);
     looseMockNameAddr.getContextParams().
         $returns(looseParsedParams).$atMostOnce();
     looseRoute = new jssip.sip.protocol.Route(looseMockNameAddr);
 
     var strictParsedParams = new jssip.sip.protocol.ParsedParams([]);
-    var strictMockNameAddr = mockControl.createStrictMock(
+    strictMockNameAddr = mockControl.createStrictMock(
         jssip.sip.protocol.NameAddr);
     strictMockNameAddr.getContextParams().
         $returns(strictParsedParams).$atMostOnce();
     strictRoute = new jssip.sip.protocol.Route(strictMockNameAddr);
+  });
+
+  describe('#getNameAddr', function() {
+    it('returns the name-addr for the route', function() {
+      expect(looseRoute.getNameAddr()).toBe(looseMockNameAddr);
+      expect(strictRoute.getNameAddr()).toBe(strictMockNameAddr);
+    });
   });
 
   describe('#isLooseRoute', function() {

@@ -22,6 +22,15 @@ jssip.sip.protocol.Route.Param = {
 
 
 /**
+ * Gets the name addr for this Route.
+ * @return {!jssip.sip.protocol.NameAddr}
+ */
+jssip.sip.protocol.Route.prototype.getNameAddr = function() {
+  return this.nameAddr_;
+};
+
+
+/**
  * Whether or not this is a loose route.
  * @return {boolean}
  */
