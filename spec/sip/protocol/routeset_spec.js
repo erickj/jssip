@@ -78,47 +78,6 @@ describe('jssip.sip.protocol.RouteSet', function() {
     });
   });
 
-  describe('#shift', function() {
-    it('throws an error if the route set is empty', function() {
-      expect(function() {
-        emptyRouteSet.shift();
-      }).toThrow();
-    });
-
-    it('shifts the first route off of the route set', function() {
-      var routes = goog.array.clone(routeSet.getRoutes());
-      var shiftedRoute = routeSet.shift();
-      expect(shiftedRoute).toBe(routes[0]);
-
-      var afterShiftRoutes = routeSet.getRoutes();
-      expect(afterShiftRoutes.length).toBe(routes.length - 1);
-      expect(afterShiftRoutes[0]).not.toBe(shiftedRoute);
-    });
-  });
-
-  describe('#push', function() {
-    it('pushes routes onto the route set', function() {
-      var extraRoute = /** @type {!jssip.sip.protocol.Route} */ ({});
-      var beforePushRoutes = goog.array.clone(routes);
-      routeSet.push(extraRoute);
-      expect(routeSet.getRoutes()).toEqual(beforePushRoutes.concat(extraRoute));
-    });
-
-    it('pushes routes onto an empty route set', function() {
-      var extraRoute = /** @type {!jssip.sip.protocol.Route} */ ({});
-      expect(emptyRouteSet.isEmpty()).toBe(true);
-      emptyRouteSet.push(extraRoute);
-      expect(emptyRouteSet.isEmpty()).toBe(false);
-    });
-
-    it('converts NameAddrs to Routes', function() {
-      routeSet.push(looseRouteNameAddr);
-      var routes = routeSet.getRoutes();
-      expect(routes[routes.length - 1]).toEqual(
-          jasmine.any(jssip.sip.protocol.Route));
-    });
-  });
-
   describe('.createFromNameAddrs', function() {
     var nameAddrs;
 

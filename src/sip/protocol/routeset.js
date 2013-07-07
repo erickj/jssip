@@ -33,33 +33,6 @@ jssip.sip.protocol.RouteSet.prototype.isFirstRouteStrict = function() {
 
 
 /**
- * Shifts the first route off of the route set or throws if the route set is
- * empty.
- * @return {!jssip.sip.protocol.Route}
- * @throws {Error} if the route set is empty.
- */
-jssip.sip.protocol.RouteSet.prototype.shift = function() {
-  if (this.isEmpty()) {
-    throw new Error('Route set is empty');
-  }
-  return this.routes_.shift();
-};
-
-
-/**
- * Pushes a route or name-addr onto the end of the route set. If a name-addr is
- * given it will be converted into a route.
- * @param {!(jssip.sip.protocol.Route|jssip.sip.protocol.NameAddr)} newRoute
- */
-jssip.sip.protocol.RouteSet.prototype.push = function(newRoute) {
-  if (newRoute instanceof jssip.sip.protocol.NameAddr) {
-    newRoute = new jssip.sip.protocol.Route(newRoute);
-  }
-  this.routes_.push(newRoute);
-};
-
-
-/**
  * @param {!Array.<!jssip.sip.protocol.NameAddr} nameAddrs
  * @return {!jssip.sip.protocol.RouteSet}
  */
