@@ -34,7 +34,8 @@ jssip.testing.util.featureutil.createFeatureContext =
   });
 
   var storage = new jssip.storage.SimpleMemoryStorage();
-  var sipContext = new jssip.sip.SipContext(storage);
+  var preloadedRoutes = [];
+  var sipContext = new jssip.sip.SipContext(storage, preloadedRoutes);
 
   goog.mixin(featureContext, {
     getSipContext: function() { return sipContext; },
