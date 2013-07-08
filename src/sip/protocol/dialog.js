@@ -1,5 +1,7 @@
 goog.provide('jssip.sip.protocol.Dialog');
 
+goog.require('jssip.sip.protocol.NameAddr');
+goog.require('jssip.sip.protocol.ParsedParams');
 goog.require('jssip.sip.protocol.rfc3261');
 goog.require('jssip.util.Serializable');
 
@@ -15,7 +17,8 @@ goog.require('jssip.util.Serializable');
  * @param {string} callId
  * @param {string} remoteTag
  * @param {string} localTag
- * @param {number} sequenceNumber
+ * @param {number} localSequenceNumber
+ * @param {number} remoteSequenceNumber
  * @param {!jssip.uri.Uri} localUri
  * @param {!jssip.uri.Uri} remoteUri
  * @param {!jssip.uri.Uri} remoteTarget
@@ -26,8 +29,8 @@ goog.require('jssip.util.Serializable');
  * @impements {jssip.util.Serializable}
  */
 jssip.sip.protocol.Dialog = function(callId, remoteTag, localTag,
-    sequenceNumber, localUri, remoteUri, remoteTarget, isSecure, routeSet,
-    state) {
+    localSequenceNumber, remoteSequenceNumber, localUri, remoteUri,
+    remoteTarget, isSecure, routeSet, state) {
   /** @private {string} */
   this.callId_ = callId;
 
@@ -38,7 +41,10 @@ jssip.sip.protocol.Dialog = function(callId, remoteTag, localTag,
   this.localTag_ = localTag;
 
   /** @private {number} */
-  this.sequenceNumber_ = sequenceNumber;
+  this.localSequenceNumber_ = localSequenceNumber;
+
+  /** @private {number} */
+  this.remoteSequenceNumber_ = remoteSequenceNumber;
 
   /** @private {!jssip.uri.Uri} */
   this.localUri_ = localUri;
@@ -87,8 +93,14 @@ jssip.sip.protocol.Dialog.prototype.getLocalTag = function() {
 
 
 /** @return {number} */
-jssip.sip.protocol.Dialog.prototype.getSequenceNumber = function() {
-  return this.sequenceNumber_;
+jssip.sip.protocol.Dialog.prototype.getLocalSequenceNumber = function() {
+  return this.localSequenceNumber_;
+};
+
+
+/** @return {number} */
+jssip.sip.protocol.Dialog.prototype.getRemoteSequenceNumber = function() {
+  return this.remoteSequenceNumber_;
 };
 
 
@@ -128,10 +140,34 @@ jssip.sip.protocol.Dialog.prototype.getState = function() {
 };
 
 
-/** @return {boolean} */
-jssip.sip.protocol.Dialog.prototype.isOutOfDialog = function() {
-  return false;
-}
+/**
+ * Gets a name-addr for use in a To header. {@code isRequest} indicates whether
+ * this is for a request or response message.
+ * @param {isRequest} boolean
+ * @return {!jssip.sip.protocol.NameAddr}
+ */
+jssip.sip.protocol.Dialog.prototype.getToNameAddr = function(isRequest) {
+  var uri = isRequest ? this.getRemoteUri() : this.getLocalUri();
+  var tag = isRequest ? this.getRemoteTag() : this.getLocalTag();
+  return new jssip.sip.protocol.NameAddr(uri, undefined /* displayName */,
+      jssip.sip.protocol.ParsedParams.createFromParameterMap({tag: tag}),
+      true /* opt_forceNameAddr */);
+};
+
+
+/**
+ * Gets a name-addr for use in a From header. {@code isRequest} indicates
+ * whether this is for a request or response message.
+ * @param {isRequest} boolean
+ * @return {!jssip.sip.protocol.NameAddr}
+ */
+jssip.sip.protocol.Dialog.prototype.getFromNameAddr = function(isRequest) {
+  var uri = isRequest ? this.getLocalUri() : this.getRemoteUri();
+  var tag = isRequest ? this.getLocalTag() : this.getRemoteTag();
+  return new jssip.sip.protocol.NameAddr(uri, undefined /* displayName */,
+      jssip.sip.protocol.ParsedParams.createFromParameterMap({tag: tag}),
+      true /* opt_forceNameAddr */);
+};
 
 
 // TODO: The serializable methods are unimplemented for now.  Need to implement

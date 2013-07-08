@@ -11,10 +11,12 @@ goog.require('jssip.sip.protocol.ParsedParams');
  * @param {!jssip.uri.Uri} uri
  * @param {string=} opt_displayName
  * @param {!jssip.sip.protocol.ParsedParams=} opt_contextParams
+ * @param {boolean=} opt_forceNameAddr Whether to force treating this
+ *     as a NameAddr if it would normally look like an addr-spec
  * @constructor
  */
 jssip.sip.protocol.NameAddr =
-    function(uri, opt_displayName, opt_contextParams) {
+    function(uri, opt_displayName, opt_contextParams, opt_forceNameAddr) {
   /** @private {!jssip.uri.Uri} */
   this.uri_ = uri;
 
@@ -24,6 +26,9 @@ jssip.sip.protocol.NameAddr =
   /** @private {!jssip.sip.protocol.ParsedParams} */
   this.contextParams_ = opt_contextParams ||
       new jssip.sip.protocol.ParsedParams([]);
+
+  /** @private {boolean} */
+  this.forceNameAddr_ = !!opt_forceNameAddr;
 };
 
 
@@ -58,7 +63,8 @@ jssip.sip.protocol.NameAddr.prototype.stringify = function() {
  * @private
  */
 jssip.sip.protocol.NameAddr.prototype.isAddrSpec_ = function() {
-  return !this.displayName_ && !this.uri_.hasParameters();
+  return !this.displayName_ && !this.uri_.hasParameters() &&
+      !this.forceNameAddr_;
 };
 
 

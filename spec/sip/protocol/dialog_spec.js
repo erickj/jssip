@@ -1,13 +1,17 @@
 goog.provide('jssip.sip.protocol.DialogSpec');
 
 goog.require('jssip.sip.protocol.Dialog');
+goog.require('jssip.sip.protocol.NameAddr');
+goog.require('jssip.uri.Uri');
+goog.require('jssip.uri.Uri.Builder');
 
 describe('jssip.sip.protocol.Dialog', function() {
   var dialog;
   var callId;
   var remoteTag;
   var localTag;
-  var sequenceNumber;
+  var localSequenceNumber;
+  var remoteSequenceNumber;
   var localUri;
   var remoteUri;
   var remoteTarget;
@@ -19,17 +23,26 @@ describe('jssip.sip.protocol.Dialog', function() {
     callId = 'abc.callid.123';
     remoteTag = 'remote.tag';
     localTag = 'local.tag';
-    sequenceNumber = 42;
-    localUri = /** @type {!jssip.uri.Uri} */ ({});
-    remoteUri = /** @type {!jssip.uri.Uri} */ ({});
+    localSequenceNumber = 42;
+    remoteSequenceNumber = 24;
+    localUri = new jssip.uri.Uri.Builder().
+        addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
+        addPropertyPair(jssip.uri.Uri.PropertyName.USER, 'local').
+        addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'uri.net').
+        build();
+    remoteUri = new jssip.uri.Uri.Builder().
+        addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
+        addPropertyPair(jssip.uri.Uri.PropertyName.USER, 'remote').
+        addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'uri.gov').
+        build();
     remoteTarget = /** @type {!jssip.uri.Uri} */ ({});
     isSecure = false;
     routeSet = /** @type {!jssip.sip.protocol.RouteSet} */ ({});
     state = jssip.sip.protocol.Dialog.State.CONFIRMED;
 
     dialog = new jssip.sip.protocol.Dialog(callId, remoteTag, localTag,
-        sequenceNumber, localUri, remoteUri, remoteTarget, isSecure, routeSet,
-        state);
+        localSequenceNumber, remoteSequenceNumber, localUri, remoteUri,
+        remoteTarget, isSecure, routeSet, state);
   });
 
   describe('getters', function() {
@@ -51,9 +64,15 @@ describe('jssip.sip.protocol.Dialog', function() {
       });
     });
 
-    describe('#getSequenceNumber', function() {
-      it('gets the SequenceNumber', function() {
-        expect(dialog.getSequenceNumber()).toBe(sequenceNumber);
+    describe('#getLocalSequenceNumber', function() {
+      it('gets the local SequenceNumber', function() {
+        expect(dialog.getLocalSequenceNumber()).toBe(localSequenceNumber);
+      });
+    });
+
+    describe('#getRemoteSequenceNumber', function() {
+      it('gets the remote SequenceNumber', function() {
+        expect(dialog.getRemoteSequenceNumber()).toBe(remoteSequenceNumber);
       });
     });
 
@@ -93,9 +112,35 @@ describe('jssip.sip.protocol.Dialog', function() {
       });
     });
 
-    describe('#isOutOfDialog', function() {
-      it('returns false', function() {
-        expect(dialog.isOutOfDialog()).toBe(false);
+    describe('#getToNameAddr', function() {
+      it('returns a NameAddr from the remote uri/tag for requests', function() {
+        var nameAddr = dialog.getToNameAddr(true /* isRequest */);
+        expect(nameAddr).toEqual(jasmine.any(jssip.sip.protocol.NameAddr));
+        expect(
+            nameAddr.stringify()).toBe('<sip:remote@uri.gov>;tag=remote.tag');
+      });
+
+      it('returns a NameAddr from the local uri/tag for responses', function() {
+        var nameAddr = dialog.getToNameAddr(false /* isRequest */);
+        expect(nameAddr).toEqual(jasmine.any(jssip.sip.protocol.NameAddr));
+        expect(
+            nameAddr.stringify()).toBe('<sip:local@uri.net>;tag=local.tag');
+      });
+    });
+
+    describe('#getFromNameAddr', function() {
+      it('returns a NameAddr from the local uri/tag for requests', function() {
+        var nameAddr = dialog.getFromNameAddr(true /* isRequest */);
+        expect(nameAddr).toEqual(jasmine.any(jssip.sip.protocol.NameAddr));
+        expect(
+            nameAddr.stringify()).toBe('<sip:local@uri.net>;tag=local.tag');
+      });
+
+      it('returns a NameAddr from the remote uri/tag for response', function() {
+        var nameAddr = dialog.getFromNameAddr(false /* isRequest */);
+        expect(nameAddr).toEqual(jasmine.any(jssip.sip.protocol.NameAddr));
+        expect(
+            nameAddr.stringify()).toBe('<sip:remote@uri.gov>;tag=remote.tag');
       });
     });
   });
