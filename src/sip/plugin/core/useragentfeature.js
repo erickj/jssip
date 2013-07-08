@@ -6,6 +6,7 @@ goog.require('goog.crypt');
 goog.require('goog.crypt.Sha256');
 goog.require('goog.object');
 goog.require('jssip.message.BuilderMessageContext');
+goog.require('jssip.message.Message.Builder');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureFacade');
 goog.require('jssip.sip.UserAgent');
@@ -13,6 +14,8 @@ goog.require('jssip.sip.event.MessageEvent');
 goog.require('jssip.sip.plugin.core.MessageDestinationFetcher');
 goog.require('jssip.sip.plugin.core.HeaderParserFactoryImpl');
 goog.require('jssip.sip.plugin.core.SipUriParserFactory');
+goog.require('jssip.sip.protocol.NameAddr');
+goog.require('jssip.sip.protocol.Route');
 goog.require('jssip.sip.protocol.feature.UserAgentClient');
 goog.require('jssip.sip.protocol.feature.UserAgentServer');
 goog.require('jssip.sip.protocol.header.NameAddrHeaderParserFactory');
@@ -129,33 +132,60 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createEvent_ =
 
 
 /**
- * Fires CREATE_RESPONSE event.  This builder sets headers so that they do NOT
- * overwrite existing headers.
+ * Creates a request with the given method. After creation fires a
+ * CREATE_REQUEST event.  This builder sets headers so that they do NOT
+ * overwrite existing headers in the message builder. If a dialog is provided
+ * then the request is created following in dialog request generation rules.
+ *
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1}
+ * @see {http://tools.ietf.org/html/rfc3261#section-12.2.1.1}
  *
  * @see {jssip.sip.protocol.feature.UserAgentClient#createRequest}
- * @param {!jssip.message.Message.Builder} messageBuilder A message builder.
  * @param {string} method The SIP request method.
- * @param {!jssip.uri.Uri} toUri A to URI.
+ * @param {!jssip.sip.protocol.NameAddr} toNameAddr An addr-spec or name-addr
+ *     for the logical recipient of this request. May be supplanted by Dialog
+ *     info.
+ * @param {!jssip.sip.protocol.NameAddr} fromNameAddr An addr-spec or name-addr
+ *     for the logical sender of this request. May be supplanted by Dialog info.
+ * @param {!jssip.sip.protocol.Dialog=} opt_dialog The dialog this request
+ *     exists inside of.
+ * @return {!jssip.message.BuilderMessageContext}
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
-    function(messageBuilder, method, toUri) {
+    function(method, toNameAddr, fromNameAddr, opt_dialog) {
   var rfc3261 = jssip.sip.protocol.rfc3261;
+  var messageBuilder = new jssip.message.Message.Builder();
   var builderMessageContext = new jssip.message.BuilderMessageContext(
       messageBuilder, this.getFeatureContext().getParserRegistry(),
       this.getSipContext());
+  /** @type {!Object.<string|!Array.<string>>} */
   var headerMap = {};
 
   messageBuilder.setSipVersion(rfc3261.SIP_VERSION);
   messageBuilder.setMethod(method);
 
-  messageBuilder.setRequestUri(toUri.stringify());
-  headerMap[rfc3261.HeaderType.TO] = this.generateToFromHeader_(toUri);
-  headerMap[rfc3261.HeaderType.FROM] =
-      this.generateFromHeader_(this.generateTag_());
-  headerMap[rfc3261.HeaderType.CALL_ID] = this.generateCallId_();
-  headerMap[rfc3261.HeaderType.CSEQ] = this.generateCSeq_(method);
-  headerMap[rfc3261.HeaderType.MAX_FORWARDS] = this.generateMaxForwards_();
-  headerMap[rfc3261.HeaderType.CONTACT] = this.generateContact_();
+  var computedRequestUri = this.computeRequestUri_(toNameAddr, opt_dialog);
+  messageBuilder.setRequestUri(computedRequestUri.stringify());
+
+  var computedRoutes = this.computeRoutesForRequest_(
+      this.getSipContext().getPreloadedRoutes(), opt_dialog);
+  if (computedRoutes.length) {
+    headerMap[rfc3261.HeaderType.ROUTE] = [];
+    for(var i = 0; i < computedRoutes.length; i++) {
+      headerMap[rfc3261.HeaderType.ROUTE].push(computedRoutes[i].stringify());
+    }
+  }
+
+  headerMap[rfc3261.HeaderType.CONTACT] = this.computeRequestContact_(
+      computedRequestUri, computedRoutes).stringify();
+  headerMap[rfc3261.HeaderType.TO] = this.computeToNameAddr_(
+      toNameAddr, true /* isRequest */, opt_dialog).stringify();
+  headerMap[rfc3261.HeaderType.FROM] = this.computeFromNameAddr_(
+      fromNameAddr, true /* isRequest */, opt_dialog).stringify();
+  headerMap[rfc3261.HeaderType.CALL_ID] = this.computeCallId_(opt_dialog);
+  headerMap[rfc3261.HeaderType.CSEQ] = this.computeCSeq_(method, opt_dialog);
+  headerMap[rfc3261.HeaderType.MAX_FORWARDS] =
+      jssip.sip.protocol.rfc3261.MAX_FORWARDS;
 
   // Set headers so that they do NOT overwrite existing headers.
   for (var headerName in headerMap) {
@@ -170,6 +200,152 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
 
 
 /**
+ * @param {!jssip.sip.protocol.NameAddr} toNameAddr
+ * @param {!jssip.sip.protocol.Dialog=} opt_dialog
+ * @return {!jssip.uri.Uri}
+ * @private
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.computeRequestUri_ =
+    function(toNameAddr, opt_dialog) {
+  if (opt_dialog) {
+    var routeSet = opt_dialog.getRouteSet();
+    if (routeSet.isFirstRouteStrict()) {
+      var strictRoute = routeSet.getRoutes()[0];
+      return strictRoute.getNameAddr().getUri();
+    }
+    return opt_dialog.getRemoteTarget();
+  }
+  return toNameAddr.getUri();
+};
+
+
+/**
+ * Returns an array of routes to use in the creation of a new request. If a
+ * dialog is provided the route set will be returned from there as described in
+ * {@link http://tools.ietf.org/html/rfc3261#section-12.2.1.1} otherwise the
+ * routes from {@code preloadedRoutes} will be used.
+ *
+ * @param {!Array.<!jssip.sip.protocol.Route>} preloadedRoutes
+ * @param {!jssip.sip.protocol.Dialog=} opt_dialog
+ * @return {!Array.<!jssip.sip.protocol.Route>}
+ * @private
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.computeRoutesForRequest_ =
+    function(preloadedRoutes, opt_dialog) {
+  if (opt_dialog) {
+    var routeSet = opt_dialog.getRouteSet();
+    var routes = routeSet.getRoutes();
+    if (routeSet.isFirstRouteStrict()) {
+      // The first route in the set is strict so it is being used as the request
+      // URI.  Remove it from the route set and add the original request uri to
+      // the end.
+      routes.shift();
+      routes.push(new jssip.sip.protocol.Route(
+          new jssip.sip.protocol.NameAddr(opt_dialog.getRemoteTarget())));
+    }
+    return routes;
+  }
+  return preloadedRoutes;
+};
+
+
+/**
+ * Gets the To name addr from the dialog or returns the provided to name
+ * addr.
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.2}
+ * @see {http://tools.ietf.org/html/rfc3261#section-20.39}
+ * @param {!jssip.sip.protocol.NameAddr} toNameAddr
+ * @param {boolean} isRequest
+ * @param {!jssip.sip.protocol.Dialog=} opt_dialog
+ * @return {!jssip.sip.protocol.NameAddr}
+ * @private
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.computeToNameAddr_ =
+    function(toNameAddr, isRequest, opt_dialog) {
+  if (opt_dialog) {
+    return opt_dialog.getToNameAddr(isRequest);
+  }
+  return toNameAddr;
+};
+
+
+/**
+ * Gets the From name addr from the dialog or returns the provided from name
+ * addr.
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.3}
+ * @see {http://tools.ietf.org/html/rfc3261#section-20.20}
+ * @param {!jssip.sip.protocol.NameAddr} fromNameAddr
+ * @param {boolean} isRequest
+ * @param {!jssip.sip.protocol.Dialog=} opt_dialog
+ * @return {!jssip.sip.protocol.NameAddr}
+ * @private
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.computeFromNameAddr_ =
+    function(fromNameAddr, isRequest, opt_dialog) {
+  if (opt_dialog) {
+    return opt_dialog.getFromNameAddr(isRequest);
+  }
+  var tagParamMap = {
+    tag: this.generateTag_()
+  };
+  return fromNameAddr.cloneWithAdditionalParameters(tagParamMap);
+};
+
+
+/**
+ * Gets the Call-ID from the dialog if provided or generates a new Call-ID.
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.4}
+ * @param {!jssip.sip.protocol.Dialog=} opt_dialog
+ * @return {string} A call id.
+ * @private
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.computeCallId_ =
+    function(opt_dialog) {
+  if (opt_dialog) {
+    return opt_dialog.getCallId();
+  }
+  return this.generateHexDigest_().substring(0, 32);
+};
+
+
+/**
+ * Gets the CSeq from the dialog or generates a new one.
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.5}
+ * @param {string} method
+ * @param {!jssip.sip.protocol.Dialog=} opt_dialog
+ * @return {string} A CSeq.
+ * @private
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.computeCSeq_ =
+    function(method, opt_dialog) {
+  var cseq = opt_dialog ? opt_dialog.getLocalSequenceNumber() + 1: 1;
+  return '' + cseq + ' ' + method;
+};
+
+
+/**
+ * Computes a Contact for use in a request from the given the request URI and
+ * route list.
+ * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.8}
+ * @see {http://tools.ietf.org/html/rfc3261#section-20.10}
+ * @param {!jssip.uri.Uri} requestUri
+ * @param {!Array.<!jssip.sip.protocol.Route>} routeList
+ * @return {!jssip.sip.protocol.NameAddr}
+ * @private
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.computeRequestContact_ =
+    function(requestUri, routeList) {
+  var SIPS = jssip.uri.Uri.Scheme.SIPS;
+  var requestUriSchemeIsSecure = requestUri.getScheme() == SIPS;
+  var firstRoute = routeList[0];
+  var firstRouteSchemeIsSecure =
+      firstRoute && firstRoute.getNameAddr().getUri().getScheme() == SIPS;
+  return this.getSipContext().getContact(
+      requestUriSchemeIsSecure || firstRouteSchemeIsSecure);
+};
+
+
+/**
  * Sends the request.
  *
  * @see {jssip.sip.protocol.feature.UserAgentClient#sendRequest}
@@ -178,73 +354,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequest =
     function(requestMessageContext) {
-  goog.asserts.assert(requestMessageContext.isRequest());
-  this.generateInDialogRequest_(requestMessageContext);
-};
-
-
-/**
- * Generating the Request in a Dialog
- * @see {http://tools.ietf.org/html/rfc3261#section-12.2.1.1}
- * @param {!jssip.message.MessageContext} requestMessageContext
- * @private
- */
-jssip.sip.plugin.core.UserAgentFeature.prototype.generateInDialogRequest_ =
-    function(requestMessageContext) {
-  var dialog = requestMessageContext.getDialog();
-  if (!dialog) {
-    return;
-  }
-  var rfc3261 = jssip.sip.protocol.rfc3261;
-  var toHeader =
-      this.generateToFromHeader_(dialog.getRemoteUri(), dialog.getRemoteTag());
-  requestMessageContext.setHeader(rfc3261.HeaderType.TO, toHeader);
-  var fromHeader =
-      this.generateToFromHeader_(dialog.getLocalUri(), dialog.getLocalTag());
-  requestMessageContext.setHeader(rfc3261.HeaderType.FROM, fromHeader);
-};
-
-
-
-/**
- * @param {!jssip.uri.Uri} uri
- * @param {string=} opt_tag
- * @return {string}
- * @private
- */
-jssip.sip.plugin.core.UserAgentFeature.prototype.generateToFromHeader_ =
-    function(uri, opt_tag) {
-  // TODO(erick): Set the To header according to 3261#20.39 e.g. allow for
-  // display-names in the To and figure out something to do with dialog tags.
-  var headerValue = uri.stringify();
-  if (opt_tag) {
-    headerValue += ';tag=' + opt_tag;
-  }
-  return headerValue;
-};
-
-
-/**
- * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.3}
- * @see {http://tools.ietf.org/html/rfc3261#section-20.20}
- * @param {!jssip.uri.Uri} fromUri
- * @param {string=} opt_tag The from tag
- * @return {string}
- * @private
- */
-jssip.sip.plugin.core.UserAgentFeature.prototype.generateFromHeader_ =
-    function(opt_tag) {
-  var aor = this.getFeatureContext().getUserAgentConfigProperty(
-      jssip.sip.UserAgent.ConfigProperty.ADDRESS_OF_RECORD);
-  var displayName = this.getFeatureContext().getUserAgentConfigProperty(
-      jssip.sip.UserAgent.ConfigProperty.DISPLAY_NAME) ||
-      jssip.sip.protocol.rfc3261.DEFAULT_DISPLAY_NAME;
-  // TODO(erick): Need to build this so it has a scheme.
-  var headerValue = displayName + ' <sip:' + aor + '>';
-  if (opt_tag) {
-    headerValue += ';tag=' + opt_tag;
-  }
-  return headerValue;
+  throw new Error('not implemented');
 };
 
 
@@ -255,50 +365,8 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.generateFromHeader_ =
  * @private
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.generateTag_ = function() {
-  var randomStr = this.generateHexDigest_();
-  // I am arbitrarily choosing length 7!  As long as it's more than 32 bits of
-  // randomness, then I don't see a problem
-  return randomStr.substring(0, 7);
-};
-
-
-// TODO(erick): Make Call-ID generation more robust, currently this is just a
-// Sha256 of a random number.
-/**
- * Generates a call id.
- * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.4}
- * @return {string} A call id.
- * @private
- */
-jssip.sip.plugin.core.UserAgentFeature.prototype.generateCallId_ = function() {
-  return this.generateHexDigest_().substring(0, 31);
-};
-
-
-/**
- * Generates a CSeq.
- * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.5}
- * @param {string} method
- * @return {string} A CSeq.
- * @private
- */
-jssip.sip.plugin.core.UserAgentFeature.prototype.generateCSeq_ =
-    function(method) {
-  // TODO(erick): I don't see any reason right now to choose anything other than
-  // 1.  Find out if this is the case.
-  return '1 ' + method;
-};
-
-
-/**
- * Get the standard Max-Forwards value.  The RFC states it SHOULD be 70.
- * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.6}
- * @return {string}
- * @private
- */
-jssip.sip.plugin.core.UserAgentFeature.prototype.generateMaxForwards_ =
-    function() {
-  return jssip.sip.protocol.rfc3261.MAX_FORWARDS;
+  // I am arbitrarily choosing length 7!
+  return this.generateHexDigest_().substring(0, 7);
 };
 
 
@@ -327,19 +395,6 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.generateBranchId_ =
     function() {
   return jssip.sip.protocol.rfc3261.BRANCH_ID_PREFIX + '-' +
       this.generateHexDigest_().substring(0, 15);
-};
-
-
-/**
- * Generates a Contact header.
- * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.8}
- * @see {http://tools.ietf.org/html/rfc3261#section-20.10}
- * @return {string}
- * @private
- */
-jssip.sip.plugin.core.UserAgentFeature.prototype.generateContact_ = function() {
-  return '<' + this.getFeatureContext().getUserAgentConfigProperty(
-      jssip.sip.UserAgent.ConfigProperty.CONTACT) + '>';
 };
 
 
@@ -412,8 +467,9 @@ jssip.sip.plugin.core.UserAgentFeature.Facade_ = function(delegate) {
 
 /** @override */
 jssip.sip.plugin.core.UserAgentFeature.Facade_.prototype.createRequest =
-    function(messageBuilder, method, toUri) {
-  return this.delegate_.createRequest(messageBuilder, method, toUri);
+    function(method, toNameAddr, fromNameAddr, opt_dialog) {
+  return this.delegate_.
+      createRequest(method, toNameAddr, fromNameAddr, opt_dialog);
 };
 
 

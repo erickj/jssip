@@ -2,15 +2,18 @@ goog.provide('jssip.sip.plugin.core.UserAgentFeatureSpec');
 
 goog.require('goog.object');
 goog.require('jssip.event.EventBus');
-goog.require('jssip.message.Message.Builder');
+goog.require('jssip.message.MessageContext');
 goog.require('jssip.sip.UserAgent.Config');
 goog.require('jssip.sip.plugin.core.UserAgentFeature');
+goog.require('jssip.sip.protocol.NameAddr');
+goog.require('jssip.sip.protocol.Route');
 goog.require('jssip.sip.protocol.feature.UserAgentClient');
 goog.require('jssip.sip.protocol.header.NameAddrListHeaderParserFactory');
 goog.require('jssip.sip.protocol.header.ViaHeaderParserFactory');
 goog.require('jssip.sip.protocol.rfc3261');
 goog.require('jssip.testing.util.featureutil');
 goog.require('jssip.testing.util.messageutil');
+goog.require('jssip.testing.util.protocolutil');
 goog.require('jssip.uri.Uri');
 goog.require('jssip.uri.Uri.Builder');
 
@@ -25,7 +28,6 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
   var featureName = 'useragentfeature';
   var featureContext;
   var eventListener;
-  var messageBuilder;
 
   beforeEach(function() {
     var propertyMap = {};
@@ -43,8 +45,6 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
     eventBus = new jssip.event.EventBus();
     featureContext = jssip.testing.util.featureutil.createFeatureContext(
         eventBus, propertyMap);
-
-    messageBuilder = new jssip.message.Message.Builder();
 
     userAgentConfig = new jssip.sip.UserAgent.Config([featureName])
     userAgentFeature = new jssip.sip.plugin.core.UserAgentFeature(
@@ -165,8 +165,25 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
 
   describe('#createRequest', function() {
     var toUri;
+    var toNameAddr;
+    var fromUri;
+    var fromNameAddr;
+
+    var expectedContact;
+    var expectedContactUri;
 
     beforeEach(function() {
+      expectedContactUri = (new jssip.uri.Uri.Builder()).
+          addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
+          addPropertyPair(jssip.uri.Uri.PropertyName.PORT, '5060').
+          addPropertyPair(jssip.uri.Uri.PropertyName.HOST, '1.2.3.4').build();
+      expectedContact = new jssip.sip.protocol.NameAddr(expectedContactUri);
+
+      // Monkey patch
+      featureContext.getSipContext().getContact = function() {
+        return expectedContact;
+      }
+
       eventListener = jasmine.createSpy();
       eventBus.addEventListener(
           jssip.sip.protocol.feature.UserAgentClient.EventType.CREATE_REQUEST,
@@ -174,36 +191,197 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
 
       toUri = (new jssip.uri.Uri.Builder()).
           addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
-          addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'im.lazy').build();
+          addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'to.host').build();
+      toNameAddr = new jssip.sip.protocol.NameAddr(toUri);
+
+      fromUri = (new jssip.uri.Uri.Builder()).
+          addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
+          addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'from.host').build();
+      fromNameAddr = new jssip.sip.protocol.NameAddr(fromUri);
     });
 
-    it('adds to the message builder provided', function() {
-      userAgentFeature.createRequest(messageBuilder, 'FOOSBAR', toUri);
-
-      var message = messageBuilder.build();
-      expect(message.isRequest()).toBe(true);
-      expect(message.getMethod()).toBe('FOOSBAR');
-      expect(message.getRequestUri()).toBe(toUri.stringify());
-
-      // TODO(erick): This is really shitty, I'm just copying code'
+    describe('message format', function() {
       var headerType = rfc3261.HeaderType;
-      jssip.testing.util.messageutil.checkMessageHeaders(goog.object.create(
-        headerType.TO, toUri.stringify(),
-        headerType.FROM, /EJ <sip:erick@bar.com>;tag=[a-f0-9]+/,
-        headerType.CALL_ID, /[a-f0-9]+/,
-        headerType.CSEQ, /[0-9]+ FOOSBAR/,
-        headerType.MAX_FORWARDS, '70'
-      ), message);
+      var messageContext;
+      var message;
+
+      describe('out of dialog', function() {
+        beforeEach(function() {
+          messageContext = userAgentFeature.
+              createRequest('FOOSBAR', toNameAddr, fromNameAddr);
+          message = messageContext.getMessage();
+        });
+
+        it('adds a request URI from the To header', function() {
+          expect(message.getRequestUri()).toBe(toNameAddr.getUri().stringify());
+        });
+
+        it('has no Route header by default', function() {
+          expect(message.getHeaderValue(headerType.ROUTE)).toBe(null);
+        });
+
+        it('adds a Contact header', function() {
+          expect(message.getHeaderValue(headerType.CONTACT)).
+              toEqual([expectedContact.stringify()]);
+        });
+
+        it('adds a To header', function() {
+          expect(message.getHeaderValue(headerType.TO)).
+              toEqual([toNameAddr.stringify()]);
+        });
+
+        it('adds a From header', function() {
+          var regex =
+              new RegExp('^' + fromNameAddr.stringify() + ';tag=[a-f0-9]{7}$');
+          expect(message.getHeaderValue(headerType.FROM).length).toBe(1);
+          expect(message.getHeaderValue(headerType.FROM)[0]).toMatch(regex);
+        });
+
+        it('adds a Call-ID header', function() {
+          var regex = /[a-f0-9]{32}/;
+          expect(message.getHeaderValue(headerType.CALL_ID).length).toBe(1);
+          expect(message.getHeaderValue(headerType.CALL_ID)).toMatch(regex);
+        });
+
+        it('adds a CSeq header', function() {
+          expect(message.getHeaderValue(headerType.CSEQ)).
+              toEqual(['1 FOOSBAR']);
+        });
+
+        it('adds a Max-Forwards header', function() {
+          expect(message.getHeaderValue(headerType.MAX_FORWARDS)).
+              toEqual(['70']);
+        });
+
+        describe('with preloaded route', function() {
+          var route1;
+          var route2;
+
+          beforeEach(function() {
+            var routeUri1 = (new jssip.uri.Uri.Builder()).
+                addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
+                addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'route1').
+                build();
+            var routeUri2 = (new jssip.uri.Uri.Builder()).
+                addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
+                addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'route2').
+                build();
+
+            route1 = new jssip.sip.protocol.Route(
+                new jssip.sip.protocol.NameAddr(routeUri1));
+            route2 = new jssip.sip.protocol.Route(
+                new jssip.sip.protocol.NameAddr(routeUri2));
+
+            // Monkey patch
+            featureContext.getSipContext().getPreloadedRoutes = function() {
+              return [route1, route2];
+            }
+
+            messageContext = userAgentFeature.
+              createRequest('FOOSBAR', toNameAddr, fromNameAddr);
+            message = messageContext.getMessage();
+          });
+
+          it('has a preloaded route', function() {
+            expect(message.getHeaderValue(headerType.ROUTE)).toEqual(
+                [route1.stringify(), route2.stringify()]);
+          });
+        });
+      });
+
+      describe('in dialog', function() {
+        var dialog;
+
+        describe('with loose route', function() {
+          beforeEach(function() {
+            var uriParamterParserFactory =
+                userAgentFeature.getUriParserFactory('sip');
+            var uriParamterParser =
+                uriParamterParserFactory.createParser('sip:foo@bar.com');
+            dialog = jssip.testing.util.protocolutil.createDummyDialog(
+              false /* hasStrictRoutes */, uriParamterParser);
+            messageContext = userAgentFeature.
+              createRequest('FOOSBAR', toNameAddr, fromNameAddr, dialog);
+            message = messageContext.getMessage();
+          });
+
+          it('uses the remote target for request URI',
+             function() {
+               expect(message.getRequestUri()).toBe(
+                 dialog.getRemoteTarget().stringify());
+             });
+
+          it('uses the dialog route set in the Route header', function() {
+            var routes = dialog.getRouteSet().getRoutes();
+            expect(message.getHeaderValue(headerType.ROUTE)).toEqual(
+                [routes[0].stringify(), routes[1].stringify()]);
+          });
+
+          it('uses the dialog remote uri and tag for To header', function() {
+            expect(message.getHeaderValue(headerType.TO)).toEqual(
+                [dialog.getToNameAddr(true /* isRequest */).stringify()]);
+          });
+
+          it('uses the dialog local uri and tag for From header', function() {
+            expect(message.getHeaderValue(headerType.FROM)).toEqual(
+                [dialog.getFromNameAddr(true /* isRequest */).stringify()]);
+          });
+
+          it('uses the dialog Call-ID', function() {
+            expect(message.getHeaderValue(headerType.CALL_ID)).
+                toEqual([dialog.getCallId()]);
+          });
+
+          it('uses the next local sequence number in the CSeq header',
+             function() {
+               expect(message.getHeaderValue(headerType.CSEQ)).
+                   toEqual(['43 FOOSBAR']);
+             });
+        });
+
+        describe('with strict route', function() {
+          beforeEach(function() {
+            var uriParamterParserFactory =
+                userAgentFeature.getUriParserFactory('sip');
+            var uriParamterParser =
+                uriParamterParserFactory.createParser('sip:foo@bar.com');
+            dialog = jssip.testing.util.protocolutil.createDummyDialog(
+                true /* hasStrictRoutes */, uriParamterParser);
+            messageContext = userAgentFeature.
+                createRequest('FOOSBAR', toNameAddr, fromNameAddr, dialog);
+            message = messageContext.getMessage();
+          });
+
+          it('uses the first strict route as the request URI',
+             function() {
+               var routes = dialog.getRouteSet().getRoutes();
+               expect(message.getRequestUri()).toBe('sip:dialog.route1');
+             });
+
+          it('shuffles the routeset around with the remote target', function() {
+            var routes = dialog.getRouteSet().getRoutes();
+            expect(message.getHeaderValue(headerType.ROUTE)).toEqual(
+                ['<sip:dialog.route2>', '<sip:remotetarget@dialog.target>']);
+          });
+        });
+      });
+    });
+
+    it('returns a message context', function() {
+      var messageContext = userAgentFeature.
+          createRequest('FOOSBAR', toNameAddr, fromNameAddr);
+      expect(messageContext).toEqual(jasmine.any(jssip.message.MessageContext));
+      expect(messageContext.getMessage().getMethod()).toBe('FOOSBAR');
     });
 
     it('dispatches a CREATE_RESPONSE event', function() {
-      userAgentFeature.createRequest(messageBuilder, 'INVITE', toUri)
+      var resultMessageContext =
+          userAgentFeature.createRequest('INVITE', toNameAddr, fromNameAddr);
       expect(eventListener).toHaveBeenCalledWith(
           jasmine.any(jssip.sip.event.MessageEvent));
 
       var event = eventListener.calls[0].args[0];
-      expect(event.messageContext).toEqual(
-          jasmine.any(jssip.message.BuilderMessageContext));
+      expect(event.messageContext).toBe(resultMessageContext);
     });
 
     it('is possible to add and override message headers', function() {
@@ -216,8 +394,9 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
       eventBus.addEventListener(
           jssip.sip.protocol.feature.UserAgentClient.EventType.CREATE_REQUEST,
           eventListener);
-      userAgentFeature.createRequest(messageBuilder, 'INVITE', toUri)
-      var message = messageBuilder.build();
+      var messageContext =
+          userAgentFeature.createRequest('INVITE', toNameAddr, fromNameAddr)
+      var message = messageContext.getMessage();
       var headerType = rfc3261.HeaderType;
       jssip.testing.util.messageutil.checkMessageHeaders(goog.object.create(
         'X-Foobar', 'xfoo',
