@@ -13,10 +13,10 @@ jssip.sip.protocol.Route = function(nameAddr) {
 
 
 /**
- * @const {string}
+ * @enum {string}
  * @private
  */
-jssip.sip.protocol.Route.Param = {
+jssip.sip.protocol.Route.Param_ = {
   LOOSE_ROUTING: 'lr'
 };
 
@@ -36,7 +36,7 @@ jssip.sip.protocol.Route.prototype.getNameAddr = function() {
  */
 jssip.sip.protocol.Route.prototype.isLooseRoute = function() {
   return this.nameAddr_.getUri().hasParameter(
-      jssip.sip.protocol.Route.Param.LOOSE_ROUTING);
+      jssip.sip.protocol.Route.Param_.LOOSE_ROUTING);
 };
 
 
