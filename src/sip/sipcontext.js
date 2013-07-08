@@ -1,5 +1,6 @@
 goog.provide('jssip.sip.SipContext');
 
+goog.require('jssip.sip.protocol.RouteSet');
 goog.require('jssip.sip.protocol.storage.DialogStorage');
 
 
@@ -31,10 +32,10 @@ jssip.sip.SipContext.prototype.getDialogStorage = function() {
 
 /**
  * Gets the set of configured preloaded routes.
- * @return {!Array.<!jssip.sip.protocol.Route>}
+ * @return {!jssip.sip.protocol.RouteSet}
  */
-jssip.sip.SipContext.prototype.getPreloadedRoutes = function() {
-  return this.preloadedRoutes_;
+jssip.sip.SipContext.prototype.getPreloadedRouteSet = function() {
+  return new jssip.sip.protocol.RouteSet(this.preloadedRoutes_);
 };
 
 

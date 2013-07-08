@@ -7,6 +7,7 @@ goog.require('jssip.sip.UserAgent.Config');
 goog.require('jssip.sip.plugin.core.UserAgentFeature');
 goog.require('jssip.sip.protocol.NameAddr');
 goog.require('jssip.sip.protocol.Route');
+goog.require('jssip.sip.protocol.RouteSet');
 goog.require('jssip.sip.protocol.feature.UserAgentClient');
 goog.require('jssip.sip.protocol.header.NameAddrListHeaderParserFactory');
 goog.require('jssip.sip.protocol.header.ViaHeaderParserFactory');
@@ -254,37 +255,65 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
         });
 
         describe('with preloaded route', function() {
-          var route1;
-          var route2;
+          var looseRoute;
+          var strictRoute;
 
           beforeEach(function() {
+            var uriParamterParserFactory =
+                userAgentFeature.getUriParserFactory('sip');
+            var uriParamterParser =
+                uriParamterParserFactory.createParser('sip:foo@bar.com');
+
             var routeUri1 = (new jssip.uri.Uri.Builder()).
                 addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
                 addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'route1').
+                addPropertyPair(jssip.uri.Uri.PropertyName.PARAMETERS, 'lr').
+                addUriParser(uriParamterParser).
                 build();
             var routeUri2 = (new jssip.uri.Uri.Builder()).
                 addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
                 addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'route2').
+                addUriParser(uriParamterParser).
                 build();
 
-            route1 = new jssip.sip.protocol.Route(
+            looseRoute = new jssip.sip.protocol.Route(
                 new jssip.sip.protocol.NameAddr(routeUri1));
-            route2 = new jssip.sip.protocol.Route(
+            strictRoute = new jssip.sip.protocol.Route(
                 new jssip.sip.protocol.NameAddr(routeUri2));
-
-            // Monkey patch
-            featureContext.getSipContext().getPreloadedRoutes = function() {
-              return [route1, route2];
-            }
-
-            messageContext = userAgentFeature.
-              createRequest('FOOSBAR', toNameAddr, fromNameAddr);
-            message = messageContext.getMessage();
           });
 
-          it('has a preloaded route', function() {
-            expect(message.getHeaderValue(headerType.ROUTE)).toEqual(
-                [route1.stringify(), route2.stringify()]);
+          describe('with loose route first', function() {
+            beforeEach(function() {
+              // Monkey patch
+              featureContext.getSipContext().getPreloadedRouteSet = function() {
+                return new jssip.sip.protocol.RouteSet([looseRoute, strictRoute]);
+              }
+
+              messageContext = userAgentFeature.
+                  createRequest('FOOSBAR', toNameAddr, fromNameAddr);
+              message = messageContext.getMessage();
+            });
+
+            it('has a preloaded route', function() {
+              expect(message.getHeaderValue(headerType.ROUTE)).toEqual(
+                ['<sip:route1;lr>', '<sip:route2>']);
+            });
+          });
+
+          describe('with strict route first', function() {
+            beforeEach(function() {
+              // Monkey patch
+              featureContext.getSipContext().getPreloadedRouteSet = function() {
+                return new jssip.sip.protocol.RouteSet([strictRoute, looseRoute]);
+              }
+            });
+
+            it('throws an error', function() {
+              expect(function() {
+                messageContext = userAgentFeature.
+                    createRequest('FOOSBAR', toNameAddr, fromNameAddr);
+              }).toThrow();
+            });
           });
         });
       });

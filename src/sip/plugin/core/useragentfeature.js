@@ -167,7 +167,7 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
   messageBuilder.setRequestUri(computedRequestUri.stringify());
 
   var computedRoutes = this.computeRoutesForRequest_(
-      this.getSipContext().getPreloadedRoutes(), opt_dialog);
+      this.getSipContext().getPreloadedRouteSet(), opt_dialog);
   if (computedRoutes.length) {
     headerMap[rfc3261.HeaderType.ROUTE] = [];
     for(var i = 0; i < computedRoutes.length; i++) {
@@ -222,13 +222,13 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.computeRequestUri_ =
  * {@link http://tools.ietf.org/html/rfc3261#section-12.2.1.1} otherwise the
  * routes from {@code preloadedRoutes} will be used.
  *
- * @param {!Array.<!jssip.sip.protocol.Route>} preloadedRoutes
+ * @param {!jssip.sip.protocol.RouteSet} preloadedRouteSet
  * @param {!jssip.sip.protocol.Dialog=} opt_dialog
  * @return {!Array.<!jssip.sip.protocol.Route>}
  * @private
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.computeRoutesForRequest_ =
-    function(preloadedRoutes, opt_dialog) {
+    function(preloadedRouteSet, opt_dialog) {
   if (opt_dialog) {
     var routeSet = opt_dialog.getRouteSet();
     var routes = routeSet.getRoutes();
@@ -242,7 +242,13 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.computeRoutesForRequest_ =
     }
     return routes;
   }
-  return preloadedRoutes;
+  if (preloadedRouteSet.isFirstRouteStrict()) {
+    // The RFC doesn't cover what to use as the request URI in this case so just
+    // don't let it happen.
+    throw new Error(
+        'Cannot use a strict route as first route in preloaded routes');
+  }
+  return preloadedRouteSet.getRoutes();
 };
 
 

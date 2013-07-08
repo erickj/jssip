@@ -49,10 +49,11 @@ describe('jssip.sip.SipContext', function() {
     });
   });
 
-  describe('#getPreloadedRoutes', function() {
+  describe('#getPreloadedRouteSet', function() {
     it('gets the preloaded routes', function() {
       sipContext = new jssip.sip.SipContext(storage, preloadedRoutes);
-      expect(sipContext.getPreloadedRoutes()).toBe(preloadedRoutes);
+      expect(sipContext.getPreloadedRouteSet().getRoutes()).toEqual(
+          preloadedRoutes);
     });
   });
 });

@@ -21,7 +21,7 @@ jssip.sip.protocol.RouteSet.prototype.isEmpty = function() {
 };
 
 
-/** @return {!Array.<!jssip.sip.protocol.Route} */
+/** @return {!Array.<!jssip.sip.protocol.Route>} */
 jssip.sip.protocol.RouteSet.prototype.getRoutes = function() {
   return goog.array.clone(this.routes_);
 };
@@ -34,7 +34,7 @@ jssip.sip.protocol.RouteSet.prototype.isFirstRouteStrict = function() {
 
 
 /**
- * @param {!Array.<!jssip.sip.protocol.NameAddr} nameAddrs
+ * @param {!Array.<!jssip.sip.protocol.NameAddr>} nameAddrs
  * @return {!jssip.sip.protocol.RouteSet}
  */
 jssip.sip.protocol.RouteSet.createFromNameAddrs = function(nameAddrs) {
