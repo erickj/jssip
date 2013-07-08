@@ -24,6 +24,14 @@ jssip.sip.protocol.ParsedParams = function(parsedParams) {
 
 
 /**
+ * Gets the parameters as an object.
+ * @return {!Object.<string|boolean>}
+ */
+jssip.sip.protocol.ParsedParams.prototype.getParametersAsObject = function() {
+  return this.paramMap_.toObject();
+};
+
+/**
  * Gets a parameter value.
  * @param {string} name
  * @return {?(string|boolean)}, null if not present

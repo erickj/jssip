@@ -83,3 +83,18 @@ jssip.sip.protocol.NameAddr.prototype.stringifyAsNameAddr = function() {
 jssip.sip.protocol.NameAddr.prototype.stringifyAsAddrSpec = function() {
   return this.uri_.stringify() + this.contextParams_.stringify();
 };
+
+
+/**
+ * Clones this NameAddr into a new name addr and augments the context
+ * parameters with the given additional parameter map.
+ * @param {!Object.<string|boolean>} addlParams
+ * @return {!jssip.sip.protocol.NameAddr}
+ */
+jssip.sip.protocol.NameAddr.prototype.cloneWithAdditionalParameters =
+    function(addlParams) {
+  var paramMap = this.getContextParams().getParametersAsObject();
+  goog.mixin(paramMap, addlParams);
+  return new jssip.sip.protocol.NameAddr(this.getUri(), this.getDisplayName(),
+      jssip.sip.protocol.ParsedParams.createFromParameterMap(paramMap));
+};

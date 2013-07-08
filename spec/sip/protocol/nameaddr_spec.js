@@ -55,6 +55,19 @@ describe('jssip.sip.protocol.NameAddr', function() {
     });
   });
 
+  describe('#cloneWithAdditionalParameters', function() {
+    it('clones a NameAddr and adds new context params', function() {
+      var addlParamMap = {
+        a_toyota: 'atoyot_a'
+      };
+      var clone = nameAddr.cloneWithAdditionalParameters(addlParamMap);
+      expect(clone).not.toBe(nameAddr);
+      expect(clone.getContextParams().getParameter('a_toyota')).
+          toBe('atoyot_a');
+      expect(clone.getContextParams().getParameter('foo')).toBe('bar');
+    });
+  });
+
   describe('#stringify', function() {
     describe('name-addrs', function() {
       it('stringifies name addrs', function() {
