@@ -254,6 +254,10 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
               toEqual(['70']);
         });
 
+        it('sets isStrictRouting false on the message context', function() {
+          expect(messageContext.isStrictRouting()).toBe(false);
+        });
+
         describe('with preloaded route', function() {
           var looseRoute;
           var strictRoute;
@@ -379,6 +383,10 @@ describe('jssip.sip.plugin.core.UserAgentFeature', function() {
             messageContext = userAgentFeature.
                 createRequest('FOOSBAR', toNameAddr, fromNameAddr, dialog);
             message = messageContext.getMessage();
+          });
+
+          it('sets isStrictRouting true on the message context', function() {
+            expect(messageContext.isStrictRouting()).toBe(true);
           });
 
           it('uses the first strict route as the request URI',

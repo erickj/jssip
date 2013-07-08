@@ -154,9 +154,6 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
     function(method, toNameAddr, fromNameAddr, opt_dialog) {
   var rfc3261 = jssip.sip.protocol.rfc3261;
   var messageBuilder = new jssip.message.Message.Builder();
-  var builderMessageContext = new jssip.message.BuilderMessageContext(
-      messageBuilder, this.getFeatureContext().getParserRegistry(),
-      this.getSipContext());
   /** @type {!Object.<string|!Array.<string>>} */
   var headerMap = {};
 
@@ -190,9 +187,22 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
     messageBuilder.setHeader(headerName, headerMap[headerName]);
   }
 
+  var builderMessageContext = new jssip.message.BuilderMessageContext(
+      messageBuilder, this.computeIsStrictRouting_(opt_dialog),
+      this.getFeatureContext().getParserRegistry(), this.getSipContext());
   this.dispatchEvent(this.createEvent_(builderMessageContext,
       jssip.sip.protocol.feature.UserAgentClient.EventType.CREATE_REQUEST));
   return builderMessageContext;
+};
+
+
+/**
+ * @param {!jssip.sip.protocol.Dialog=} opt_dialog
+ * @return {boolean} Whether this message is strict routing.
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.computeIsStrictRouting_ =
+    function(opt_dialog) {
+  return !!opt_dialog && opt_dialog.getRouteSet().isFirstRouteStrict();
 };
 
 

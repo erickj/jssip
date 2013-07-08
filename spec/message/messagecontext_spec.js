@@ -167,6 +167,12 @@ describe('jssip.message.MessageContext', function() {
     });
   });
 
+  describe('#isStrictRouting', function() {
+    it('returns false', function() {
+      expect(messageContext.isStrictRouting()).toBe(false);
+    });
+  });
+
   describe('cache clearing methods', function() {
     var cachedMessage;
 

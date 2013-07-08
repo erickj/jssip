@@ -18,7 +18,7 @@ describe('jssip.message.BuilderMessageContext', function() {
 
     parserRegistry = /** @type {!jssip.parser.ParserRegistry} */ ({});
     return messageContext = new jssip.message.BuilderMessageContext(
-        builder, parserRegistry,
+        builder, true /* isStrictRouting */, parserRegistry,
         jssip.testing.util.messageutil.createSipContext());
   };
 
@@ -41,6 +41,12 @@ describe('jssip.message.BuilderMessageContext', function() {
   describe('#isLocal', function() {
     it('returns true', function() {
       expect(messageContext.isLocal()).toBe(true);
+    });
+  });
+
+  describe('#isStrictRouting', function() {
+    it('returns the value passed in the constructor', function() {
+      expect(messageContext.isStrictRouting()).toBe(true);
     });
   });
 

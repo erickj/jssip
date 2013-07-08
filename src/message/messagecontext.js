@@ -56,6 +56,15 @@ jssip.message.MessageContext.prototype.isLocal = goog.abstractMethod;
 
 
 /**
+ * Whether this message is being routed via strict routing policies.
+ * @return {boolean}
+ */
+jssip.message.MessageContext.prototype.isStrictRouting = function() {
+  return false;
+};
+
+
+/**
  * Sets a header on the message in this message context.
  *
  * NOTE: alternating calls to {@code #getMessage} or other methods that call

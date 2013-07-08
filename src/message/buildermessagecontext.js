@@ -9,18 +9,22 @@ goog.require('jssip.message.MessageContext');
  * must always return true for {@code #isLocal}.
  *
  * @param {!jssip.message.Message.Builder} builder
+ * @param {boolean} isStrictRouting
  * @param {!jssip.parser.ParserRegistry} parserRegistry
  * @param {!jssip.sip.SipContext} sipContext
  * @constructor
  * @extends {jssip.message.MessageContext}
  */
 jssip.message.BuilderMessageContext =
-    function(builder, parserRegistry, sipContext) {
+    function(builder, isStrictRouting, parserRegistry, sipContext) {
   goog.base(this,
       jssip.message.MessageContext.Type.BUILDER, parserRegistry, sipContext);
 
   /** @private {!jssip.message.Message.Builder} */
   this.builder_ = builder;
+
+  /** @private {boolean} */
+  this.isStrictRouting_ = isStrictRouting;
 };
 goog.inherits(
     jssip.message.BuilderMessageContext, jssip.message.MessageContext);
@@ -49,4 +53,10 @@ jssip.message.BuilderMessageContext.prototype.setHeaderInternal =
 jssip.message.BuilderMessageContext.prototype.setRequestUriInternal =
     function(requestUri) {
   this.builder_.setRequestUri(requestUri);
+};
+
+
+/** @override */
+jssip.message.BuilderMessageContext.prototype.isStrictRouting = function() {
+  return this.isStrictRouting_;
 };
