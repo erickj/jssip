@@ -133,9 +133,8 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createEvent_ =
 
 /**
  * Creates a request with the given method. After creation fires a
- * CREATE_REQUEST event.  This builder sets headers so that they do NOT
- * overwrite existing headers in the message builder. If a dialog is provided
- * then the request is created following in dialog request generation rules.
+ * CREATE_REQUEST event.  If a dialog is provided then the request is created
+ * following in dialog request generation rules.
  *
  * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1}
  * @see {http://tools.ietf.org/html/rfc3261#section-12.2.1.1}
@@ -187,10 +186,8 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.createRequest =
   headerMap[rfc3261.HeaderType.MAX_FORWARDS] =
       jssip.sip.protocol.rfc3261.MAX_FORWARDS;
 
-  // Set headers so that they do NOT overwrite existing headers.
   for (var headerName in headerMap) {
-    messageBuilder.setHeader(
-        headerName, headerMap[headerName], false /* opt_overwrite */);
+    messageBuilder.setHeader(headerName, headerMap[headerName]);
   }
 
   this.dispatchEvent(this.createEvent_(builderMessageContext,
