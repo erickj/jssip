@@ -63,7 +63,7 @@ jssip.sip.UserAgent =
   ];
 
   var storage = new jssip.storage.SimpleMemoryStorage();
-  var sipContext = new jssip.sip.SipContext(storage);
+  var sipContext = new jssip.sip.SipContext(storage, [] /* preloadedRoutes */);
 
   /** @private {!jssip.plugin.FeatureContextImpl} */
   this.featureContext_ = new jssip.plugin.FeatureContextImpl(

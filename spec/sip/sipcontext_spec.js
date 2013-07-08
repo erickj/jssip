@@ -7,11 +7,13 @@ goog.require('jssip.sip.protocol.storage.DialogStorage');
 describe('jssip.sip.SipContext', function() {
   var sipContext;
   var storage;
+  var preloadedRoutes;
   var mockControl;
 
   beforeEach(function() {
     storage = /** @type {!jssip.storage.Storage} */ ({});
     mockControl = new goog.testing.MockControl();
+    preloadedRoutes = [];
   });
 
   afterEach(function() {
@@ -33,7 +35,7 @@ describe('jssip.sip.SipContext', function() {
        function() {
          mockControl.$replayAll();
 
-         sipContext = new jssip.sip.SipContext(storage);
+         sipContext = new jssip.sip.SipContext(storage, preloadedRoutes);
 
          mockControl.$verifyAll();
        });
@@ -41,9 +43,16 @@ describe('jssip.sip.SipContext', function() {
 
   describe('#getDialogStorage', function() {
     it('gets the created dialog storage', function() {
-      sipContext = new jssip.sip.SipContext(storage);
+      sipContext = new jssip.sip.SipContext(storage, preloadedRoutes);
       expect(sipContext.getDialogStorage()).toEqual(
           jasmine.any(jssip.sip.protocol.storage.DialogStorage));
+    });
+  });
+
+  describe('#getPreloadedRoutes', function() {
+    it('gets the preloaded routes', function() {
+      sipContext = new jssip.sip.SipContext(storage, preloadedRoutes);
+      expect(sipContext.getPreloadedRoutes()).toBe(preloadedRoutes);
     });
   });
 });
