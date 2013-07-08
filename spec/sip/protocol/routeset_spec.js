@@ -1,6 +1,7 @@
 goog.provide('jssip.sip.protocol.RouteSetSpec');
 
 goog.require('goog.array');
+goog.require('goog.testing.MockControl');
 goog.require('jssip.sip.protocol.NameAddr');
 goog.require('jssip.sip.protocol.ParsedParams');
 goog.require('jssip.sip.protocol.Route');
@@ -10,31 +11,25 @@ goog.require('jssip.uri.Uri.Builder');
 
 describe('jssip.sip.protocol.RouteSet', function() {
   var emptyRouteSet;
+  var mockControl;
   var routeSet;
   var routes;
-  var strictRouteNameAddr;
-  var looseRouteNameAddr;
+  var mockStrictRoute;
+  var mockLooseRoute;
 
   beforeEach(function() {
-    var strictUri = (new jssip.uri.Uri.Builder()).
-        addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
-        addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'strict.route').
-        build();
-    strictRouteNameAddr = new jssip.sip.protocol.NameAddr(strictUri);
+    mockControl = new goog.testing.MockControl();
+    mockStrictRoute = mockControl.createLooseMock(
+        jssip.sip.protocol.Route);
+    mockStrictRoute.isLooseRoute().$returns(false).$anyTimes();
 
-    var looseUri = (new jssip.uri.Uri.Builder()).
-        addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
-        addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'loose.route').
-        build();
-    var looseParams =
-        new jssip.sip.protocol.ParsedParams.createFromParameterMap({lr: true});
-    looseRouteNameAddr = new jssip.sip.protocol.NameAddr(
-        looseUri, undefined /* opt_displayName */, looseParams);
+    mockLooseRoute = mockControl.createLooseMock(
+        jssip.sip.protocol.Route);
+    mockLooseRoute.isLooseRoute().$returns(true).$anyTimes();
 
     routes = [
       {}, {}, {}
     ];
-
     emptyRouteSet = new jssip.sip.protocol.RouteSet([]);
     routeSet = new jssip.sip.protocol.RouteSet(
         /** @type {!Array.<!jssip.sip.protocol.Route>} */ (routes));
@@ -68,15 +63,23 @@ describe('jssip.sip.protocol.RouteSet', function() {
   });
 
   describe('#isFirstRouteStrict', function() {
+    beforeEach(function() {
+      mockControl.$replayAll();
+    });
+
+    afterEach(function() {
+      mockControl.$verifyAll();
+    });
+
     it('returns true if the first route is strict', function() {
-      var routeSet = jssip.sip.protocol.RouteSet.createFromNameAddrs(
-          [strictRouteNameAddr]);
+      var routeSet = new jssip.sip.protocol.RouteSet(
+          [mockStrictRoute]);
       expect(routeSet.isFirstRouteStrict()).toBe(true);
     });
 
     it('returns false if the first route is loose routed', function() {
-      var routeSet = jssip.sip.protocol.RouteSet.createFromNameAddrs(
-          [looseRouteNameAddr]);
+      var routeSet = new jssip.sip.protocol.RouteSet(
+          [mockLooseRoute]);
       expect(routeSet.isFirstRouteStrict()).toBe(false);
     });
 

@@ -35,6 +35,12 @@ jssip.sip.protocol.Route.prototype.getNameAddr = function() {
  * @return {boolean}
  */
 jssip.sip.protocol.Route.prototype.isLooseRoute = function() {
-  return this.nameAddr_.getContextParams().hasParameter(
+  return this.nameAddr_.getUri().hasParameter(
       jssip.sip.protocol.Route.Param.LOOSE_ROUTING);
+};
+
+
+/** @return {string} */
+jssip.sip.protocol.Route.prototype.stringify = function() {
+  return this.nameAddr_.stringifyAsNameAddr();
 };

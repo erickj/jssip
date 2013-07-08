@@ -2,8 +2,9 @@ goog.provide('jssip.sip.protocol.RouteSpec');
 
 goog.require('goog.testing.MockControl');
 goog.require('jssip.sip.protocol.NameAddr');
-goog.require('jssip.sip.protocol.ParsedParams');
 goog.require('jssip.sip.protocol.Route');
+goog.require('jssip.uri.Uri');
+goog.require('jssip.uri.Uri.Builder');
 
 describe('jssip.sip.protocol.RouteSet', function() {
   var looseRoute;
@@ -15,19 +16,20 @@ describe('jssip.sip.protocol.RouteSet', function() {
   beforeEach(function() {
     mockControl = new goog.testing.MockControl();
 
-    var looseParsedParams =
-        new jssip.sip.protocol.ParsedParams([[';', ['lr']]]);
+    var looseMockUri = mockControl.createLooseMock(jssip.uri.Uri);
+    looseMockUri.hasParameter('lr').$returns(true).$anyTimes();
     looseMockNameAddr = mockControl.createStrictMock(
         jssip.sip.protocol.NameAddr);
-    looseMockNameAddr.getContextParams().
-        $returns(looseParsedParams).$atMostOnce();
+    looseMockNameAddr.getUri().
+        $returns(looseMockUri).$atMostOnce();
     looseRoute = new jssip.sip.protocol.Route(looseMockNameAddr);
 
-    var strictParsedParams = new jssip.sip.protocol.ParsedParams([]);
+    var strictMockUri = mockControl.createLooseMock(jssip.uri.Uri);
+    strictMockUri.hasParameter('lr').$returns(false).$anyTimes();
     strictMockNameAddr = mockControl.createStrictMock(
         jssip.sip.protocol.NameAddr);
-    strictMockNameAddr.getContextParams().
-        $returns(strictParsedParams).$atMostOnce();
+    strictMockNameAddr.getUri().
+        $returns(strictMockUri).$atMostOnce();
     strictRoute = new jssip.sip.protocol.Route(strictMockNameAddr);
   });
 
@@ -53,6 +55,20 @@ describe('jssip.sip.protocol.RouteSet', function() {
 
     it('should return false for strict routes', function() {
       expect(strictRoute.isLooseRoute()).toBe(false);
+    });
+  });
+
+  describe('#stringify', function() {
+    var uri = (new jssip.uri.Uri.Builder()).
+        addPropertyPair(jssip.uri.Uri.PropertyName.SCHEME, 'sip').
+        addPropertyPair(jssip.uri.Uri.PropertyName.HOST, 'strict.route').
+        addPropertyPair(jssip.uri.Uri.PropertyName.PARAMETERS, 'lr').
+        build();
+
+    it('stringifies as a name-addr as an addr-spec', function() {
+      var route =
+          new jssip.sip.protocol.Route(new jssip.sip.protocol.NameAddr(uri));
+      expect(route.stringify()).toBe('<sip:strict.route;lr>');
     });
   });
 });
