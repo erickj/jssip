@@ -36,3 +36,13 @@ jssip.sip.SipContext.prototype.getDialogStorage = function() {
 jssip.sip.SipContext.prototype.getPreloadedRoutes = function() {
   return this.preloadedRoutes_;
 };
+
+
+/**
+ * Gets the contact for this SIP context.
+ * @param {boolean} isSecure Whether this should be a secure contact.
+ * @return {!jssip.sip.protocol.NameAddr}
+ */
+jssip.sip.SipContext.prototype.getContact = function(isSecure) {
+  throw new Error('not implemented');
+};
