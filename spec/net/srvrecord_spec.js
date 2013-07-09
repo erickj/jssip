@@ -11,11 +11,12 @@ describe('jssip.net.SrvRecord', function() {
   var proto = '_udp';
   var priority = 10;
   var weight = 5;
+  var port = 5060;
   var target = 'target.org';
 
   var factoryFn = function() {
     srvRecord = new jssip.net.SrvRecord(
-        domainName, ttl, service, proto, priority, weight, target);
+        domainName, ttl, service, proto, priority, weight, port, target);
     return srvRecord;
   };
   beforeEach(factoryFn);
@@ -26,6 +27,7 @@ describe('jssip.net.SrvRecord', function() {
       expect(srvRecord.getProto()).toBe(proto);
       expect(srvRecord.getPriority()).toBe(priority);
       expect(srvRecord.getWeight()).toBe(weight);
+      expect(srvRecord.getPort()).toBe(port);
       expect(srvRecord.getTarget()).toBe(target);
     });
   });

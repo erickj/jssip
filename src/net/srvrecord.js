@@ -18,13 +18,14 @@ goog.require('jssip.net.ResourceRecord');
  * @extends {jssip.net.ResourceRecord}
  */
 jssip.net.SrvRecord =
-    function(domainName, ttl, service, proto, priority, weight, target) {
+    function(domainName, ttl, service, proto, priority, weight, port, target) {
   var propertyName = jssip.net.SrvRecord.PropertyName;
   var propertyMap = {};
   propertyMap[propertyName.SERVICE] = service;
   propertyMap[propertyName.PROTO] = proto;
   propertyMap[propertyName.PRIORITY] = priority;
   propertyMap[propertyName.WEIGHT] = weight;
+  propertyMap[propertyName.PORT] = port;
   propertyMap[propertyName.TARGET] = target;
   goog.base(this,
       jssip.net.ResourceRecord.RecordType.SRV, domainName, ttl, propertyMap);
@@ -38,6 +39,7 @@ jssip.net.SrvRecord.PropertyName = {
   PROTO: 'srv-proto',
   PRIORITY: 'srv-priority',
   WEIGHT: 'srv-weight',
+  PORT: 'srv-port',
   TARGET: 'srv-target'
 };
 
@@ -65,8 +67,15 @@ jssip.net.SrvRecord.prototype.getPriority = function() {
 
 /** @return {number} */
 jssip.net.SrvRecord.prototype.getWeight = function() {
-  return /** @type {string} */ (
+  return /** @type {number} */ (
       this.get(jssip.net.SrvRecord.PropertyName.WEIGHT));
+};
+
+
+/** @return {number} */
+jssip.net.SrvRecord.prototype.getPort = function() {
+  return /** @type {number} */ (
+      this.get(jssip.net.SrvRecord.PropertyName.PORT));
 };
 
 
