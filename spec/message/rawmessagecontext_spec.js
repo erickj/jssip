@@ -72,13 +72,5 @@ describe('jssip.message.RawMessageContext', function() {
     });
   });
 
-  describe('#setRequestUriInternal', function() {
-    it('throws an ImmutableMessageContextError', function() {
-      expect(function() {
-        requestRawMessageContext.setRequestUri('sip:minion@me.com');
-      }).toThrow(new jssip.message.ImmutableMessageContextError().message);
-    });
-  });
-
   sharedMessageContextBehaviors(factoryFn);
 });

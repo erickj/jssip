@@ -50,13 +50,6 @@ jssip.message.BuilderMessageContext.prototype.setHeaderInternal =
 
 
 /** @override */
-jssip.message.BuilderMessageContext.prototype.setRequestUriInternal =
-    function(requestUri) {
-  this.builder_.setRequestUri(requestUri);
-};
-
-
-/** @override */
 jssip.message.BuilderMessageContext.prototype.isStrictRouting = function() {
   return this.isStrictRouting_;
 };

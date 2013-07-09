@@ -61,16 +61,5 @@ describe('jssip.message.BuilderMessageContext', function() {
     });
   });
 
-  describe('#setRequestUriInternal', function() {
-    it('sets a request uri on the builder', function() {
-      var message = messageContext.getMessage();
-      expect(message.getRequestUri()).toBe('sip:foo@bar.com');
-
-      messageContext.setRequestUri('sips:bar@foo.org');
-      message = messageContext.getMessage();
-      expect(message.getRequestUri()).toBe('sips:bar@foo.org');
-    });
-  });
-
   sharedMessageContextBehaviors(factoryFn);
 });

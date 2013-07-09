@@ -98,28 +98,6 @@ jssip.message.MessageContext.prototype.setHeaderInternal = goog.abstractMethod;
 
 
 /**
- * Sets the request URI on mutable message contexts.
- * @param {string} requestUri
- * @return {!jssip.message.MessageContext} Returns this.
- * @throws {jssip.message.MessageContext.ImmutableMessageContextError}
- */
-jssip.message.MessageContext.prototype.setRequestUri = function(requestUri) {
-  this.clearCaches_();
-  this.setRequestUriInternal(requestUri);
-  return this;
-};
-
-
-/**
- * Internal implementation for setRequestUri to override by subclasses.
- * @param {string} requestUri
- * @throws {jssip.message.MessageContext.ImmutableMessageContextError}
- */
-jssip.message.MessageContext.prototype.setRequestUriInternal =
-    goog.abstractMethod;
-
-
-/**
  * Clears all internally cached state.
  * @private
  */

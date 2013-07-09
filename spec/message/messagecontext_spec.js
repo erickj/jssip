@@ -44,13 +44,6 @@ jssip.message.MessageContextSpec.TestMessageContext.prototype.
 };
 
 
-/** @override */
-jssip.message.MessageContextSpec.TestMessageContext.prototype.
-    setRequestUriInternal = function(requestUri) {
-  this.internalSpy(requestUri);
-};
-
-
 describe('jssip.message.MessageContext', function() {
   var mockControl;
   var mockParserRegistry;
@@ -196,22 +189,6 @@ describe('jssip.message.MessageContext', function() {
       it('clears the cache', function() {
         expect(cachedMessage.isDisposed()).toBe(false);
         messageContext.setHeader('Foo', 'bar');
-        expect(cachedMessage.isDisposed()).toBe(true);
-      });
-    });
-
-    describe('#setRequestUri', function() {
-      it('calls the #setRequestUriInternal implementation of the subclass',
-         function() {
-           expect(messageContext.internalSpy).not.toHaveBeenCalled();
-           messageContext.setRequestUri('sip:minions@me.com');
-           expect(messageContext.internalSpy).
-               toHaveBeenCalledWith('sip:minions@me.com');
-         });
-
-      it('clears the cache', function() {
-        expect(cachedMessage.isDisposed()).toBe(false);
-        messageContext.setRequestUri('sip:minions@me.com');
         expect(cachedMessage.isDisposed()).toBe(true);
       });
     });
