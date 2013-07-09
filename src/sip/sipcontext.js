@@ -47,3 +47,23 @@ jssip.sip.SipContext.prototype.getPreloadedRouteSet = function() {
 jssip.sip.SipContext.prototype.getContact = function(isSecure) {
   throw new Error('not implemented');
 };
+
+
+/**
+ * Gets the default transport type for this SIP context
+ * @return {string}
+ */
+jssip.sip.SipContext.prototype.getDefaultTransportType = function() {
+  return 'udp';
+};
+
+
+/**
+ * Gets the default port for a transport type
+ * @param {string} tportType
+ * @return {number}
+ */
+jssip.sip.SipContext.prototype.getDefaultPortForTransport =
+    function(tportType) {
+  return 5060;
+};

@@ -70,7 +70,9 @@ goog.inherits(
 jssip.sip.plugin.core.UserAgentFeature.prototype.onActivated = function() {
   this.messageDestinationFetcher_ =
       new jssip.sip.plugin.core.MessageDestinationFetcher(
-          this.getFeatureContext().getPlatformContext().getResolver());
+          this.getPlatformContext().getResolver(),
+          this.getSipContext(),
+          this.getFeatureContext().getParserRegistry());
 };
 
 /** @override */
@@ -359,7 +361,8 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.computeRequestContact_ =
 
 
 /**
- * Sends the request.
+ * Gets a set of destinations to send the message off to then sends the request
+ * to the destinations. Async bits ahead, beware of dragons.
  *
  * @see {jssip.sip.protocol.feature.UserAgentClient#sendRequest}
  * @param {!jssip.message.MessageContext} requestMessageContext
@@ -367,7 +370,24 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.computeRequestContact_ =
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequest =
     function(requestMessageContext) {
-  throw new Error('not implemented');
+  goog.asserts.assert(
+      requestMessageContext.isRequest() && requestMessageContext.isLocal());
+
+  var promiseOfDestinations = this.messageDestinationFetcher_.
+      fetchDestinationsForRequest(requestMessageContext);
+  return promiseOfDestinations.thenBranch(goog.bind(
+      this.sendRequestToDestinations_, this, requestMessageContext));
+};
+
+
+/**
+ * @param {!jssip.message.MessageContext} requestMessageContext
+ * @param {!Array.<!jssip.sip.protocol.MessageDestination>} messageDestinations
+ * @return {!jssip.async.Promise.<boolean>}
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequestToDestinations_ =
+    function(requestMessageContext, messageDestinations) {
+  throw new Error('unimplemented');
 };
 
 
