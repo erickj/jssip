@@ -7,18 +7,18 @@ goog.require('jssip.util.PropertyHolder');
 /**
  * An answer for a resource record lookup.
  * @see http://tools.ietf.org/html/rfc1035
- * @param {jssp.net.ResourceRecord.RecordType} recordType
+ * @param {jssip.net.ResourceRecord.RecordType} recordType
  * @param {string} domainName The domain name to which this record refers.
  * @param {number} ttl The time to cache this record in seconds.
  * @param {!Object.<(string|number)>} propertyMap Record type property values.
  * @constructor
  * @extends {jssip.util.PropertyHolder}
  */
-jssip.net.ResourceRecord = function(recordType, name, ttl, propertyMap) {
+jssip.net.ResourceRecord = function(recordType, domainName, ttl, propertyMap) {
   var propertyName = jssip.net.ResourceRecord.PropertyName;
   propertyMap[propertyName.CLASS] = jssip.net.ResourceRecord.ResourceClass.IN;
   propertyMap[propertyName.TYPE] = recordType;
-  propertyMap[propertyName.NAME] = name;
+  propertyMap[propertyName.NAME] = domainName;
   propertyMap[propertyName.TTL] = ttl;
   goog.base(this, propertyMap, true /* opt_isImmutable */);
 };
