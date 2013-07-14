@@ -1,34 +1,32 @@
 goog.provide('jssip.testing.util.netutil');
 goog.provide('jssip.testing.util.netutil.StubResolver');
 
+goog.require('goog.async.Deferred');
 goog.require('goog.object');
 goog.require('jssip.async.Promise');
 goog.require('jssip.net.ARecord');
 goog.require('jssip.net.Resolver');
 goog.require('jssip.net.ResourceRecord');
-goog.require('jssip.net.Socket');
-goog.require('jssip.net.SrvRecord');
 
 
 /**
+ * @param {!Object.<!Array.<string>>} aRecordMap A map of domain names to arrays
+ *     of IP address to return for lookups. If a domain isn't in the map a
+ *     failed promise will be returned.
  * @constructor
  * @implements {jssip.net.Resolver}
  */
-jssip.testing.util.netutil.StubResolver = function() {
-  var domain = 'foo.com';
-
+jssip.testing.util.netutil.StubResolver = function(aRecordMap) {
   /** @private {!Object.<!jssip.net.ARecord>} */
   this.aRecordMap_ = {};
-  this.aRecordMap_[domain] = [
-    new jssip.net.ARecord(domain, 100, '1.2.3.4')
-  ];
-
-  var srvDomain = 'sip.' + domain;
-  /** @private {!Object.<!jssip.net.SrvRecord>} */
-  this.srvRecordMap_ = {};
-  this.srvRecordMap_[domain] = [
-    new jssip.net.SrvRecord(srvDomain, 200, '_sip', '_udp', 10, 20, 2121, domain)
-  ];
+  for (var domain in aRecordMap) {
+    this.aRecordMap_[domain] = [];
+    var ips = aRecordMap[domain];
+    for (var i = 0; i < ips.length; i++) {
+      this.aRecordMap_[domain].push(
+          new jssip.net.ARecord(domain, 100, ips[i]));
+    }
+  }
 };
 
 
@@ -40,10 +38,16 @@ jssip.testing.util.netutil.StubResolver = function() {
 jssip.testing.util.netutil.StubResolver.prototype.lookup =
     function(domain, rrtype) {
   var result = [];
-  if (jssip.net.ResourceRecord.ResourceType.A == rrtype) {
-    result = this.aRecordMap_[domain];
-  } else if (jssip.net.ResourceRecord.ResourceType.SRV == rrtype) {
-    result = this.srvRecordMap_[domain];
+  switch (rrtype) {
+    case jssip.net.ResourceRecord.ResourceType.A:
+      result = this.aRecordMap_[domain];
+      break;
+    default:
+      throw new Error('Unhandled record type: ' + rrtype);
+  }
+  if (!result.length) {
+    return new jssip.async.Promise(goog.async.Deferred.fail(
+        new Error('StubResolver has no records')));
   }
   return jssip.async.Promise.succeed(result);
 };
