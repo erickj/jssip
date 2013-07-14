@@ -6,7 +6,7 @@ goog.require('jssip.sip.protocol.Route');
 goog.require('jssip.uri.Uri');
 goog.require('jssip.uri.Uri.Builder');
 
-describe('jssip.sip.protocol.RouteSet', function() {
+describe('jssip.sip.protocol.Route', function() {
   var looseRoute;
   var strictRoute;
   var mockControl;

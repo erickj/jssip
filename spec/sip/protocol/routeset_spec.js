@@ -3,11 +3,8 @@ goog.provide('jssip.sip.protocol.RouteSetSpec');
 goog.require('goog.array');
 goog.require('goog.testing.MockControl');
 goog.require('jssip.sip.protocol.NameAddr');
-goog.require('jssip.sip.protocol.ParsedParams');
 goog.require('jssip.sip.protocol.Route');
 goog.require('jssip.sip.protocol.RouteSet');
-goog.require('jssip.uri.Uri');
-goog.require('jssip.uri.Uri.Builder');
 
 describe('jssip.sip.protocol.RouteSet', function() {
   var emptyRouteSet;

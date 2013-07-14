@@ -26,7 +26,7 @@ goog.require('jssip.util.Serializable');
  * @param {!jssip.sip.protocol.RouteSet} routeSet
  * @param {jssip.sip.protocol.Dialog.State} state
  * @constructor
- * @impements {jssip.util.Serializable}
+ * @implements {jssip.util.Serializable}
  */
 jssip.sip.protocol.Dialog = function(callId, remoteTag, localTag,
     localSequenceNumber, remoteSequenceNumber, localUri, remoteUri,
