@@ -45,8 +45,12 @@
     this.log("Starting...");
   };
 
+  proto.failCount = function() {
+    return this.executed_specs - this.passed_specs;
+  };
+
   proto.reportRunnerResults = function(runner) {
-    var failed = this.executed_specs - this.passed_specs;
+    var failed = this.failCount();
     var spec_str = this.executed_specs + (this.executed_specs === 1 ? " spec, " : " specs, ");
     var fail_str = failed + (failed === 1 ? " failure in " : " failures in ");
     var color = (failed > 0)? "red" : "green";

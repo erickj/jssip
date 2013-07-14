@@ -10,6 +10,7 @@ BUILD_DIR = BASE_DIR + '/build'
 THIRD_PARTY_DIR = BASE_DIR + '/lib'
 
 TEST_BUILD_DIR = BUILD_DIR + '/test_out'
+TMP_BUILD_DIR = BUILD_DIR + '/tmp'
 
 CLSR_BUILD_DIR = 'lib/closure-library/bin/build'
 CLSR_BUILDER = CLSR_BUILD_DIR + '/closurebuilder.py'
@@ -24,7 +25,7 @@ RHINO_JS = THIRD_PARTY_DIR + '/rhino/js.jar'
 JSSIP_DEPS = BUILD_DIR + '/this-is-stupid_see-note-in-file.deps.js'
 
 TEST_PROTOCOL = 'file://'
-SPECRUNNER_TPL = '_specrunner.erb'
+SPECRUNNER_HTML_TPL = '_specrunner.erb'
 PHANTOMJS_RUNNER = 'phantomjs run-jasmine.js'
 JASMINE_ROOT_PATH = THIRD_PARTY_DIR + '/jasmine-1.3.1'
 
@@ -43,6 +44,7 @@ desc 'Init the build workspace'
 task :init do
   FileUtils.mkdir(BUILD_DIR) unless File.directory?(BUILD_DIR)
   FileUtils.mkdir(TEST_BUILD_DIR) unless File.directory?(TEST_BUILD_DIR)
+  FileUtils.mkdir(TMP_BUILD_DIR) unless File.directory?(TMP_BUILD_DIR)
 end
 
 desc 'Clean any generated files'
@@ -171,25 +173,17 @@ EOS
   desc 'Compile JS in WHITESPACE_ONLY mode for [target]'
   task :concat, [:target] => [:'build:common_deps'] do |t, args|
     target = args[:target] || DEFAULT_TARGET
-    Utils.build_script(Utils.get_js_script_name(target), target)
+    path = File.join(BUILD_DIR, Utils.get_js_script_name(target))
+    Utils.build_script(path, target)
   end
 
   desc 'Compile JS for Rhino'
   task :rhino => :'build:concat' do
     # Rhino does not support argument.callee.caller, so need to revise
     # how goog.base and all calls to it are implemented.
-    path = File.join(BUILD_DIR, Utils.get_js_script_name(DEFAULT_TARGET))
-    rhino_target = "build/endpoint.rhino.js"
-
-    sed_cmd = 'sed -e "s/goog.base(/goog\.base\(arguments.callee, /" %s'%path
-    puts %x{#{sed_cmd} > #{rhino_target}}
-
-    sed_cmd2 = 'sed -i -e "s/goog.base = function(/goog.base = function(caller, /" %s'%rhino_target
-    puts %x{#{sed_cmd2}}
-
-    match = '  var caller = arguments.callee.caller'
-    sed_cmd3 = 'sed -i -e "s/%s/\/\/%s/" %s'%[match, match, rhino_target]
-    puts %x{#{sed_cmd3}}
+    src = File.join(BUILD_DIR, Utils.get_js_script_name(DEFAULT_TARGET))
+    dest = "build/endpoint.rhino.js"
+    Utils.rhinoize_js(src, dest)
   end
 
   desc 'Compile JS in SIMPLE_OPTIMIZATION mode for [target]'
@@ -229,6 +223,11 @@ EOS
       Utils.build_specrunner(target)
     end
   end
+
+  desc 'Generate specs for rhino'
+  task :rhinospecs do
+    Utils.build_specrunner_rhino
+  end
 end
 
 desc 'Lists build dependencies for [target]'
@@ -261,7 +260,13 @@ end
 # Note: test:specs calls an explicit exit, any tests added after test:specs
 # won't run
 desc 'Run tests and build'
-task :test => [:clean, :init, :'test:rhino', :'build:specs', :'test:specs']
+task :test => [:clean,
+               :init,
+               :'test:rhino',
+               :'build:rhinospecs',
+               :'test:rhinospecs_noexit',
+               :'build:specs',
+               :'test:specs']
 
 namespace :test do
   desc 'Load endpoint.js into Rhino to check for warnings and fatal errors'
@@ -271,8 +276,8 @@ namespace :test do
                Utils.get_js_script_name(DEFAULT_TARGET, 'opt')]
     targets.each do |target|
       target_path = BUILD_DIR + '/' + target
-      puts("Rhino test: " + target_path)
-      %x{java -jar #{RHINO_JS} -w -fatal-warnings -f #{target_path}}
+      puts("test loading into rhino: " + target_path)
+      %x{java -jar #{RHINO_JS} -w -fatal-warnings -f #{target_path} -opt -1}
       raise "Rhino: failed to load #{target_path}" unless $? == 0
     end
   end
@@ -281,7 +286,7 @@ namespace :test do
   task :spec, :target do |t, args|
     target = args[:target]
     target = Utils.specize_target_name(Utils.normalize_target_name(target))
-    exitstatus = Utils.run_spec(target)
+    exitstatus = Utils.run_spec(target, :html)
     puts
     if exitstatus > 0
       puts '!!! Spec failed: %s'%target
@@ -295,7 +300,7 @@ namespace :test do
   desc 'Run all specs for [namespace] or jssip'
   task :specs, :namespace do |t, args|
     ns = Utils.normalize_target_name(args[:namespace] || NAMESPACE, { :no_cap => true })
-    specs_dir = TEST_BUILD_DIR
+    specs_dir = File.join(TEST_BUILD_DIR, 'html')
     puts specs_dir
 
     failed_test_targets = []
@@ -303,7 +308,7 @@ namespace :test do
     puts
     Dir.glob(File.join(specs_dir, ns + "*.html")) do |file|
       target = file.split('/').last.gsub('.html','')
-      if Utils.run_spec(target) > 0
+      if Utils.run_spec(target, :html) > 0
         failed_test_targets << target
       end
     end
@@ -319,6 +324,16 @@ namespace :test do
     # (I think it's ok for the default test case since this runs last)
     exit failed_test_targets.length
   end
+
+  desc 'Runs all specs in Rhino'
+  task :rhinospecs do
+    puts %x{java -jar #{RHINO_JS} -w -fatal-warnings -f run-jasmine-rhino.js -opt -1}
+    exit $?.exitstatus
+  end
+
+  task :rhinospecs_noexit do
+    puts %x{java -jar #{RHINO_JS} -w -fatal-warnings -f run-jasmine-rhino.js -opt -1}
+  end
 end
 
 ##
@@ -331,6 +346,23 @@ class SpecRunnerBindingProvider
 end
 
 class Utils
+  # Rhino can't and will never handle arguments.caller.callee (I lost the URL
+  # telling me this, try searching again on the bugzilla or issue tracker for
+  # rhino).  This removes all arguments.callee.caller references from a script
+  # with lots of `sed` hackery
+  def self.rhinoize_js(src_path, dest_path)
+    puts "Rhinoizing File: Removes references to arguments.callee.caller from goog.base"
+    sed_cmd = 'sed -e "s/goog.base(/rhino\.base\(arguments.callee, /" %s > %s'%[src_path, dest_path]
+    puts sed_cmd
+    %x{#{sed_cmd}}
+
+    tmp = File.read(dest_path);
+    File.open(dest_path, 'w') do |f|
+      f.puts File.read(BASE_DIR + '/rhino.fixups.js');
+      f.puts tmp
+    end
+  end
+
   ##
   # Cleans up lazy target names like message.header into jssip.message.Header
   # Options:
@@ -379,27 +411,59 @@ class Utils
     puts "Building specrunner for target: #{target}"
     script_names = Utils.get_script_deps(target)
 
+    build_specrunner_html(target, script_names)
+  end
+
+  def self.build_specrunner_html(target, script_names)
     template_obj = SpecRunnerBindingProvider.new
     template_obj.target = target
     template_obj.scripts = script_names.map { |s| TEST_PROTOCOL + s }
     template_obj.jasmine_root = TEST_PROTOCOL + JASMINE_ROOT_PATH
     template_obj.base_root = TEST_PROTOCOL + BASE_DIR
 
-    template = File.read(SPECRUNNER_TPL)
+    template = File.read(SPECRUNNER_HTML_TPL)
 
     output_file = target + '.html'
-    path = File.join(TEST_BUILD_DIR, output_file)
+    test_dir = File.join(TEST_BUILD_DIR, 'html')
+    FileUtils.mkdir(test_dir) unless File.directory?(test_dir)
+    path = File.join(test_dir, output_file)
+
     File.open(path, 'w') do |f|
       f.write(ERB.new(template).result(template_obj.get_binding))
     end
-    puts "Wrote spec file: #{path}"
+    puts "Wrote html spec file: #{path}"
   end
 
-  def self.build_script(filename, js_target)
-    path = File.join(BUILD_DIR, filename)
+  def self.build_specrunner_rhino
+    rhino_dir = File.join(TEST_BUILD_DIR, 'rhino')
+    rhino_build_dir = File.join(rhino_dir, 'build')
+    FileUtils.mkdir(rhino_dir) unless File.directory?(rhino_dir)
+    FileUtils.mkdir(rhino_build_dir) unless File.directory?(rhino_build_dir)
+
+    target = 'AllRhinoSpecs'
+    spec_targets = find_spec_targets
+    all_specs_path = File.join(rhino_build_dir, 'all_rhino_specs.js')
+    File.open(all_specs_path, 'w') do |f|
+      f.write('goog.provide(\'' + target + '\');' + "\n\n");
+      spec_targets.each do |spec_target|
+        f.write('goog.require(\'' + spec_target + '\');' + "\n")
+      end
+    end
+
+    output_file = target + '.rhino.js'
+    tmp_path = File.join(TMP_BUILD_DIR, output_file)
+    path = File.join(rhino_dir, output_file)
+
+    build_script(tmp_path, target, ['--root=%s'%rhino_build_dir])
+    rhinoize_js(tmp_path, path)
+
+    puts "Wrote rhino spec file: #{path}"
+  end
+
+  def self.build_script(path, js_target, opt_args=[])
     puts "Creating #{path} for namespace #{js_target}..."
 
-    args = ['--output_mode=compiled', "--compiler_jar=#{CLSR_COMPILER}"]
+    args = ['--output_mode=compiled', "--compiler_jar=#{CLSR_COMPILER}"].concat(opt_args)
     args.push('-f "--compilation_level=WHITESPACE_ONLY"')
     args.push('-f "--flagfile=compiler.flags"')
     args.push('-f "--formatting=PRETTY_PRINT"')
@@ -487,8 +551,8 @@ EOS
 
   ##
   # Run the spec in phantomjs
-  def self.run_spec(target)
-    spec_url = TEST_PROTOCOL + File.join(TEST_BUILD_DIR, "#{target}.html")
+  def self.run_spec(target, env)
+    spec_url = TEST_PROTOCOL + File.join(TEST_BUILD_DIR, env.to_s, "#{target}.html")
     puts "Running Spec for #{target}"
     puts "#{PHANTOMJS_RUNNER} #{spec_url}"
     puts %x{#{PHANTOMJS_RUNNER} #{spec_url}}
