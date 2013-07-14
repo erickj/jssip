@@ -1,8 +1,8 @@
 goog.provide('jssip.testing.util.netutil');
-goog.provide('jssip.testing.util.netutil.TestResolver');
+goog.provide('jssip.testing.util.netutil.StubResolver');
 
-goog.require('goog.async.Deferred');
 goog.require('goog.object');
+goog.require('jssip.async.Promise');
 goog.require('jssip.net.ARecord');
 goog.require('jssip.net.Resolver');
 goog.require('jssip.net.ResourceRecord');
@@ -14,7 +14,7 @@ goog.require('jssip.net.SrvRecord');
  * @constructor
  * @implements {jssip.net.Resolver}
  */
-jssip.testing.util.netutil.TestResolver = function() {
+jssip.testing.util.netutil.StubResolver = function() {
   var domain = 'foo.com';
 
   /** @private {!Object.<!jssip.net.ARecord>} */
@@ -27,7 +27,7 @@ jssip.testing.util.netutil.TestResolver = function() {
   /** @private {!Object.<!jssip.net.SrvRecord>} */
   this.srvRecordMap_ = {};
   this.srvRecordMap_[domain] = [
-    new jssip.net.SrvRecord(srvDomain, 200, '_sip', '_udp', 10, 20, domain)
+    new jssip.net.SrvRecord(srvDomain, 200, '_sip', '_udp', 10, 20, 2121, domain)
   ];
 };
 
@@ -37,7 +37,7 @@ jssip.testing.util.netutil.TestResolver = function() {
  * domains foo.com and sip.foo.com.
  * @override
  */
-jssip.testing.util.netutil.TestResolver.prototype.lookup =
+jssip.testing.util.netutil.StubResolver.prototype.lookup =
     function(domain, rrtype) {
   var result = [];
   if (jssip.net.ResourceRecord.ResourceType.A == rrtype) {
@@ -45,5 +45,5 @@ jssip.testing.util.netutil.TestResolver.prototype.lookup =
   } else if (jssip.net.ResourceRecord.ResourceType.SRV == rrtype) {
     result = this.srvRecordMap_[domain];
   }
-  return goog.async.Deferred.succeed(result);
+  return jssip.async.Promise.succeed(result);
 };
