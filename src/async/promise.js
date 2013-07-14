@@ -67,7 +67,7 @@ jssip.async.Promise = function(deferred) {
  * will be wrapped so that it can not change the deferred return type on error.
  * not alter the result type.
  * @param {function(T):(T|undefined)=} opt_callBack
- * @param {function(T):(T|undefined)=} opt_errBack
+ * @param {function(*):(Error|undefined)=} opt_errBack
  * @template T
  * @return {!jssip.async.Promise.<T>} This promise
  */
@@ -89,7 +89,7 @@ jssip.async.Promise.prototype.then = function(opt_callBack, opt_errBack) {
  * added to the new promise will return type R. Any errback will be wrapped so
  * that it can not change the deferred return type on error.
  * @param {function(T):R=} opt_callBack
- * @param {function(T):R=} opt_errBack
+ * @param {function(*):(Error|undefined)=} opt_errBack
  * @template T,R
  * @return {!jssip.async.Promise.<R>} A new promise type.
  */
