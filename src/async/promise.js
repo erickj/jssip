@@ -113,4 +113,4 @@ jssip.async.Promise.prototype.thenBranch = function(opt_callBack, opt_errBack) {
  */
 jssip.async.Promise.succeed = function(value) {
   return new jssip.async.Promise(goog.async.Deferred.succeed(value));
-}
+};
