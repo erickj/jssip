@@ -48,3 +48,19 @@ jssip.sip.protocol.MessageDestination.prototype.getIpAddress = function() {
 jssip.sip.protocol.MessageDestination.prototype.getPort = function() {
   return this.port_;
 };
+
+
+/**
+ * @param {!Object} o
+ * @return {boolean}
+ */
+jssip.sip.protocol.MessageDestination.prototype.equals = function(o) {
+  if (!(o instanceof jssip.sip.protocol.MessageDestination)) {
+    return false;
+  }
+  var otherMessageDestination =
+      /** @type {!jssip.sip.protocol.MessageDestination} */ (o);
+  return this.port_ == otherMessageDestination.port_ &&
+      this.socketType_ == otherMessageDestination.socketType_ &&
+      this.ipAddress_.equals(otherMessageDestination.ipAddress_);
+};
