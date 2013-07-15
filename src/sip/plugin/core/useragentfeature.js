@@ -5,6 +5,7 @@ goog.require('goog.asserts');
 goog.require('goog.crypt');
 goog.require('goog.crypt.Sha256');
 goog.require('goog.object');
+goog.require('jssip.async.Promise');
 goog.require('jssip.message.BuilderMessageContext');
 goog.require('jssip.message.Message.Builder');
 goog.require('jssip.plugin.AbstractFeature');
@@ -16,6 +17,7 @@ goog.require('jssip.sip.plugin.core.HeaderParserFactoryImpl');
 goog.require('jssip.sip.plugin.core.SipUriParserFactory');
 goog.require('jssip.sip.protocol.NameAddr');
 goog.require('jssip.sip.protocol.Route');
+goog.require('jssip.sip.protocol.feature.TransportLayer');
 goog.require('jssip.sip.protocol.feature.UserAgentClient');
 goog.require('jssip.sip.protocol.feature.UserAgentServer');
 goog.require('jssip.sip.protocol.header.NameAddrHeaderParserFactory');
@@ -40,6 +42,9 @@ jssip.sip.plugin.core.UserAgentFeature = function(name) {
 
   /** @private {jssip.sip.plugin.core.MessageDestinationFetcher} */
   this.messageDestinationFetcher_ = null;
+
+  /** @private {jssip.sip.protocol.feature.TransportLayer} */
+  this.transportLayer_ = null;
 
   /**
    * @private {!Object}
@@ -73,6 +78,11 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.onActivated = function() {
           this.getPlatformContext().getResolver(),
           this.getSipContext(),
           this.getFeatureContext().getParserRegistry());
+
+  this.transportLayer_ =
+    /** @type {!jssip.sip.protocol.feature.TransportLayer} */ (
+        this.getFeatureContext().getFacadeByType(
+            jssip.sip.protocol.feature.TransportLayer.TYPE));
 };
 
 /** @override */
@@ -375,8 +385,12 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequest =
 
   var promiseOfDestinations = this.messageDestinationFetcher_.
       fetchDestinationsForRequest(requestMessageContext);
-  return promiseOfDestinations.thenBranch(goog.bind(
-      this.sendRequestToDestinations_, this, requestMessageContext));
+  // TODO: the compiler isn't type checking the goog.bind param here, but I
+  // believe it should due to this discussion:
+  // http://code.google.com/p/closure-compiler/issues/detail?id=621 find out
+  // what is going on.
+  return promiseOfDestinations.thenBranch(
+      goog.bind(this.sendRequestToDestinations_, this, requestMessageContext));
 };
 
 
@@ -387,7 +401,49 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequest =
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequestToDestinations_ =
     function(requestMessageContext, messageDestinations) {
-  throw new Error('unimplemented');
+  var destination = messageDestinations.shift();
+  if (!destination) {
+    throw new Error('No destination for request');
+  }
+
+  var promiseOfSendSuccess = this.transportLayer_.sendRequest(
+      destination, requestMessageContext, this.generateBranchId_());
+  // Attaches a handler to keep trying message destinations until the send is
+  // successful or there are no more destinations.
+  promiseOfSendSuccess.then(goog.bind(this.handleSendRequestResult_,
+      this, requestMessageContext, messageDestinations))
+
+  return promiseOfSendSuccess;
+};
+
+
+/**
+ * If the transport layer sent the message, or there are no more message
+ * destinations then return the result of the transport layer restul.  Otherwise
+ * try the next message destination.
+ *
+ * Here be dragons. {@see jssip.async.Promise#then}
+ *
+ * @param {!jssip.message.MessageContext} messageContext
+ * @param {!Array.<!jssip.sip.protocol.MessageDestination>} moreDestinations
+ * @param {boolean|!jssip.async.Promise.<boolean>} wasRequestSent I don't think
+ *     this can actually take in a Promise, and that this is only necessary to
+ *     make the compiler not bitch. See TODO below.
+ * @return {boolean|!jssip.async.Promise.<boolean>}
+ */
+jssip.sip.plugin.core.UserAgentFeature.prototype.handleSendRequestResult_ =
+    function(messageContext, moreDestinations, wasRequestSent) {
+  if (wasRequestSent instanceof jssip.async.Promise) {
+    // TODO: This was only added to stop compiler errors on the type signature
+    // of this function, with respect to how it is registered above in
+    // {@code #sendRequestToDestinations_}.  Find out if this ever happens.
+    throw Error('This should never happen');
+  }
+
+  if (wasRequestSent || !moreDestinations.length) {
+    return wasRequestSent;
+  }
+  return this.sendRequestToDestinations_(messageContext, moreDestinations);
 };
 
 
@@ -400,23 +456,6 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequestToDestinations_ =
 jssip.sip.plugin.core.UserAgentFeature.prototype.generateTag_ = function() {
   // I am arbitrarily choosing length 7!
   return this.generateHexDigest_().substring(0, 7);
-};
-
-
-/**
- * Gets a Via header.
- * @see {http://tools.ietf.org/html/rfc3261#section-8.1.1.7}
- * @return {string}
- * @private
- */
-jssip.sip.plugin.core.UserAgentFeature.prototype.generateVia_ = function() {
-  // TODO(erick): This should be overwritten by the transport plugin w/ the the
-  // correct transport protocol.
-  var viaSentBy = this.getFeatureContext().getUserAgentConfigProperty(
-      jssip.sip.UserAgent.ConfigProperty.VIA_SENT_BY);
-  var branchId = jssip.sip.protocol.rfc3261.BRANCH_ID_PREFIX + '-' +
-      this.generateHexDigest_();
-  return 'SIP/2.0/UDP ' + viaSentBy + ';branch=' + this.generateBranchId_();
 };
 
 

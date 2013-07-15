@@ -26,7 +26,10 @@ jssip.sip.protocol.feature.TransportLayer.EventType = {
  * eventual acknowledgement the request was sent or an error occurred in
  * transmission.  This does NOT indicate the response at the application (SIP)
  * level.
- * @param {!jssip.message.BuilderMessageContext} messageContext
+ * @param {!jssip.sip.protocol.MessageDestination} destination
+ * @param {!jssip.message.MessageContext} messageContext
+ * @param {string} branchId
  * @return {!jssip.async.Promise.<boolean>}
  */
-jssip.sip.protocol.feature.TransportLayer.prototype.send = goog.abstractMethod;
+jssip.sip.protocol.feature.TransportLayer.prototype.sendRequest =
+    goog.abstractMethod;
