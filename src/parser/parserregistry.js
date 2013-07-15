@@ -1,11 +1,12 @@
-goog.provide('jssip.parser.ParserRegistry');
 goog.provide('jssip.parser.NoRegisteredHeaderParserError');
 goog.provide('jssip.parser.NoRegisteredUriParserError');
+goog.provide('jssip.parser.ParserRegistry');
 
 goog.require('goog.dispose');
 goog.require('jssip.parser.ParseError');
 goog.require('jssip.parser.ParseEvent');
 goog.require('jssip.parser.Parser');
+
 
 
 /**
@@ -19,6 +20,7 @@ jssip.parser.NoRegisteredHeaderParserError = function(headerName) {
 goog.inherits(jssip.parser.NoRegisteredHeaderParserError, Error);
 
 
+
 /**
  * @param {string} scheme
  * @constructor
@@ -28,6 +30,7 @@ jssip.parser.NoRegisteredUriParserError = function(scheme) {
   this.message = 'No URI parser registered for scheme ' + scheme;
 };
 goog.inherits(jssip.parser.NoRegisteredUriParserError, Error);
+
 
 
 /**

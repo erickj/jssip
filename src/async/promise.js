@@ -47,6 +47,7 @@ goog.require('goog.async.Deferred');
 // pNum.then(fnStr);
 
 
+
 /**
  * @param {!goog.async.Deferred} deferred
  * @template T
@@ -73,7 +74,7 @@ jssip.async.Promise = function(deferred) {
  * @param {function(T):(T|jssip.async.Promise.<T>|undefined)=} opt_callBack
  * @param {function(*):(Error|undefined)=} opt_errBack
  * @template T
- * @return {!jssip.async.Promise.<T>} This promise
+ * @return {!jssip.async.Promise.<T>}
  */
 jssip.async.Promise.prototype.then = function(opt_callBack, opt_errBack) {
   var callBack = opt_callBack ?
@@ -111,7 +112,7 @@ jssip.async.Promise.prototype.then = function(opt_callBack, opt_errBack) {
  */
 jssip.async.Promise.prototype.thenBranch = function(opt_callBack, opt_errBack) {
   var errBack = opt_errBack ?
-    function() { opt_errBack.apply(goog.global, arguments); } : null;
+      function() { opt_errBack.apply(goog.global, arguments); } : null;
   var branchedDeferred = this.deferred_.branch();
   branchedDeferred.addCallbacks(opt_callBack || null, errBack);
   // Casting the return value here using the templated {R} type

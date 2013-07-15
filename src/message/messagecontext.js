@@ -1,5 +1,5 @@
-goog.provide('jssip.message.MessageContext');
 goog.provide('jssip.message.ImmutableMessageContextError');
+goog.provide('jssip.message.MessageContext');
 
 goog.require('jssip.message.HeaderImpl');
 goog.require('jssip.parser.NoRegisteredHeaderParserError');
@@ -15,6 +15,7 @@ jssip.message.ImmutableMessageContextError = function(message) {
   this.message = message;
 };
 goog.inherits(jssip.message.ImmutableMessageContextError, Error);
+
 
 
 /**
@@ -190,7 +191,7 @@ jssip.message.MessageContext.prototype.getParsedHeader = function(headerName) {
           parsedHeaderValues.push(
               this.parserRegistry_.parseHeader(headerName, headerValues[i]));
         }
-      } catch(e) {
+      } catch (e) {
         if (e instanceof jssip.parser.NoRegisteredHeaderParserError) {
           for (var i = 0; i < headerValues.length; i++) {
             parsedHeaderValues.push(new jssip.message.HeaderImpl(

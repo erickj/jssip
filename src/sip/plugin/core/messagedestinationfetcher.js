@@ -6,6 +6,7 @@ goog.require('jssip.net.ResourceRecord');
 goog.require('jssip.net.Socket');
 goog.require('jssip.sip.protocol.MessageDestination');
 goog.require('jssip.sip.protocol.header.NameAddrListHeader');
+goog.require('jssip.sip.protocol.rfc3261');
 
 
 
@@ -65,14 +66,14 @@ jssip.sip.plugin.core.MessageDestinationFetcher =
  * @const {string}
  * @private
  */
-jssip.sip.plugin.core.MessageDestinationFetcher.TPORT_PARAM = 'transport';
+jssip.sip.plugin.core.MessageDestinationFetcher.TPORT_PARAM_ = 'transport';
 
 
 /**
  * @const {!Object.<jssip.net.Socket.Type>}
  * @private
  */
-jssip.sip.plugin.core.MessageDestinationFetcher.TPORT_TO_SOCKET_MAP = {
+jssip.sip.plugin.core.MessageDestinationFetcher.TPORT_TO_SOCKET_MAP_ = {
   udp: jssip.net.Socket.Type.UDP,
   tcp: jssip.net.Socket.Type.TCP,
   tls: jssip.net.Socket.Type.TLS
@@ -95,8 +96,8 @@ jssip.sip.plugin.core.MessageDestinationFetcher.prototype.
     if (routeHeaders.length && routeHeaders[0] instanceof
         jssip.sip.protocol.header.NameAddrListHeader) {
       var nameAddr =
-        /** @type {!jssip.sip.protocol.header.NameAddrListHeader} */ (
-            routeHeaders[0]).getNameAddrList()[0];
+          /** @type {!jssip.sip.protocol.header.NameAddrListHeader} */ (
+              routeHeaders[0]).getNameAddrList()[0];
       if (nameAddr) {
         destinationUri = nameAddr.getUri();
       }
@@ -123,7 +124,7 @@ jssip.sip.plugin.core.MessageDestinationFetcher.prototype.
   var hostname = uri.getHost();
   var port = uri.getPort();
   var transport = uri.getParameter(
-      jssip.sip.plugin.core.MessageDestinationFetcher.TPORT_PARAM);
+      jssip.sip.plugin.core.MessageDestinationFetcher.TPORT_PARAM_);
   transport = goog.isString(transport) ? transport : '';
 
   var ipAddress = goog.net.IpAddress.fromString(hostname);
@@ -138,7 +139,7 @@ jssip.sip.plugin.core.MessageDestinationFetcher.prototype.
   var promiseOfResourceRecords =
       this.resolver_.lookup(hostname, jssip.net.ResourceRecord.RecordType.A);
   return promiseOfResourceRecords.thenBranch(goog.bind(
-      this.convertResourceRecordsToMessageDestinations_,this, port,
+      this.convertResourceRecordsToMessageDestinations_, this, port,
       transport));
 };
 
@@ -146,9 +147,10 @@ jssip.sip.plugin.core.MessageDestinationFetcher.prototype.
 /**
  * Builds a message destination.
  * @param {!goog.net.IpAddress} ipAddress
- * @param {number} port Port might be NaN
- * @param {string} transport Transport might be empty
+ * @param {number} port Port might be NaN.
+ * @param {string} transport Transport might be empty.
  * @return {!jssip.sip.protocol.MessageDestination}
+ * @private
  */
 jssip.sip.plugin.core.MessageDestinationFetcher.prototype.
     buildMessageDestination_ = function(ipAddress, port, transport) {
@@ -157,7 +159,7 @@ jssip.sip.plugin.core.MessageDestinationFetcher.prototype.
       this.sipContext_.getDefaultPortForTransport(transport) :
       port;
   var socketType = jssip.sip.plugin.core.MessageDestinationFetcher.
-      TPORT_TO_SOCKET_MAP[transport];
+      TPORT_TO_SOCKET_MAP_[transport];
   if (!socketType) {
     throw new Error('Unknown socket type for transport ' + transport);
   }

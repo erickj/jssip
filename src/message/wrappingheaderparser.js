@@ -5,6 +5,7 @@ goog.require('jssip.message.HeaderParser');
 goog.require('jssip.message.HeaderParserFactory');
 
 
+
 /**
  * Wraps a header parser factory.  This class is meant to be subclassed and used
  * to generate decorated headers.
@@ -69,7 +70,7 @@ jssip.message.WrappingHeaderParser.prototype.initializeHeaderName =
 
 /**
  * @param {!jssip.message.Header} header
- * @return {!jssip.message.Header} A decorated header
+ * @return {!jssip.message.Header} A decorated header.
  * @protected
  */
 jssip.message.WrappingHeaderParser.prototype.parseInternal =

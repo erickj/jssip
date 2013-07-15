@@ -90,8 +90,8 @@ jssip.message.Message = function(builder) {
     var valueList = headerMap[header];
     for (var i = 0; i < valueList.length; i++) {
       this.addRawHeader_(header, valueList[i]);
-    };
-  };
+    }
+  }
 };
 goog.inherits(jssip.message.Message, goog.Disposable);
 
@@ -186,7 +186,7 @@ jssip.message.Message.prototype.stringify = function() {
     for (var j = 0; j < headerValues.length; j++) {
       lines.push(headerName + ': ' + headerValues[j]);
     }
-  };
+  }
   lines.push('');
   lines.push(this.getBody());
 
@@ -196,6 +196,7 @@ jssip.message.Message.prototype.stringify = function() {
 
 /**
  * @return {!Array.<string>}
+ * @private
  */
 jssip.message.Message.prototype.serializeRequestParts_ = function() {
   return [this.getMethod(), this.getRequestUri(), this.getSipVersion()];
@@ -204,6 +205,7 @@ jssip.message.Message.prototype.serializeRequestParts_ = function() {
 
 /**
  * @return {!Array.<string>}
+ * @private
  */
 jssip.message.Message.prototype.serializeResponseParts_ = function() {
   return [this.getSipVersion(), this.getStatusCode(), this.getReasonPhrase()];

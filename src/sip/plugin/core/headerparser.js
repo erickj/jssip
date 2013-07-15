@@ -33,12 +33,13 @@ jssip.sip.plugin.core.HeaderParserFactoryImpl = function(eventBus) {
   for (var headerKey in jssip.sip.protocol.rfc3261.HeaderType) {
     var header = jssip.sip.protocol.rfc3261.HeaderType[headerKey];
     headerNameMap[header.toLowerCase()] = header;
-  };
+  }
+
   for (headerKey in jssip.sip.protocol.rfc3261.CompactHeaderType) {
     var shortHeader = jssip.sip.protocol.rfc3261.CompactHeaderType[headerKey];
     headerNameMap[shortHeader.toLowerCase()] =
         jssip.sip.protocol.rfc3261.HeaderType[headerKey];
-  };
+  }
 
   /** @private {!Object} */
   this.normalizedHeaderNameMap_ = headerNameMap;
