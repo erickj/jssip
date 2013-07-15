@@ -1,5 +1,6 @@
 goog.provide('jssip.testing.util.messageutil');
 
+goog.require('jssip.message.MessageContext');
 goog.require('jssip.message.MessageParser');
 goog.require('jssip.message.RawMessageContext');
 goog.require('jssip.sip.SipContext');
@@ -166,4 +167,12 @@ jssip.testing.util.messageutil.parseMessage = function(rawMessageText) {
 jssip.testing.util.messageutil.createSipContext = function() {
   return new jssip.sip.SipContext(
       new jssip.storage.SimpleMemoryStorage());
+};
+
+
+/**
+ * Creates a mock message context.
+ */
+jssip.testing.util.messageutil.createMockMessageContext = function(ctrl) {
+  return ctrl.createStrictMock(jssip.message.MessageContext);
 };

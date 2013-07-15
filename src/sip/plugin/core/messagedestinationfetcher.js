@@ -106,7 +106,7 @@ jssip.sip.plugin.core.MessageDestinationFetcher.prototype.
   // Either the message is strict routing or there were no Route headers
   if (!destinationUri) {
     destinationUri = this.parserRegistry_.parseUri(
-        requestMessageContext.getMessage().getRequestUri());
+        requestMessageContext.getRequestUri());
   }
 
   return this.fetchDestinationsForUri_(destinationUri);

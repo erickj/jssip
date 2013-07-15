@@ -39,8 +39,8 @@ jssip.testing.util.netutil.StubResolver.prototype.lookup =
     function(domain, rrtype) {
   var result = [];
   switch (rrtype) {
-    case jssip.net.ResourceRecord.ResourceType.A:
-      result = this.aRecordMap_[domain];
+    case jssip.net.ResourceRecord.RecordType.A:
+      result = this.aRecordMap_[domain] || [];
       break;
     default:
       throw new Error('Unhandled record type: ' + rrtype);
