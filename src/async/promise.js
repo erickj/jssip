@@ -59,22 +59,38 @@ jssip.async.Promise = function(deferred) {
 
 
 /**
- * NOTE: Under current behavior of the @template type, it is legal to call this
- * method with callBack({foo}) and errBack({bar}) and T becomes {foo|bar}.  This
- * is almost definitely NOT what you want.
- *
  * Adds callbacks and errbacks to this promise's deferred that will. Any errback
  * will be wrapped so that it can not change the deferred return type on error.
- * not alter the result type.
- * @param {function(T):(T|undefined)=} opt_callBack
+ * not alter the result type.  Callbacks are allowed to return a promise with a
+ * matching type signature to this promise.  The callback will be wrapped so
+ * that if a promise is returned, its deferred is returned resulting in a
+ * chained deferred.
+ *
+ * NOTE: I believe the param signature of opt_callBack confuses the compiler,
+ * for example see the hackery in
+ * jssip.sip.plugin.core.UserAgentFeature#handleSendRequestResult_
+ *
+ * @param {function(T):(T|jssip.async.Promise.<T>|undefined)=} opt_callBack
  * @param {function(*):(Error|undefined)=} opt_errBack
  * @template T
  * @return {!jssip.async.Promise.<T>} This promise
  */
 jssip.async.Promise.prototype.then = function(opt_callBack, opt_errBack) {
+  var callBack = opt_callBack ?
+      function() {
+        var res = opt_callBack.apply(goog.global, arguments);
+        if (res instanceof jssip.async.Promise) {
+          // Chains this.deferred_ on res.deferred_ and we know from the
+          // compiler that res.deferred_ also completes with a T type.
+          return res.deferred_;
+        }
+        return res;
+      } :
+      null;
+
   var errBack = opt_errBack ?
-    function() { opt_errBack.apply(goog.global, arguments); } : null;
-  this.deferred_.addCallbacks(opt_callBack || null, errBack);
+      function() { opt_errBack.apply(goog.global, arguments); } : null;
+  this.deferred_.addCallbacks(callBack, errBack);
   return this;
 };
 

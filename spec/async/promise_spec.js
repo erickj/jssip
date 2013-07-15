@@ -34,7 +34,7 @@ describe('jssip.async.Promise', function() {
   });
 
   describe('#then and #thenBranch', function() {
-    it('should register callbacks with the deferred', function() {
+    it('registers callbacks with the deferred', function() {
       promise.then(fnStrToStr);
       branchedPromise = /** @type {!jssip.async.Promise.<number>} */ (
           promise.thenBranch(fnStrToNum));
@@ -44,7 +44,7 @@ describe('jssip.async.Promise', function() {
       expect(fnStrToNum.was_called_with[0]).toBe('callback1');
     });
 
-    it('should register errbacks with the deferred that never change the ' +
+    it('registers errbacks with the deferred that never change the ' +
        'return value', function() {
       promise.then(undefined, fnStrToStr);
       branchedPromise = /** @type {!jssip.async.Promise.<number>} */ (
@@ -56,20 +56,50 @@ describe('jssip.async.Promise', function() {
     });
 
     describe('#then', function() {
-      it('should return the same promise instance', function() {
+      it('returns the same promise instance', function() {
         expect(promise.then(fnStrToStr)).toBe(promise);
+      });
+
+      it('chains promises likes deferreds', function() {
+        var deferredInner = new goog.async.Deferred();
+        var promiseInner = new jssip.async.Promise(deferredInner);
+        var promiseDidDeliver = false;
+        promiseInner.then(function(str) {
+          promiseDidDeliver = true;
+          expect(str).toBe('triggers inner deferred');
+          return 'now all done';
+        });
+
+        // Register a function that returns a promise
+        promise.then(function(str) {
+          expect(str).toBe('triggers outer deferred');
+          return promiseInner;
+        });
+
+        var nextStr;
+        promise.then(function() {
+          nextStr = arguments[0];
+        });
+
+        deferred.callback('triggers outer deferred');
+        expect(promiseDidDeliver).toBe(false);
+        expect(nextStr).toBe(undefined);
+
+        deferredInner.callback('triggers inner deferred');
+        expect(promiseDidDeliver).toBe(true);
+        expect(nextStr).toBe('now all done');
       });
     });
 
     describe('#thenBranch', function() {
-      it('should return a new promise instance', function() {
+      it('returns a new promise instance', function() {
         branchedPromise = /** @type {!jssip.async.Promise.<number>} */ (
             promise.thenBranch(fnStrToNum));
         expect(promise).not.toBe(branchedPromise);
         expect(branchedPromise).toEqual(jasmine.any(jssip.async.Promise));
       });
 
-      it('should branch the deferred', function() {
+      it('branches the deferred', function() {
         promise.then(fnStrToStr);
         branchedPromise = /** @type {!jssip.async.Promise.<number>} */ (
             promise.thenBranch(fnStrToNum));
@@ -85,7 +115,7 @@ describe('jssip.async.Promise', function() {
   });
 
   describe('.succeed', function() {
-    it('should fire callbacks immediately', function() {
+    it('fires callbacks immediately', function() {
       var successPromise = /** @type {!jssip.async.Promise.<number>} */ (
           jssip.async.Promise.succeed(42));
       var spy1 = jasmine.createSpy();
