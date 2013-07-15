@@ -205,3 +205,12 @@ jssip.message.MessageContext.prototype.getParsedHeader = function(headerName) {
   }
   return this.parsedHeaderCache_[headerName];
 };
+
+
+/**
+ * Gets the request URI.
+ * @return {string}
+ */
+jssip.message.MessageContext.prototype.getRequestUri = function() {
+  return this.getMessage().getRequestUri();
+};
