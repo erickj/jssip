@@ -6,6 +6,7 @@ goog.require('jssip.parser.ParserRegistry');
 goog.require('jssip.platform.PlatformContext');
 goog.require('jssip.plugin.FeatureContext');
 goog.require('jssip.sip.SipContext');
+goog.require('jssip.sip.protocol.feature.TransportLayer');
 goog.require('jssip.storage.SimpleMemoryStorage');
 goog.require('jssip.testing.util.netutil.StubResolver');
 
@@ -15,10 +16,11 @@ goog.require('jssip.testing.util.netutil.StubResolver');
  *     messaging.  Or a default one will be created.
  * @param {!Object=} opt_userAgentPropertyMap A map of user agent config
  *     properties and their return value.
+ * @param {!jssip.net.Resolver=} opt_resolver
  * @return {!jssip.plugin.FeatureContext}
  */
 jssip.testing.util.featureutil.createFeatureContext =
-    function(opt_eventBus, opt_userAgentPropertyMap) {
+    function(opt_eventBus, opt_userAgentPropertyMap, opt_resolver) {
   opt_eventBus = opt_eventBus || new jssip.event.EventBus();
   opt_userAgentPropertyMap = opt_userAgentPropertyMap || {};
 
@@ -27,7 +29,8 @@ jssip.testing.util.featureutil.createFeatureContext =
   var parserRegistry = new jssip.parser.ParserRegistry(messageParserFactory);
   var featureContext = new jssip.plugin.FeatureContext();
 
-  var resolver = new jssip.testing.util.netutil.StubResolver();
+  var resolver =
+      opt_resolver || new jssip.testing.util.netutil.StubResolver();
   var platformContext = new jssip.platform.PlatformContext();
   goog.mixin(platformContext, {
     getResolver: function() { return resolver; }
@@ -48,4 +51,13 @@ jssip.testing.util.featureutil.createFeatureContext =
   });
 
   return featureContext;
+};
+
+
+/**
+ * Creates a mock transport layer
+ * @return {!jssip.sip.protocol.feature.TransportLayer}
+ */
+jssip.testing.util.featureutil.createMockTransportLayer = function(ctrl) {
+  return ctrl.createLooseMock(jssip.sip.protocol.feature.TransportLayer);
 };
