@@ -77,21 +77,7 @@ jssip.async.Promise = function(deferred) {
  * @return {!jssip.async.Promise.<T>}
  */
 jssip.async.Promise.prototype.then = function(opt_callBack, opt_errBack) {
-  var callBack = opt_callBack ?
-      function() {
-        var res = opt_callBack.apply(goog.global, arguments);
-        if (res instanceof jssip.async.Promise) {
-          // Chains this.deferred_ on res.deferred_ and we know from the
-          // compiler that res.deferred_ also completes with a T type.
-          return res.deferred_;
-        }
-        return res;
-      } :
-      null;
-
-  var errBack = opt_errBack ?
-      function() { opt_errBack.apply(goog.global, arguments); } : null;
-  this.deferred_.addCallbacks(callBack, errBack);
+  this.addCallbacks_(opt_callBack, opt_errBack);
   return this;
 };
 
@@ -101,26 +87,58 @@ jssip.async.Promise.prototype.then = function(opt_callBack, opt_errBack) {
  * method with callBack({foo}) and errBack({bar}) and T becomes {foo|bar}.  This
  * is almost definitely NOT what you want.
  *
- * Creaet a new promise with result type R and branch the deferred.  Any
+ * Create a new promise with result type R and branch the deferred.  Any
  * callbacks added to this promise will continue to return type T, any callbacks
  * added to the new promise will return type R. Any errback will be wrapped so
- * that it can not change the deferred return type on error.
+ * that it can not change the deferred return type on error. Callbacks are
+ * allowed to return a promise with a matching type signature to this promise.
+ * The callback will be wrapped so that if a promise is returned, its deferred
+ * is returned resulting in a chained deferred.
  * @param {function(T):R=} opt_callBack
  * @param {function(*):(Error|undefined)=} opt_errBack
  * @template T,R
  * @return {!jssip.async.Promise.<R>} A new promise type.
  */
 jssip.async.Promise.prototype.thenBranch = function(opt_callBack, opt_errBack) {
-  var errBack = opt_errBack ?
-      function() { opt_errBack.apply(goog.global, arguments); } : null;
   var branchedDeferred = this.deferred_.branch();
-  branchedDeferred.addCallbacks(opt_callBack || null, errBack);
+  this.addCallbacks_(opt_callBack, opt_errBack, branchedDeferred);
   // Casting the return value here using the templated {R} type
   // results in a "Bad type annotation" compiler error.  The callers
   // will always need to cast the promise explicitly.
   return new jssip.async.Promise(branchedDeferred);
 };
 
+
+/**
+ * Adds the callback and errback to this deferred.  Any callbacks may return a
+ * jssip.async.Promise which will chain this Promise's deferred on the new
+ * Promise's deferred.  All errbacks are wrapped so that they may not change the
+ * deferred result type.
+ * @param {!Function=} opt_callback
+ * @param {!Function=} opt_errback
+ * @param {!goog.async.Deferred=} opt_deferred
+ * @private
+ */
+jssip.async.Promise.prototype.addCallbacks_ =
+    function(opt_callback, opt_errback, opt_deferred) {
+  var callback = opt_callback ?
+      function() {
+        var res = opt_callback.apply(goog.global, arguments);
+        if (res instanceof jssip.async.Promise) {
+          // Chains this.deferred_ on res.deferred_ and we know from the
+          // compiler that res.deferred_ also completes with a T type.
+          return res.deferred_;
+        }
+        return res;
+      } :
+      null;
+
+  var errback = opt_errback ?
+      function() { opt_errback.apply(goog.global, arguments); } : null;
+
+  var deferred = opt_deferred || this.deferred_;
+  deferred.addCallbacks(callback, errback);
+};
 
 /**
  * Create a promise that always succeeds
