@@ -109,3 +109,10 @@ jssip.sip.protocol.ViaParm.prototype.equals = function(o) {
       this.port_ == otherViaParm.port_ &&
       this.params_.equals(otherViaParm.params_);
 };
+
+
+/** @return {string} */
+jssip.sip.protocol.ViaParm.prototype.stringify = function() {
+  return [this.protocol_, '/', this.version_, '/', this.transport_,
+    ' ', this.getHostPort(), this.params_.stringify()].join('');
+};

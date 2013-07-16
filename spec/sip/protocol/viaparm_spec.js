@@ -126,4 +126,11 @@ describe('jssip.sip.protocol.ViaParm', function() {
       expect(viaParm2.equals(viaParm)).toBe(false);
     });
   });
+
+  describe('#stringify', function() {
+    it('returns a Via header string value', function() {
+      expect(viaParm.stringify()).toBe('SIP/2.0/UDP magical.mystery.tour:4242' +
+          ';received=1.2.3.4;ttl=10;branch=limb;maddr=4.3.2.1')
+    });
+  });
 });
