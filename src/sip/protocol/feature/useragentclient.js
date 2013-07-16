@@ -17,7 +17,8 @@ jssip.sip.protocol.feature.UserAgentClient.TYPE = 'feature-useragentclient';
 /** @enum {string} */
 jssip.sip.protocol.feature.UserAgentClient.EventType = {
   CREATE_REQUEST: 'uac-create-request',
-  RECEIVE_RESPONSE: 'uac-receive-response'
+  RECEIVE_RESPONSE: 'uac-receive-response',
+  SENT_REQUEST: 'uac-sent-request'
 };
 
 

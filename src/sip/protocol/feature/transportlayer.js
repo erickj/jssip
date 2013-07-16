@@ -29,7 +29,7 @@ jssip.sip.protocol.feature.TransportLayer.EventType = {
  * @param {!jssip.sip.protocol.MessageDestination} destination
  * @param {!jssip.message.MessageContext} messageContext
  * @param {string} branchId
- * @return {!jssip.async.Promise.<boolean>}
+ * @return {!jssip.async.Promise.<!jssip.sip.event.TransportInfo>}
  */
 jssip.sip.protocol.feature.TransportLayer.prototype.sendRequest =
     goog.abstractMethod;

@@ -78,7 +78,11 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.onActivated = function() {
           this.getPlatformContext().getResolver(),
           this.getSipContext(),
           this.getFeatureContext().getParserRegistry());
+};
 
+
+/** @override */
+jssip.sip.plugin.core.UserAgentFeature.prototype.afterActivated = function() {
   this.transportLayer_ =
     /** @type {!jssip.sip.protocol.feature.TransportLayer} */ (
         this.getFeatureContext().getFacadeByType(
@@ -406,12 +410,14 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequestToDestinations_ =
     throw new Error('No destination for request');
   }
 
-  var promiseOfSendSuccess = this.transportLayer_.sendRequest(
-      destination, requestMessageContext, this.generateBranchId_());
+  var branchId = this.generateBranchId_();
+  var promiseOfTransportInfo = this.transportLayer_.sendRequest(
+      destination, requestMessageContext, branchId);
   // Attaches a handler to keep trying message destinations until the send is
   // successful or there are no more destinations.
-  promiseOfSendSuccess.then(goog.bind(this.handleSendRequestResult_,
-      this, requestMessageContext, messageDestinations))
+  var promiseOfSendSuccess = /** @type {!jssip.async.Promise.<boolean>} */ (
+      promiseOfTransportInfo.thenBranch(goog.bind(this.handleSendRequestResult_,
+          this, requestMessageContext, messageDestinations)));
 
   return promiseOfSendSuccess;
 };
@@ -419,29 +425,39 @@ jssip.sip.plugin.core.UserAgentFeature.prototype.sendRequestToDestinations_ =
 
 /**
  * If the transport layer sent the message, or there are no more message
- * destinations then return the result of the transport layer restul.  Otherwise
+ * destinations then return the result of the transport layer result.  Otherwise
  * try the next message destination.
+ *
+ * If the message was sent emits SENT_REQUEST event.
  *
  * Here be dragons. {@see jssip.async.Promise#then}
  *
  * @param {!jssip.message.MessageContext} messageContext
  * @param {!Array.<!jssip.sip.protocol.MessageDestination>} moreDestinations
- * @param {boolean|!jssip.async.Promise.<boolean>} wasRequestSent I don't think
+ * @param {!jssip.sip.event.TransportInfo} transportInfo
+ *     wasRequestSent I don't think
  *     this can actually take in a Promise, and that this is only necessary to
  *     make the compiler not bitch. See TODO below.
  * @return {boolean|!jssip.async.Promise.<boolean>}
  */
 jssip.sip.plugin.core.UserAgentFeature.prototype.handleSendRequestResult_ =
-    function(messageContext, moreDestinations, wasRequestSent) {
-  if (wasRequestSent instanceof jssip.async.Promise) {
+    function(messageContext, moreDestinations, transportInfo) {
+  if (transportInfo instanceof jssip.async.Promise) {
     // TODO: This was only added to stop compiler errors on the type signature
     // of this function, with respect to how it is registered above in
     // {@code #sendRequestToDestinations_}.  Find out if this ever happens.
     throw Error('This should never happen');
   }
 
-  if (wasRequestSent || !moreDestinations.length) {
-    return wasRequestSent;
+  if (transportInfo.wasSent || !moreDestinations.length) {
+    if (transportInfo.wasSent) {
+      messageContext.setHeader(jssip.sip.protocol.rfc3261.HeaderType.VIA,
+          transportInfo.viaParm.stringify(), true /* opt_overwrite */);
+      this.dispatchEvent(this.createEvent_(messageContext,
+          jssip.sip.protocol.feature.UserAgentClient.EventType.SENT_REQUEST));
+    }
+
+    return transportInfo.wasSent;
   }
   return this.sendRequestToDestinations_(messageContext, moreDestinations);
 };
