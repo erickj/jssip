@@ -122,6 +122,12 @@ jssip.plugin.AbstractFeature.prototype.onActivated = goog.nullFunction;
 
 
 /**
+ * Hook for subclasses to perform internal setup after activation.
+ */
+jssip.plugin.AbstractFeature.prototype.afterActivated = goog.nullFunction;
+
+
+/**
  * This protected getter is used during activation to register the header parser
  * factory that this feature provides.  It should not be called until activation
  * so that implementors have a handle on the feature context, and thus the event

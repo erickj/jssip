@@ -168,5 +168,12 @@ jssip.plugin.FeatureContextImpl.prototype.finalize = function() {
     goog.asserts.assert(this.featureTypeMap_[types[i]],
         'No feature registered for type ' + types[i]);
   }
+
+  for (var type in this.featureTypeMap_) {
+    if (this.featureTypeMap_[type].isActive()) {
+      this.featureTypeMap_[type].afterActivated();
+    }
+  }
+
   this.finalized_ = true;
 };
