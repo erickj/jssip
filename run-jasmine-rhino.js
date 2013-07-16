@@ -2,6 +2,7 @@ load('lib/envjs/env.rhino.1.2.js');
 load('lib/jasmine-1.3.1/jasmine.js');
 load('lib/jasmine-1.3.1/jasmine-html.js');
 load('jasmine-console-runner.js');
+load('spec_helper.js');
 
 var dir = 'build/test_out/rhino';
 load(dir + '/AllRhinoSpecs.rhino.js');
