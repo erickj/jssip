@@ -8,7 +8,7 @@ goog.require('jssip.net.Socket');
 goog.require('jssip.plugin.AbstractFeature');
 goog.require('jssip.plugin.FeatureFacade');
 goog.require('jssip.sip.plugin.transport.pluginfeature');
-goog.require('jssip.sip.protocol.LookupResult');
+goog.require('jssip.sip.protocol.MessageDestination');
 goog.require('jssip.sip.protocol.feature.TransportLayer');
 goog.require('jssip.sip.protocol.rfc3261');
 goog.require('jssip.uri.Uri');
@@ -66,11 +66,11 @@ jssip.sip.plugin.transport.TransportLayerFeature.DefaultPort = {
 jssip.sip.plugin.transport.TransportLayerFeature.prototype.send =
     function(messageContext) {
   var destinationUri = this.getUriDestinationForMessage_(messageContext);
-  var promiseWithLookupResults =
-      /** @type {!jssip.async.Promise.<!Array.<!jssip.sip.protocol.LookupResult>>} */ (
+  var promiseWithMessageDestinations =
+      /** @type {!jssip.async.Promise.<!Array.<!jssip.sip.protocol.MessageDestination>>} */ (
           this.locateSipServerForUri_(destinationUri));
-  return promiseWithLookupResults.thenBranch(
-      goog.bind(this.handleLookupResults_, this, messageContext));
+  return promiseWithMessageDestinations.thenBranch(
+      goog.bind(this.handleMessageDestinations_, this, messageContext));
 };
 
 
@@ -78,7 +78,7 @@ jssip.sip.plugin.transport.TransportLayerFeature.prototype.send =
  * Gets the currently registered ServerLocate feature and calls
  * {@code locateSipServerForUri}.
  * @param {!jssip.uri.Uri} uri
- * @return {!jssip.async.Promise.<!Array.<!jssip.sip.protocol.LookupResult>>}
+ * @return {!jssip.async.Promise.<!Array.<!jssip.sip.protocol.MessageDestination>>}
  * @private
  */
 jssip.sip.plugin.transport.TransportLayerFeature.prototype.
@@ -93,12 +93,12 @@ jssip.sip.plugin.transport.TransportLayerFeature.prototype.
 
 /**
  * @param {!jssip.message.BuilderMessageContext} messageContext
- * @param {!Array.<!jssip.sip.protocol.LookupResult>} lookupResults
+ * @param {!Array.<!jssip.sip.protocol.MessageDestination>} lookupResults
  * @return {boolean}
  * @private
  */
 jssip.sip.plugin.transport.TransportLayerFeature.prototype.
-    handleLookupResults_ = function(messageContext, lookupResults) {
+    handleMessageDestinations_ = function(messageContext, lookupResults) {
   var lookupResult = lookupResults.shift();
   if (lookupResult) {
     var socket = this.socketFactoryRegistry_.createSocket(
